@@ -1,5 +1,5 @@
 {
-  "name": "@terran-one/cw-simulate",
+  "name": "@oraichain/cw-simulate",
   "version": "1.1.2",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
   "main": "dist/bundle.node.js",
