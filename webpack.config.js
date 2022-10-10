@@ -83,4 +83,10 @@ const nodeConfig = {
   },
 };
 
-module.exports = [webConfig, nodeConfig];
+module.exports = (env, args) => {
+  if (args.target[0] === 'web') {
+    return webConfig;
+  }
+
+  return nodeConfig;
+};

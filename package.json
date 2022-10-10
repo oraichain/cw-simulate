@@ -2,7 +2,7 @@
   "name": "@terran-one/cw-simulate",
   "version": "1.1.2",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
-  "main": "dist/index.js",
+  "main": "dist/bundle.node.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -35,7 +35,7 @@
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/crypto": "^0.28.13",
     "@cosmjs/encoding": "^0.28.13",
-    "@terran-one/cosmwasm-vm-js": "^0.1.18",
+    "@oraichain/cosmwasm-vm-js": "https://github.com/oraichain/cosmwasm-vm-js.git#multiwasm",
     "@types/lodash": "^4.14.184",
     "lobyte": "^0.0.3",
     "lodash": "^4.17.21"

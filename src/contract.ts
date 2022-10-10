@@ -5,16 +5,13 @@ import {
   IBackend,
   IIterStorage,
   VMInstance,
-} from '@terran-one/cosmwasm-vm-js';
+} from '@oraichain/cosmwasm-vm-js';
 
 import { CWChain } from './chain';
 import { cloneDeep } from 'lodash';
 
 export class CWContractCode {
-  constructor(
-    public codeId: number,
-    public wasmBytecode: Buffer
-  ) {}
+  constructor(public codeId: number, public wasmBytecode: Buffer) {}
 }
 
 export interface Env {
@@ -40,8 +37,8 @@ export interface MsgInfo {
 
 export type ExecutionHistoryRecord = {
   request: {
-    env: Env,
-    info: MsgInfo,
+    env: Env;
+    info: MsgInfo;
   } & (
     | {
         instantiateMsg: any;
@@ -52,7 +49,7 @@ export type ExecutionHistoryRecord = {
   );
   response: any;
   state: IIterStorage;
-}
+};
 
 export class CWContractInstance {
   public vm: VMInstance;
