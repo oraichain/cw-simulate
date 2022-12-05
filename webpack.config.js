@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const path = require('path');
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -22,7 +23,9 @@ const commonConfig = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-    plugins: [new TsconfigPathsPlugin()],
+    plugins: [
+      new TsconfigPathsPlugin({ baseUrl: path.resolve(__dirname, '.') }),
+    ],
   },
   plugins: [
     new webpack.IgnorePlugin({
@@ -30,6 +33,9 @@ const commonConfig = {
         /wordlists\/(french|spanish|italian|korean|chinese_simplified|chinese_traditional|japanese)\.json$/,
     }),
   ],
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };
 
 const webConfig = {

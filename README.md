@@ -7,6 +7,7 @@ they are hosted.
 To build cosmwasm-vm-js, you need to go to `node_modules/@terran-one/cosmwasm-vm-js` then manually build it
 
 ```bash
+# to run test, you need to build wasm with --target nodejs
 yarn && yarn build
 mkdir -p dist/wasm/zk && cp -r src/wasm/zk/pkg dist/wasm/zk/
 ```
