@@ -18,14 +18,10 @@ const commonConfig = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
-      {
-        test: /\.wasm$/,
-        type: 'asset/inline',
-      },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.wasm'],
+    extensions: ['.tsx', '.ts', '.js'],
     plugins: [
       new TsconfigPathsPlugin({ baseUrl: path.resolve(__dirname, '.') }),
     ],
@@ -68,11 +64,6 @@ const webConfig = {
     }),
     // new BundleAnalyzerPlugin(),
   ],
-  performance: {
-    hints: false,
-    maxEntrypointSize: 512000,
-    maxAssetSize: 512000,
-  },
   optimization: {
     minimize: true,
   },
