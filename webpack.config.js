@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -19,10 +18,14 @@ const commonConfig = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.wasm$/,
+        type: 'asset/inline',
+      },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.wasm'],
     plugins: [
       new TsconfigPathsPlugin({ baseUrl: path.resolve(__dirname, '.') }),
     ],
@@ -33,9 +36,6 @@ const commonConfig = {
         /wordlists\/(french|spanish|italian|korean|chinese_simplified|chinese_traditional|japanese)\.json$/,
     }),
   ],
-  experiments: {
-    asyncWebAssembly: true,
-  },
 };
 
 const webConfig = {
@@ -68,15 +68,13 @@ const webConfig = {
     }),
     // new BundleAnalyzerPlugin(),
   ],
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
+  },
   optimization: {
     minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-        },
-      }),
-    ],
   },
 };
 
