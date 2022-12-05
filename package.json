@@ -39,7 +39,7 @@
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/crypto": "^0.28.13",
     "@cosmjs/encoding": "^0.28.13",
-    "@terran-one/cosmwasm-vm-js": "^0.2.16",
+    "@terran-one/cosmwasm-vm-js": "https://github.com/oraichain/cosmwasm-vm-js.git",
     "immutable": "^4.1.0",
     "lobyte": "^0.0.3",
     "lodash": "^4.17.21",
