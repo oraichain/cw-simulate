@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import { Result } from 'ts-results';
+import type { NEVER_IMMUTIFY } from './store/transactional';
 
 export interface ContractResponse {
   messages: SubMsg[];
@@ -117,7 +118,10 @@ type CallDebugLog<T extends keyof CosmWasmAPI = keyof CosmWasmAPI> = {
   [K in T]: { fn: K } & CosmWasmAPI[K];
 }>;
 
+export type Snapshot = Immutable.Map<unknown, unknown>;
+
 interface TraceLogCommon {
+  [NEVER_IMMUTIFY]: true;
   type: string;
   contractAddress: string;
   env: ExecuteEnv;
@@ -125,7 +129,7 @@ interface TraceLogCommon {
   response: RustResult<ContractResponse>;
   logs: DebugLog[];
   trace?: TraceLog[];
-  storeSnapshot: Immutable.Map<string, any>;
+  storeSnapshot: Snapshot;
   result: Result<AppResponse, string>;
 }
 
