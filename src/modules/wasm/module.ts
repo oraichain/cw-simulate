@@ -2,7 +2,11 @@ import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
 import { Err, Ok, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
-import { NEVER_IMMUTIFY, Transactional, TransactionalLens } from '../../store/transactional';
+import {
+  NEVER_IMMUTIFY,
+  Transactional,
+  TransactionalLens,
+} from '../../store/transactional';
 import {
   AppResponse,
   Binary,
@@ -32,7 +36,7 @@ type WasmData = {
   codes: Record<number, CodeInfo>;
   contracts: Record<string, ContractInfo>;
   contractStorage: Record<string, Record<string, string>>;
-}
+};
 
 export interface Execute {
   contract_addr: string;
@@ -62,9 +66,7 @@ export interface ContractInfoQuery {
   contract_addr: string;
 }
 
-export type WasmMsg =
-  | { execute: Execute }
-  | { instantiate: Instantiate };
+export type WasmMsg = { execute: Execute } | { instantiate: Instantiate };
 
 export type WasmQuery =
   | { smart: SmartQuery }
@@ -73,7 +75,7 @@ export type WasmQuery =
 
 export class WasmModule {
   public readonly store: TransactionalLens<WasmData>;
-  
+
   // TODO: benchmark w/ many coexisting VMs
   private contracts: Record<string, Contract> = {};
 
@@ -108,7 +110,7 @@ export class WasmModule {
   getCodeInfo(codeId: number, storage?: Snapshot) {
     const lens = this.lens(storage).lens('codes', codeId);
     if (!lens) return;
-    
+
     const codeInfo: CodeInfo = {
       creator: lens.get('creator'),
       wasmCode: new Uint8Array(lens.get('wasmCode')),
@@ -173,7 +175,12 @@ export class WasmModule {
   }
 
   /** Register a new contract instance from codeId */
-  protected registerContractInstance(sender: string, codeId: number, label = '', admin: string | null = null): Result<string, string> {
+  protected registerContractInstance(
+    sender: string,
+    codeId: number,
+    label = '',
+    admin: string | null = null
+  ): Result<string, string> {
     return this.store.tx(setter => {
       const contractAddressHash = buildContractAddress(
         codeId,
@@ -206,14 +213,18 @@ export class WasmModule {
     funds: Coin[],
     codeId: number,
     instantiateMsg: any,
-    label:string,
+    label: string,
     trace: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
-      const contractAddress = this.registerContractInstance(sender, codeId, label).unwrap();
+      const contractAddress = this.registerContractInstance(
+        sender,
+        codeId,
+        label
+      ).unwrap();
       let logs = [] as DebugLog[];
-      
+
       const contract = await this.getContract(contractAddress).init();
       const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
         [NEVER_IMMUTIFY]: true,
@@ -224,7 +235,7 @@ export class WasmModule {
         logs,
         env: contract.getExecutionEnv(),
         storeSnapshot: this.store.db.data,
-      }
+      };
 
       const send = this.chain.bank.send(sender, contract.address, funds);
       if (send.err) {
@@ -237,12 +248,7 @@ export class WasmModule {
       }
 
       // then call instantiate
-      let response = contract.instantiate(
-        sender,
-        funds,
-        instantiateMsg,
-        logs
-      );
+      let response = contract.instantiate(sender, funds, instantiateMsg, logs);
 
       if (response.err) {
         trace.push({
@@ -251,8 +257,7 @@ export class WasmModule {
           result: response,
         });
         return response;
-      }
-      else {
+      } else {
         let customEvent: Event = {
           type: 'instantiate',
           attributes: [
@@ -260,11 +265,12 @@ export class WasmModule {
             { key: 'code_id', value: codeId.toString() },
           ],
         };
-        let res = buildAppResponse(
-          contractAddress,
-          customEvent,
-          response.val,
-        );
+
+        if (typeof response.val === 'string') {
+          throw new Error(response.val);
+        }
+
+        let res = buildAppResponse(contractAddress, customEvent, response.val);
 
         let subtrace: TraceLog[] = [];
 
@@ -299,7 +305,7 @@ export class WasmModule {
     return await this.chain.pushBlock(async () => {
       const contract = await this.getContract(contractAddress).init();
       const logs: DebugLog[] = [];
-      
+
       const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
         [NEVER_IMMUTIFY]: true,
         type: 'execute',
@@ -309,7 +315,7 @@ export class WasmModule {
         env: contract.getExecutionEnv(),
         info: { sender, funds },
         storeSnapshot: this.store.db.data,
-      }
+      };
 
       const send = this.chain.bank.send(sender, contractAddress, funds);
       if (send.err) {
@@ -321,13 +327,8 @@ export class WasmModule {
         return send;
       }
 
-      const response = contract.execute(
-        sender,
-        funds,
-        executeMsg,
-        logs
-      );
-      
+      const response = contract.execute(sender, funds, executeMsg, logs);
+
       if (response.err) {
         trace.push({
           ...tracebase,
@@ -335,8 +336,7 @@ export class WasmModule {
           result: response,
         });
         return response;
-      }
-      else {
+      } else {
         let customEvent = {
           type: 'execute',
           attributes: [
@@ -346,13 +346,13 @@ export class WasmModule {
             },
           ],
         };
-        
-        let res = buildAppResponse(
-          contractAddress,
-          customEvent,
-          response.val,
-        );
-        
+
+        if (typeof response.val === 'string') {
+          throw new Error(response.val);
+        }
+
+        let res = buildAppResponse(contractAddress, customEvent, response.val);
+
         let subtrace: TraceLog[] = [];
         let result = await this.handleContractResponse(
           contractAddress,
@@ -360,7 +360,7 @@ export class WasmModule {
           res,
           subtrace
         );
-        
+
         trace.push({
           ...tracebase,
           response,
@@ -368,7 +368,7 @@ export class WasmModule {
           trace: subtrace,
           storeSnapshot: this.store.db.data,
         });
-        
+
         return result;
       }
     });
@@ -385,8 +385,10 @@ export class WasmModule {
       const subres = await this.handleSubmsg(contractAddress, message, trace);
       if (subres.err) {
         return subres;
-      }
-      else {
+      } else {
+        if (typeof subres.val === 'string') {
+          throw new Error(subres.val);
+        }
         res.events = [...res.events, ...subres.val.events];
         if (subres.val.data !== null) {
           res.data = subres.val.data;
@@ -406,11 +408,11 @@ export class WasmModule {
     return this.store.tx(async () => {
       let { id, msg, gas_limit, reply_on } = message;
       let r = await this.chain.handleMsg(contractAddress, msg, trace);
-      
+
       if (r.ok) {
         // submessage success
         let { events, data } = r.val;
-        
+
         if (reply_on === ReplyOn.Success || reply_on === ReplyOn.Always) {
           // submessage success, call reply
           let replyMsg: ReplyMsg = {
@@ -422,50 +424,49 @@ export class WasmModule {
               },
             },
           };
-          
+
           let replyRes = await this.reply(contractAddress, replyMsg, trace);
           if (replyRes.err) {
             // submessage success, call reply, reply failed
             return replyRes;
-          }
-          else {
+          } else {
+            if (typeof replyRes.val === 'string') {
+              throw new Error(replyRes.val);
+            }
+
             // submessage success, call reply, reply success
             if (replyRes.val.data !== null) {
               data = replyRes.val.data;
             }
             events = [...events, ...replyRes.val.events];
           }
-        }
-        else {
+        } else {
           // submessage success, don't call reply
           data = null;
         }
-        
+
         return Ok({ events, data });
-      }
-      else {
+      } else {
         // submessage failed
         if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
           // submessage failed, call reply
           let replyMsg: ReplyMsg = {
             id,
             result: {
-              error: r.val,
+              error: r.val as string,
             },
           };
-          
+
           let replyRes = await this.reply(contractAddress, replyMsg, trace);
           if (replyRes.err) {
             // submessage failed, call reply, reply failed
             return replyRes;
-          }
-          else {
+          } else {
             // submessage failed, call reply, reply success
-            let { events, data } = replyRes.val;
+            let { events, data } = replyRes.val as AppResponse;
             return Ok({ events, data });
           }
-        }
-        else {
+        } else {
           // submessage failed, don't call reply (equivalent to normal message)
           return r;
         }
@@ -481,7 +482,7 @@ export class WasmModule {
     const logs: DebugLog[] = [];
     const contract = this.getContract(contractAddress);
     const response = contract.reply(replyMsg, logs);
-    
+
     const tracebase: Omit<ReplyTraceLog, 'response' | 'result'> = {
       [NEVER_IMMUTIFY]: true,
       type: 'reply',
@@ -490,8 +491,8 @@ export class WasmModule {
       env: contract.getExecutionEnv(),
       logs,
       storeSnapshot: this.store.db.data,
-    }
-    
+    };
+
     if (response.err) {
       trace.push({
         ...tracebase,
@@ -499,8 +500,7 @@ export class WasmModule {
         result: response,
       });
       return response;
-    }
-    else {
+    } else {
       const customEvent = {
         type: 'reply',
         attributes: [
@@ -515,45 +515,42 @@ export class WasmModule {
           },
         ],
       };
-      
-      let res = buildAppResponse(
-        contractAddress,
-        customEvent,
-        response.val,
-      );
-      
+
+      if (typeof response.val === 'string') {
+        throw new Error(response.val);
+      }
+
+      let res = buildAppResponse(contractAddress, customEvent, response.val);
+
       let subtrace: TraceLog[] = [];
       let result = await this.handleContractResponse(
         contractAddress,
         response.val.messages,
         res,
-        subtrace,
+        subtrace
       );
-      
+
       trace.push({
         ...tracebase,
         response,
         result,
         storeSnapshot: this.store.db.data,
       });
-      
+
       return result;
     }
   }
 
-  query(
-    contractAddress: string,
-    queryMsg: any
-  ): Result<any, string> {
+  query(contractAddress: string, queryMsg: any): Result<any, string> {
     return this.getContract(contractAddress).query(queryMsg);
   }
-  
-  queryTrace(
-    trace: TraceLog,
-    queryMsg: any,
-  ): Result<any, string> {
+
+  queryTrace(trace: TraceLog, queryMsg: any): Result<any, string> {
     let { contractAddress, storeSnapshot } = trace;
-    return this.getContract(contractAddress).query(queryMsg, storeSnapshot as Map<string, string>);
+    return this.getContract(contractAddress).query(
+      queryMsg,
+      storeSnapshot as Map<string, string>
+    );
   }
 
   async handleMsg(
@@ -572,19 +569,17 @@ export class WasmModule {
           fromBinary(msg),
           trace
         );
-      }
-      else if ('instantiate' in wasm) {
-        let { code_id, funds, msg, label} = wasm.instantiate;
+      } else if ('instantiate' in wasm) {
+        let { code_id, funds, msg, label } = wasm.instantiate;
         return await this.instantiateContract(
           sender,
           funds,
           code_id,
           fromBinary(msg),
           label,
-          trace,
+          trace
         );
-      }
-      else {
+      } else {
         throw new Error('Unknown wasm message');
       }
     });
@@ -593,33 +588,27 @@ export class WasmModule {
   handleQuery(query: WasmQuery): Result<Binary, string> {
     if ('smart' in query) {
       const { contract_addr, msg } = query.smart;
-      return Ok(
-        toBinary(this.query(contract_addr, fromBinary(msg)))
-      );
-    }
-    else if ('raw' in query) {
+      return Ok(toBinary(this.query(contract_addr, fromBinary(msg))));
+    } else if ('raw' in query) {
       const { contract_addr, key } = query.raw;
-      
+
       const storage = this.getContractStorage(contract_addr);
       if (!storage) {
         return Err(`Contract ${contract_addr} not found`);
       }
-      
+
       const value = storage.get(key);
       if (value === undefined) {
         return Err(`Key ${key} not found`);
-      }
-      else {
+      } else {
         return Ok(value);
       }
-    }
-    else if ('contract_info' in query) {
+    } else if ('contract_info' in query) {
       const { contract_addr } = query.contract_info;
       const info = this.getContractInfo(contract_addr);
       if (info === undefined) {
         return Err(`Contract ${contract_addr} not found`);
-      }
-      else {
+      } else {
         const { codeId: code_id, creator, admin } = info;
         const resp: ContractInfoResponse = {
           code_id,
@@ -630,20 +619,22 @@ export class WasmModule {
           // currently all VMs are always loaded ie pinned
           pinned: true,
         };
-        
+
         return Ok(toBinary(resp));
       }
-    }
-    else {
+    } else {
       return Err('Unknown wasm query');
     }
   }
-  
+
   private lens(storage?: Snapshot) {
     return storage ? lensFromSnapshot(storage) : this.store;
   }
-  
-  protected pushTrace(traces: TraceLog[], details: Omit<TraceLog, typeof NEVER_IMMUTIFY | 'env'>) {
+
+  protected pushTrace(
+    traces: TraceLog[],
+    details: Omit<TraceLog, typeof NEVER_IMMUTIFY | 'env'>
+  ) {
     //@ts-ignore
     traces.push({
       [NEVER_IMMUTIFY]: true,
@@ -651,9 +642,13 @@ export class WasmModule {
       env: this.getExecutionEnv(details.contractAddress),
     });
   }
-  
-  get lastCodeId() { return this.store.get('lastCodeId') }
-  get lastInstanceId() { return this.store.get('lastInstanceId') }
+
+  get lastCodeId() {
+    return this.store.get('lastCodeId');
+  }
+  get lastInstanceId() {
+    return this.store.get('lastInstanceId');
+  }
 }
 
 export function lensFromSnapshot(snapshot: Snapshot) {
