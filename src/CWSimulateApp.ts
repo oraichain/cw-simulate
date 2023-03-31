@@ -1,4 +1,4 @@
-import { QuerierBase } from '@terran-one/cosmwasm-vm-js';
+import { QuerierBase } from '@terran-one/cosmwasm-vm-js/src/backend';
 import { Err, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
@@ -13,7 +13,7 @@ export interface CWSimulateAppOptions {
 export type ChainData = {
   height: number;
   time: number;
-}
+};
 
 export class CWSimulateApp {
   public chainId: string;
@@ -51,10 +51,14 @@ export class CWSimulateApp {
       return Err(`unknown message: ${JSON.stringify(msg)}`);
     }
   }
-  
+
   public pushBlock<T>(callback: () => Result<T, string>): Result<T, string>;
-  public pushBlock<T>(callback: () => Promise<Result<T, string>>): Promise<Result<T, string>>;
-  public pushBlock<T>(callback: () => Result<T, string> | Promise<Result<T, string>>): Result<T, string> | Promise<Result<T, string>> {
+  public pushBlock<T>(
+    callback: () => Promise<Result<T, string>>
+  ): Promise<Result<T, string>>;
+  public pushBlock<T>(
+    callback: () => Result<T, string> | Promise<Result<T, string>>
+  ): Result<T, string> | Promise<Result<T, string>> {
     //@ts-ignore
     return this.store.tx(setter => {
       setter('height')(this.height + 1);
@@ -62,14 +66,16 @@ export class CWSimulateApp {
       return callback();
     });
   }
-  
-  get height() { return this.store.get('height') }
-  get time() { return this.store.get('time') }
+
+  get height() {
+    return this.store.get('height');
+  }
+  get time() {
+    return this.store.get('time');
+  }
 }
 
-export type QueryMessage =
-  | { bank: BankQuery }
-  | { wasm: WasmQuery };
+export type QueryMessage = { bank: BankQuery } | { wasm: WasmQuery };
 
 export class Querier extends QuerierBase {
   constructor(public readonly app: CWSimulateApp) {
