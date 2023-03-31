@@ -1,4 +1,4 @@
-import { VMInstance, Region, IBackend } from '@terran-one/cosmwasm-vm-js/src';
+import { VMInstance, Region, IBackend } from '@terran-one/cosmwasm-vm-js';
 import { DebugLog } from '../types';
 
 export class CWSimulateVMInstance extends VMInstance {

@@ -2,7 +2,7 @@ import {
   BasicBackendApi,
   BasicKVIterStorage,
   IBackend,
-} from '@terran-one/cosmwasm-vm-js/src';
+} from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
