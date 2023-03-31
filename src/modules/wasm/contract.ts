@@ -1,28 +1,36 @@
-import { BasicBackendApi, BasicKVIterStorage, IBackend } from "@terran-one/cosmwasm-vm-js";
-import { Map } from "immutable";
-import { Ok, Result } from "ts-results";
-import { CWSimulateVMInstance } from "../../instrumentation/CWSimulateVMInstance";
-import { Coin, ContractResponse, DebugLog, ReplyMsg, Snapshot } from "../../types";
-import { fromBinary, fromRustResult } from "../../util";
-import type { WasmModule } from "./module";
+import {
+  BasicBackendApi,
+  BasicKVIterStorage,
+  IBackend,
+} from '@terran-one/cosmwasm-vm-js/src';
+import { Map } from 'immutable';
+import { Ok, Result } from 'ts-results';
+import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
+import {
+  Coin,
+  ContractResponse,
+  DebugLog,
+  ReplyMsg,
+  Snapshot,
+} from '../../types';
+import { fromBinary, fromRustResult } from '../../util';
+import type { WasmModule } from './module';
 
 /** An interface to interact with CW SCs */
 export default class Contract {
   private _vm: CWSimulateVMInstance | undefined;
-  
+
   constructor(private _wasm: WasmModule, public readonly address: string) {}
-  
+
   async init() {
     if (!this._vm) {
       const { _wasm: wasm, address } = this;
       const contractInfo = wasm.getContractInfo(address);
-      if (!contractInfo)
-        throw new Error(`contract ${address} not found`);
+      if (!contractInfo) throw new Error(`contract ${address} not found`);
 
       const { codeId } = contractInfo;
       const codeInfo = wasm.getCodeInfo(codeId);
-      if (!codeInfo)
-        throw new Error(`code ${codeId} not found`);
+      if (!codeInfo) throw new Error(`code ${codeId} not found`);
 
       const { wasmCode } = codeInfo;
       const contractState = this.getStorage();
@@ -43,7 +51,7 @@ export default class Contract {
     }
     return this;
   }
-  
+
   instantiate(
     sender: string,
     funds: Coin[],
@@ -55,7 +63,9 @@ export default class Contract {
     const env = this.getExecutionEnv();
     const info = { sender, funds };
 
-    const res = fromRustResult<ContractResponse>(vm.instantiate(env, info, instantiateMsg).json);
+    const res = fromRustResult<ContractResponse>(
+      vm.instantiate(env, info, instantiateMsg).json
+    );
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
@@ -63,14 +73,13 @@ export default class Contract {
 
     return res;
   }
-  
+
   execute(
     sender: string,
     funds: Coin[],
     executeMsg: any,
-    logs: DebugLog[],
-  ): Result<ContractResponse, string>
-  {
+    logs: DebugLog[]
+  ): Result<ContractResponse, string> {
     const vm = this._vm;
     if (!vm) throw new NoVMError(this.address);
     vm.resetDebugInfo();
@@ -78,7 +87,9 @@ export default class Contract {
     const env = this.getExecutionEnv();
     const info = { sender, funds };
 
-    const res = fromRustResult<ContractResponse>(vm.execute(env, info, executeMsg).json);
+    const res = fromRustResult<ContractResponse>(
+      vm.execute(env, info, executeMsg).json
+    );
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
@@ -86,14 +97,16 @@ export default class Contract {
 
     return res;
   }
-  
+
   reply(
     replyMsg: ReplyMsg,
-    logs: DebugLog[],
+    logs: DebugLog[]
   ): Result<ContractResponse, string> {
     if (!this._vm) throw new NoVMError(this.address);
     const vm = this._vm;
-    const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg).json);
+    const res = fromRustResult<ContractResponse>(
+      vm.reply(this.getExecutionEnv(), replyMsg).json
+    );
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
@@ -101,11 +114,11 @@ export default class Contract {
 
     return res;
   }
-  
+
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
     if (!this._vm) throw new NoVMError(this.address);
     const vm = this._vm;
-    
+
     // time travel
     const currBackend = vm.backend;
     const storage = new BasicKVIterStorage(this.getStorage(store));
@@ -113,32 +126,36 @@ export default class Contract {
       ...vm.backend,
       storage,
     };
-    
+
     try {
       let env = this.getExecutionEnv();
-      return fromRustResult<string>(vm.query(env, queryMsg).json)
-        .andThen(v => Ok(fromBinary(v)));
-    }
-    // reset time travel
-    finally {
+      return fromRustResult<string>(vm.query(env, queryMsg).json).andThen(v =>
+        Ok(fromBinary(v))
+      );
+    } finally {
+      // reset time travel
       vm.backend = currBackend;
     }
   }
-  
+
   setStorage(value: Map<string, string>) {
     this._wasm.setContractStorage(this.address, value);
   }
-  
+
   getStorage(storage?: Snapshot): Map<string, string> {
     return this._wasm.getContractStorage(this.address, storage);
   }
-  
+
   getExecutionEnv() {
     return this._wasm.getExecutionEnv(this.address);
   }
-  
-  get vm() { return this._vm }
-  get valid() { return !!this._vm }
+
+  get vm() {
+    return this._vm;
+  }
+  get valid() {
+    return !!this._vm;
+  }
 }
 
 class NoVMError extends Error {

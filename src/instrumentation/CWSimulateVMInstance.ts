@@ -1,4 +1,4 @@
-import { VMInstance, Region, IBackend } from '@terran-one/cosmwasm-vm-js';
+import { VMInstance, Region, IBackend } from '@terran-one/cosmwasm-vm-js/src';
 import { DebugLog } from '../types';
 
 export class CWSimulateVMInstance extends VMInstance {
@@ -204,9 +204,9 @@ export class CWSimulateVMInstance extends VMInstance {
     });
     return result;
   }
-  
+
   /** Reset debug information such as debug messages & call history.
-   * 
+   *
    * These should be valid only for individual contract executions.
    */
   resetDebugInfo() {
