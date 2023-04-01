@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { AppResponse, CWSimulateApp } from '../src';
 import { List } from 'immutable';
 import _ from 'lodash';
-import bytes = require('bytes');
+import bytes from 'bytes';
 
 const testBytecode = readFileSync('testing/cw_simulate_tests-aarch64.wasm');
 
