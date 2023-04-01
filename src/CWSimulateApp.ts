@@ -1,4 +1,4 @@
-import { QuerierBase } from '@terran-one/cosmwasm-vm-js/src/backend';
+import { QuerierBase } from '@terran-one/cosmwasm-vm-js';
 import { Err, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
