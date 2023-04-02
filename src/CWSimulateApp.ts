@@ -82,7 +82,7 @@ export class Querier extends QuerierBase {
     super();
   }
 
-  handleQuery(query: QueryMessage): Result<Binary, string> {
+  handleQuery(query: QueryMessage): Result<Binary, string> | any {
     if ('bank' in query) {
       return this.app.bank.handleQuery(query.bank);
     } else if ('wasm' in query) {

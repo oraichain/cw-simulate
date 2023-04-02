@@ -1,6 +1,6 @@
 import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
-import { Err, Ok, Result } from 'ts-results';
+import { Err, Ok, OkImpl, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
 import {
   NEVER_IMMUTIFY,
@@ -28,7 +28,11 @@ import {
 } from '../../types';
 import { fromBinary, toBinary } from '../../util';
 import Contract from './contract';
-import { buildAppResponse, buildContractAddress } from './wasm-util';
+import {
+  buildAppResponse,
+  buildContractAddress,
+  wrapReplyResponse,
+} from './wasm-util';
 
 type WasmData = {
   lastCodeId: number;
@@ -410,10 +414,13 @@ export class WasmModule {
       let r = await this.chain.handleMsg(contractAddress, msg, trace);
 
       if (r.ok) {
-        // submessage success
         let { events, data } = r.val;
+        // submessage success
 
         if (reply_on === ReplyOn.Success || reply_on === ReplyOn.Always) {
+          // wrap data reply
+          data = wrapReplyResponse(r.val).data;
+
           // submessage success, call reply
           let replyMsg: ReplyMsg = {
             id,
@@ -445,7 +452,7 @@ export class WasmModule {
           data = null;
         }
 
-        return Ok({ events, data });
+        return r;
       } else {
         // submessage failed
         if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
@@ -585,10 +592,16 @@ export class WasmModule {
     });
   }
 
-  handleQuery(query: WasmQuery): Result<Binary, string> {
+  handleQuery(query: WasmQuery): Result<Binary, string> | any {
     if ('smart' in query) {
       const { contract_addr, msg } = query.smart;
-      return Ok(toBinary(this.query(contract_addr, fromBinary(msg))));
+      const result = this.query(contract_addr, fromBinary(msg));
+
+      // call query from other contract
+      if (result instanceof OkImpl) {
+        return result.val;
+      }
+      return Ok(toBinary(result));
     } else if ('raw' in query) {
       const { contract_addr, key } = query.raw;
 

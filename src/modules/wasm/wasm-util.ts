@@ -1,5 +1,6 @@
-import { Sha256 } from "@cosmjs/crypto";
-import { AppResponse, ContractResponse, Event } from "../../types";
+import { Sha256 } from '@cosmjs/crypto';
+import protobuf from 'protobufjs';
+import { AppResponse, ContractResponse, Event } from '../../types';
 
 function numberToBigEndianUint64(n: number): Uint8Array {
   const buffer = new ArrayBuffer(8);
@@ -9,7 +10,56 @@ function numberToBigEndianUint64(n: number): Uint8Array {
   return new Uint8Array(buffer);
 }
 
-export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
+const protobufRoot = protobuf.Root.fromJSON({
+  nested: {
+    MsgInstantiateContractResponse: {
+      fields: {
+        address: {
+          type: 'string',
+          id: 1,
+        },
+        data: {
+          type: 'bytes',
+          id: 2,
+        },
+      },
+    },
+  },
+});
+
+export function wrapReplyResponse(res: AppResponse): AppResponse {
+  const MsgInstantiateContractResponse = protobufRoot.lookupType(
+    'MsgInstantiateContractResponse'
+  );
+
+  const payload = {
+    data: res.data,
+    address: null,
+  };
+
+  for (const event of res.events) {
+    const address = event.attributes.find(
+      attr => attr.key === '_contract_address'
+    )?.value;
+    if (address) {
+      payload.address = address;
+      break;
+    }
+  }
+
+  const message = MsgInstantiateContractResponse.create(payload); //;
+  return {
+    events: res.events,
+    data: Buffer.from(
+      MsgInstantiateContractResponse.encode(message).finish()
+    ).toString('base64'),
+  };
+}
+
+export function buildContractAddress(
+  codeId: number,
+  instanceId: number
+): Uint8Array {
   let contractId = new Uint8Array([
     ...numberToBigEndianUint64(codeId),
     ...numberToBigEndianUint64(instanceId),
@@ -34,7 +84,7 @@ export function buildContractAddress(codeId: number, instanceId: number): Uint8A
 export function buildAppResponse(
   contract: string,
   customEvent: Event,
-  response: ContractResponse,
+  response: ContractResponse
 ): AppResponse {
   const appEvents: Event[] = [];
   // add custom event
