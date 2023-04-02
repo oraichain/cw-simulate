@@ -1,11 +1,19 @@
-import SerdeProtocol, { SERDE } from '@kiruse/serde';
+import Serde, { SERDE, StandardProtocolMap } from '@kiruse/serde';
 import { Reference } from '@kiruse/serde/dist/types';
 import { List, Map } from 'immutable';
 import { Ok } from 'ts-results';
 import { CWSimulateApp } from './CWSimulateApp';
 
-export const serde = SerdeProtocol.standard()
-  .derive('immutable-list',
+type Protocols = StandardProtocolMap & {
+  'immutable-list': List<any>;
+  'immutable-map': Map<any, any>;
+  'cw-simulate-app': CWSimulateApp;
+};
+
+export const serde = Serde<Protocols>()
+  .standard()
+  .setSimple(
+    'immutable-list',
     (list: List<any>, data) => {
       return {
         data: data(list.toArray()),
@@ -26,9 +34,10 @@ export const serde = SerdeProtocol.standard()
         !mutable && list.asImmutable();
       });
       return list;
-    },
+    }
   )
-  .derive('immutable-map',
+  .setSimple(
+    'immutable-map',
     (map: Map<any, any>, data) => {
       return {
         data: data(map.toObject()),
@@ -40,17 +49,22 @@ export const serde = SerdeProtocol.standard()
       const map = Map().asMutable();
       const keys = Object.keys(data);
       if (!keys.length) return Map();
-      Reference.all(deref, keys.map(k => data[k]), values => {
-        values.forEach((value, i) => {
-          const key = keys[i];
-          map.set(key, value);
-        });
-        !mutable && map.asImmutable();
-      });
+      Reference.all(
+        deref,
+        keys.map(k => data[k]),
+        values => {
+          values.forEach((value, i) => {
+            const key = keys[i];
+            map.set(key, value);
+          });
+          !mutable && map.asImmutable();
+        }
+      );
       return map;
-    },
+    }
   )
-  .derive('cw-simulate-app',
+  .setSimple(
+    'cw-simulate-app',
     (app: CWSimulateApp) => ({
       chainId: app.chainId,
       bech32Prefix: app.bech32Prefix,
@@ -68,14 +82,17 @@ export const serde = SerdeProtocol.standard()
         });
       });
       return app;
-    },
-  )
+    }
+  );
 
-export const save = (app: CWSimulateApp) => serde.serializeAs('cw-simulate-app', app).compress().buffer;
+export const save = (app: CWSimulateApp) =>
+  serde.serializeAs('cw-simulate-app', app).compress().buffer;
 export const load = async (bytes: Uint8Array) => {
   const app = serde.deserializeAs('cw-simulate-app', bytes);
   const contracts = [...app.wasm.store.get('contracts').keys()];
-  await Promise.all(contracts.map(address => app.wasm.getContract(address).init()));
+  await Promise.all(
+    contracts.map(address => app.wasm.getContract(address).init())
+  );
   return app;
 };
 

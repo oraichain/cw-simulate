@@ -1,7 +1,12 @@
 import { Coin } from '@cosmjs/amino';
 import { toAscii, toBase64 } from '@cosmjs/encoding';
 import { Err, Result } from 'ts-results';
-import { cmd, exec, TestContract, TestContractInstance } from '../../testing/wasm-util';
+import {
+  cmd,
+  exec,
+  TestContract,
+  TestContractInstance,
+} from '../../testing/wasm-util';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { AppResponse, Event, ReplyOn, TraceLog } from '../types';
 import { fromBinary, toBinary } from '../util';
@@ -28,33 +33,35 @@ const codeId = testCode.register();
 
 describe('Instantiate', () => {
   it('EOA instantiates contract', async () => {
-    const result = await app.wasm.handleMsg(
-      info.sender,
-      {
-        instantiate: {
-          code_id: codeId,
-          msg: toBinary({}),
-          funds: info.funds,
-          admin: null,
-          label: 'eoa-instantiated',
-        }
+    const result = await app.wasm.handleMsg(info.sender, {
+      instantiate: {
+        code_id: codeId,
+        msg: toBinary({}),
+        funds: info.funds,
+        admin: null,
+        label: 'eoa-instantiated',
       },
-    );
-    
+    });
+
     expect(result.ok).toBeTruthy();
-    
+
     const resp = result.val as AppResponse;
     const evt = resp.events[0];
     expect(evt.type).toStrictEqual('instantiate');
-    
-    const addr = evt.attributes.find(attr => attr.key === '_contract_address')?.value;
+
+    const addr = evt.attributes.find(
+      attr => attr.key === '_contract_address'
+    )?.value;
     expect(addr).toBeTruthy();
   });
-  
+
   it('contract instantiates contract', async () => {
     // Phase 1: Test instantiation of contract by contract
-    const testContract = await testCode.instantiate({ codeId, funds: info.funds });
-    
+    const testContract = await testCode.instantiate({
+      codeId,
+      funds: info.funds,
+    });
+
     const trace: TraceLog[] = [];
     let result = await testContract.execute(
       info.sender,
@@ -65,28 +72,30 @@ describe('Instantiate', () => {
         label: 'contract-instantiated',
       }),
       info.funds,
-      trace,
+      trace
     );
-    
+
     expect(result.ok).toBeTruthy();
-    
+
     const resp = result.val as AppResponse;
     const evts = resp.events;
     expect(evts[0].type).toStrictEqual('execute');
     expect(evts[1].type).toStrictEqual('instantiate');
-    
-    const addr = evts[1].attributes.find(attr => attr.key === '_contract_address')?.value;
+
+    const addr = evts[1].attributes.find(
+      attr => attr.key === '_contract_address'
+    )?.value;
     expect(addr).toBeTruthy();
-    
+
     // Phase 2: Test contract-instantiated contract actually exists & works
     result = await app.wasm.executeContract(
       info.sender,
       info.funds,
       addr!,
-      exec.push('foobar'),
+      exec.push('foobar')
     );
     expect(result.ok).toBeTruthy();
-    
+
     const queryResult = await app.wasm.query(addr!, { get_buffer: {} });
     expect(queryResult.ok);
     expect(queryResult.val).toMatchObject({
@@ -116,11 +125,7 @@ describe('Events', function () {
       cmd.attr('A2-K', 'A2-V')
     );
 
-    let res = await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    let res = await testContract.execute(info.sender, executeMsg, info.funds);
 
     expect(res.val).toEqual({
       events: [
@@ -151,11 +156,7 @@ describe('Events', function () {
       cmd.sub(2, exec.run(cmd.err('error-S2')), ReplyOn.Error)
     );
 
-    let res = await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    let res = await testContract.execute(info.sender, executeMsg, info.funds);
 
     expect(res.val).toEqual({
       data: null,
@@ -192,16 +193,14 @@ describe('Events', function () {
       cmd.sub(1, exec.run(cmd.msg(exec.push('N1'))), ReplyOn.Success),
       cmd.sub(
         1,
-        exec.run(cmd.sub(1, exec.run(cmd.msg(exec.push('N2'))), ReplyOn.Success)),
+        exec.run(
+          cmd.sub(1, exec.run(cmd.msg(exec.push('N2'))), ReplyOn.Success)
+        ),
         ReplyOn.Success
       )
     );
 
-    let res = await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    let res = await testContract.execute(info.sender, executeMsg, info.funds);
 
     expect(res.val).toEqual({
       data: null,
@@ -257,18 +256,13 @@ describe('Rollback', function () {
   });
 
   it('control case', async () => {
-    let executeMsg = exec.run(
-      cmd.msg(exec.push('A')),
-      cmd.msg(exec.push('B')),
-    );
+    let executeMsg = exec.run(cmd.msg(exec.push('A')), cmd.msg(exec.push('B')));
 
-    await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, { get_buffer: {} });
+    let queryRes = await app.wasm.query(testContract.address, {
+      get_buffer: {},
+    });
     expect(queryRes.val).toEqual({
       buffer: ['A', 'B'],
     });
@@ -278,16 +272,14 @@ describe('Rollback', function () {
     let executeMsg = exec.run(
       cmd.msg(exec.push('A')),
       cmd.msg(exec.push('B')),
-      cmd.err('error'),
+      cmd.err('error')
     );
 
-    await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, { get_buffer: {} });
+    let queryRes = await app.wasm.query(testContract.address, {
+      get_buffer: {},
+    });
     expect(queryRes.val).toEqual({
       buffer: [],
     });
@@ -305,16 +297,14 @@ describe('Rollback', function () {
         ),
         ReplyOn.Error
       ),
-      cmd.msg(exec.push('D')),
+      cmd.msg(exec.push('D'))
     );
 
-    await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, { get_buffer: {} });
+    let queryRes = await app.wasm.query(testContract.address, {
+      get_buffer: {},
+    });
     expect(queryRes.val).toEqual({
       buffer: ['A', 'D'],
     });
@@ -332,7 +322,7 @@ describe('Rollback', function () {
             exec.run(
               cmd.msg(exec.push('C')),
               cmd.msg(exec.push('D')),
-              cmd.err('error'),
+              cmd.err('error')
             ),
             ReplyOn.Error
           ),
@@ -343,13 +333,11 @@ describe('Rollback', function () {
       cmd.msg(exec.push('F'))
     );
 
-    await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, { get_buffer: {} });
+    let queryRes = await app.wasm.query(testContract.address, {
+      get_buffer: {},
+    });
     expect(queryRes.val).toEqual({
       buffer: ['A', 'B', 'E', 'F'],
     });
@@ -364,16 +352,9 @@ describe('Data', () => {
   });
 
   it('control case', async () => {
-    let executeMsg = exec.run(
-      cmd.msg(exec.push('S1')),
-      cmd.data([1]),
-    );
+    let executeMsg = exec.run(cmd.msg(exec.push('S1')), cmd.data([1]));
 
-    let res = await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-    );
+    let res = await testContract.execute(info.sender, executeMsg, info.funds);
 
     expect(res.val).toMatchObject({
       data: toBase64(new Uint8Array([1])),
@@ -390,7 +371,7 @@ describe('Data', () => {
 });
 
 describe('Blocks', () => {
-  let app: CWSimulateApp
+  let app: CWSimulateApp;
 
   beforeEach(async () => {
     app = new CWSimulateApp({
@@ -398,35 +379,31 @@ describe('Blocks', () => {
       bech32Prefix: 'terra1',
     });
   });
-  
+
   it('increases block height with new codes & instances', async () => {
     let height = app.height;
     expect(height).toStrictEqual(1);
-    
+
     await new TestContract(app, info.sender).instantiate({ funds: info.funds });
     expect(app.height).toBeGreaterThan(height);
     height = app.height;
-    
+
     await new TestContract(app, info.sender).instantiate({ funds: info.funds });
     expect(app.height).toBeGreaterThan(height);
     height = app.height;
   });
-  
+
   it('increases block height with executions', async () => {
     let height = app.height;
-    const contract = await new TestContract(app, info.sender).instantiate({ funds: info.funds });
-    
-    contract.execute(info.sender,
-      cmd.push('foobar'),
-      info.funds,
-    );
+    const contract = await new TestContract(app, info.sender).instantiate({
+      funds: info.funds,
+    });
+
+    contract.execute(info.sender, cmd.push('foobar'), info.funds);
     expect(app.height).toBeGreaterThan(height);
-    
+
     height = app.height;
-    contract.execute(info.sender,
-      cmd.push('barfoo'),
-      info.funds,
-    );
+    contract.execute(info.sender, cmd.push('barfoo'), info.funds);
     expect(app.height).toBeGreaterThan(height);
   });
 });
@@ -442,16 +419,15 @@ describe('TraceLog', () => {
     let executeMsg = exec.run(
       cmd.sub(1, exec.debug('S1'), ReplyOn.Success),
       cmd.msg(exec.push('M1')),
-      cmd.sub(1, exec.run(cmd.sub(1, exec.debug('S2'), ReplyOn.Success)), ReplyOn.Success)
+      cmd.sub(
+        1,
+        exec.run(cmd.sub(1, exec.debug('S2'), ReplyOn.Success)),
+        ReplyOn.Success
+      )
     );
 
     let trace: TraceLog[] = [];
-    await testContract.execute(
-      info.sender,
-      executeMsg,
-      info.funds,
-      trace,
-    );
+    await testContract.execute(info.sender, executeMsg, info.funds, trace);
 
     expect(trace).toMatchObject([
       {
@@ -486,20 +462,15 @@ describe('TraceLog', () => {
       },
     ]);
   });
-  
+
   it('traces errors', async () => {
     const trace: TraceLog[] = [];
-    
+
     const executeMsg1 = {
-      run: { failure: true }
+      run: { failure: true },
     };
-    await testContract.execute(
-      info.sender,
-      executeMsg1,
-      [],
-      trace,
-    );
-    
+    await testContract.execute(info.sender, executeMsg1, [], trace);
+
     const err1 = { ok: false, err: true };
     const ref1 = {
       type: 'execute',
@@ -512,19 +483,14 @@ describe('TraceLog', () => {
       response: err1,
       result: err1,
     };
-    expect(trace).toMatchObject([ ref1 ]);
-    
+    expect(trace).toMatchObject([ref1]);
+
     const funds = [{ denom: 'uluna', amount: '99999999999999999999' }];
     const executeMsg2 = {
-      debug: { msg: 'foobar' }
+      debug: { msg: 'foobar' },
     };
-    await testContract.execute(
-      info.sender,
-      executeMsg2,
-      funds,
-      trace,
-    );
-    
+    await testContract.execute(info.sender, executeMsg2, funds, trace);
+
     const err2 = { ok: false, err: true };
     const ref2 = {
       type: 'execute',
@@ -537,49 +503,42 @@ describe('TraceLog', () => {
       response: err2,
       result: err2,
     };
-    expect(trace).toMatchObject([ ref1, ref2 ]);
+    expect(trace).toMatchObject([ref1, ref2]);
   });
 });
 
 describe('Query', () => {
   let testContract: TestContractInstance;
-  
+
   beforeEach(async () => {
     testContract = await testCode.instantiate({ codeId, funds: info.funds });
   });
-  
+
   it('smart', async () => {
-    await testContract.execute(
-      info.sender,
-      exec.push('foobar'),
-      info.funds,
-    );
-    
+    await testContract.execute(info.sender, exec.push('foobar'), info.funds);
+
     let res = await app.wasm.handleQuery({
       smart: {
         contract_addr: testContract.address,
         msg: toBinary({ get_buffer: {} }),
       },
     });
-    expect(res.ok).toBeTruthy();
-    
-    let parsedRes = fromBinary(res.val) as Result<any, string>;
-    expect(parsedRes.ok).toBeTruthy();
-    expect(parsedRes.val).toEqual({
+
+    expect(res).toEqual({
       buffer: ['foobar'],
     });
   });
-  
+
   it('raw', async () => {
     for (let i = 0; i < 3; ++i) {
       await app.wasm.executeContract(
         info.sender,
         info.funds,
         testContract.address,
-        exec.push(`foobar${i}`),
+        exec.push(`foobar${i}`)
       );
     }
-    
+
     let res = await app.wasm.handleQuery({
       raw: {
         contract_addr: testContract.address,
@@ -589,14 +548,14 @@ describe('Query', () => {
     expect(res.ok).toBeTruthy();
     expect(fromBinary(res.val)).toEqual(['foobar0', 'foobar1', 'foobar2']);
   });
-  
+
   it('contract info', async () => {
     let res = await app.wasm.handleQuery({
       contract_info: {
         contract_addr: testContract.address,
       },
     });
-    
+
     expect(res.ok).toBeTruthy();
     expect(fromBinary(res.val)).toMatchObject({
       code_id: codeId,
@@ -604,33 +563,31 @@ describe('Query', () => {
       admin: null,
     });
   });
-  
+
   it('time travel', async () => {
     const queryMsg = {
       get_buffer: {},
     };
-    
+
     const traces: TraceLog[] = [];
     await testContract.execute(
       info.sender,
       exec.run(
         cmd.msg(exec.push('M1')),
         cmd.msg(exec.push('M2')),
-        cmd.msg(exec.push('M3')),
+        cmd.msg(exec.push('M3'))
       ),
       [],
-      traces,
+      traces
     );
-    
+
     await testContract.execute(
       info.sender,
-      exec.run(
-        cmd.msg(exec.push('M4')),
-      ),
+      exec.run(cmd.msg(exec.push('M4'))),
       [],
-      traces,
+      traces
     );
-    
+
     expect(app.wasm.queryTrace(traces[0], queryMsg).val).toMatchObject({
       buffer: ['M1', 'M2', 'M3'],
     });

@@ -394,6 +394,7 @@ export class WasmModule {
           throw new Error(subres.val);
         }
         res.events = [...res.events, ...subres.val.events];
+
         if (subres.val.data !== null) {
           res.data = subres.val.data;
         }
@@ -414,20 +415,18 @@ export class WasmModule {
       let r = await this.chain.handleMsg(contractAddress, msg, trace);
 
       if (r.ok) {
-        let { events, data } = r.val;
         // submessage success
+        let { events, data } = r.val;
 
         if (reply_on === ReplyOn.Success || reply_on === ReplyOn.Always) {
-          // wrap data reply
-          data = wrapReplyResponse(r.val).data;
-
           // submessage success, call reply
           let replyMsg: ReplyMsg = {
             id,
             result: {
               ok: {
                 events,
-                data,
+                // wrap data reply
+                data: wrapReplyResponse(r.val).data,
               },
             },
           };
@@ -452,7 +451,7 @@ export class WasmModule {
           data = null;
         }
 
-        return r;
+        return Ok({ events, data });
       } else {
         // submessage failed
         if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
