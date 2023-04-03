@@ -13,10 +13,13 @@ import { Coin, StdFee } from '@cosmjs/amino';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   private readonly app: CWSimulateApp;
-
-  public constructor(option: CWSimulateAppOptions) {
+  public constructor(appOrOptions: CWSimulateApp | CWSimulateAppOptions) {
     super(null, null, {});
-    this.app = new CWSimulateApp(option);
+    if (appOrOptions instanceof CWSimulateApp) {
+      this.app = appOrOptions;
+    } else {
+      this.app = new CWSimulateApp(appOrOptions);
+    }
   }
 
   public setBalance(address: string, amount: Coin[]) {
