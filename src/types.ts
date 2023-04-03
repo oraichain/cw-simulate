@@ -3,17 +3,17 @@ import Immutable from 'immutable';
 import { Result } from 'ts-results';
 import type { NEVER_IMMUTIFY } from './store/transactional';
 
+export interface AppResponse {
+  events: any[];
+  data: string | null;
+}
+
 export interface ContractResponse {
   messages: SubMsg[];
   events: Event[];
   attributes: Attribute[];
   data: Binary | null;
 }
-
-export type AppResponse = {
-  events: Event[];
-  data: Binary | null;
-};
 
 export interface Attribute {
   key: string;
@@ -67,10 +67,7 @@ type Bytes = string;
 
 type NamedArg<T extends any = any> = { [name: string]: T };
 
-type APIFn<
-  CallArgs extends NamedArg,
-  ReturnType = undefined
-> = ReturnType extends undefined
+type APIFn<CallArgs extends NamedArg, ReturnType = undefined> = ReturnType extends undefined
   ? {
       args: CallArgs;
     }
@@ -88,30 +85,16 @@ interface CosmWasmAPI {
   addr_humanize: APIFn<{ source: Bytes }, Bytes>;
   addr_canonicalize: APIFn<{ source: Bytes; destination: Bytes }, Bytes>;
   addr_validate: APIFn<{ source: Bytes }, Bytes>;
-  secp256k1_verify: APIFn<
-    { hash: Bytes; signature: Bytes; pubkey: Bytes },
-    number
-  >;
-  secp256k1_recover_pubkey: APIFn<
-    { msgHash: Bytes; signature: Bytes; recover_param: number },
-    Bytes
-  >;
+  secp256k1_verify: APIFn<{ hash: Bytes; signature: Bytes; pubkey: Bytes }, number>;
+  secp256k1_recover_pubkey: APIFn<{ msgHash: Bytes; signature: Bytes; recover_param: number }, Bytes>;
   abort: APIFn<{ message: string }>;
   debug: APIFn<{ message: string }>;
-  ed25519_verify: APIFn<
-    { message: Bytes; signature: Bytes; pubkey: Bytes },
-    number
-  >;
-  ed25519_batch_verify: APIFn<
-    { messages_ptr: Bytes; signatures_ptr: Bytes; pubkeys_ptr: Bytes },
-    number
-  >;
+  ed25519_verify: APIFn<{ message: Bytes; signature: Bytes; pubkey: Bytes }, number>;
+  ed25519_batch_verify: APIFn<{ messages_ptr: Bytes; signatures_ptr: Bytes; pubkeys_ptr: Bytes }, number>;
   query_chain: APIFn<{ request: Bytes }, Bytes>;
 }
 
-type Unionize<T> = T extends { [key in keyof T]: infer ValueType }
-  ? ValueType
-  : never;
+type Unionize<T> = T extends { [key in keyof T]: infer ValueType } ? ValueType : never;
 
 type CallDebugLog<T extends keyof CosmWasmAPI = keyof CosmWasmAPI> = {
   type: 'call';

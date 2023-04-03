@@ -2,13 +2,8 @@ import { Coin } from '@cosmjs/amino';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { Transactional, TransactionalLens } from '../store/transactional';
-import { Binary, Snapshot } from '../types';
+import { AppResponse, Binary, Snapshot } from '../types';
 import { toBinary } from '../util';
-
-export interface AppResponse {
-  events: any[];
-  data: string | null;
-}
 
 type BankData = {
   balances: Record<string, Coin[]>;
@@ -52,18 +47,12 @@ export class BankModule {
     });
   }
 
-  public send(
-    sender: string,
-    recipient: string,
-    amount: Coin[]
-  ): Result<void, string> {
+  public send(sender: string, recipient: string, amount: Coin[]): Result<void, string> {
     return this.store.tx(() => {
       let senderBalance = this.getBalance(sender)
         .map(ParsedCoin.fromCoin)
         .filter(c => c.amount > BigInt(0));
-      let parsedCoins = amount
-        .map(ParsedCoin.fromCoin)
-        .filter(c => c.amount > BigInt(0));
+      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > BigInt(0));
 
       // Deduct coins from sender
       for (const coin of parsedCoins) {
@@ -72,19 +61,13 @@ export class BankModule {
         if (hasCoin && hasCoin.amount >= coin.amount) {
           hasCoin.amount -= coin.amount;
         } else {
-          return Err(
-            `Sender ${sender} has ${hasCoin?.amount ?? BigInt(0)} ${
-              coin.denom
-            }, needs ${coin.amount}`
-          );
+          return Err(`Sender ${sender} has ${hasCoin?.amount ?? BigInt(0)} ${coin.denom}, needs ${coin.amount}`);
         }
       }
       senderBalance = senderBalance.filter(c => c.amount > BigInt(0));
 
       // Add amount to recipient
-      const recipientBalance = this.getBalance(recipient).map(
-        ParsedCoin.fromCoin
-      );
+      const recipientBalance = this.getBalance(recipient).map(ParsedCoin.fromCoin);
       for (const coin of parsedCoins) {
         const hasCoin = recipientBalance.find(c => c.denom === coin.denom);
 
@@ -110,9 +93,7 @@ export class BankModule {
   public burn(sender: string, amount: Coin[]): Result<void, string> {
     return this.store.tx(() => {
       let balance = this.getBalance(sender).map(ParsedCoin.fromCoin);
-      let parsedCoins = amount
-        .map(ParsedCoin.fromCoin)
-        .filter(c => c.amount > BigInt(0));
+      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > BigInt(0));
 
       for (const coin of parsedCoins) {
         const hasCoin = balance.find(c => c.denom === coin.denom);
@@ -120,11 +101,7 @@ export class BankModule {
         if (hasCoin && hasCoin.amount >= coin.amount) {
           hasCoin.amount -= coin.amount;
         } else {
-          return Err(
-            `Sender ${sender} has ${hasCoin?.amount ?? 0} ${
-              coin.denom
-            }, needs ${coin.amount}`
-          );
+          return Err(`Sender ${sender} has ${hasCoin?.amount ?? 0} ${coin.denom}, needs ${coin.amount}`);
         }
       }
       balance = balance.filter(c => c.amount > BigInt(0));
@@ -159,10 +136,7 @@ export class BankModule {
     });
   }
 
-  public async handleMsg(
-    sender: string,
-    msg: BankMessage
-  ): Promise<Result<AppResponse, string>> {
+  public async handleMsg(sender: string, msg: BankMessage): Promise<Result<AppResponse, string>> {
     if ('send' in msg) {
       const result = this.send(sender, msg.send.to_address, msg.send.amount);
       return result.andThen(() =>

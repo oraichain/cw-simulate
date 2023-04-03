@@ -61,21 +61,26 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
-    const result = (
-      await this.app.wasm.instantiateContract(senderAddress, (options?.funds as Coin[]) ?? [], codeId, msg, label)
-    ).val;
-    if (typeof result === 'string') {
-      throw new Error(result);
+    const result = await this.app.wasm.instantiateContract(
+      senderAddress,
+      (options?.funds as Coin[]) ?? [],
+      codeId,
+      msg,
+      label
+    );
+
+    if (result.err || typeof result.val === 'string') {
+      throw new Error(result.val.toString());
     }
 
     // pull out the contract address
-    const contractAddress = result.events[0].attributes[0].value;
+    const contractAddress = result.val.events[0].attributes[0].value;
     return {
       contractAddress,
       logs: [],
       height: this.app.height,
       transactionHash: '',
-      events: result.events,
+      events: result.val.events,
       gasWanted: 0,
       gasUsed: 0,
     };
@@ -90,18 +95,17 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     _memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult> {
-    const result = (await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg))
-      .val;
+    const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
 
-    if (typeof result === 'string') {
-      throw new Error(result);
+    if (result.err || typeof result.val === 'string') {
+      throw new Error(result.val.toString());
     }
 
     return {
       logs: [],
       height: this.app.height,
       transactionHash: '',
-      events: result.events,
+      events: result.val.events,
       gasWanted: 0,
       gasUsed: 0,
     };
@@ -109,6 +113,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
 
   public async queryContractSmart(contractAddress: string, queryMsg: JsonObject): Promise<JsonObject> {
     const result = this.app.wasm.query(contractAddress, queryMsg);
-    return result.val;
+    // check is ok or err
+    return result.ok ? Promise.resolve(result.val) : Promise.reject(new Error(result.val));
   }
 }
