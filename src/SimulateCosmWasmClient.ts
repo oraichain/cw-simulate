@@ -6,7 +6,6 @@ import {
   JsonObject,
   UploadResult,
 } from '@cosmjs/cosmwasm-stargate';
-import { Registry } from '@cosmjs/proto-signing';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
 import { toHex } from '@cosmjs/encoding';
@@ -15,8 +14,8 @@ import { Coin, StdFee } from '@cosmjs/amino';
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   private readonly app: CWSimulateApp;
 
-  public constructor(option: CWSimulateAppOptions, registry?: Registry) {
-    super(null, null, { registry });
+  public constructor(option: CWSimulateAppOptions) {
+    super(null, null, {});
     this.app = new CWSimulateApp(option);
   }
 
