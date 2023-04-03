@@ -1,3 +1,4 @@
+import { Coin } from '@cosmjs/amino';
 import Immutable from 'immutable';
 import { Result } from 'ts-results';
 import type { NEVER_IMMUTIFY } from './store/transactional';
@@ -163,11 +164,6 @@ export enum ReplyOn {
 }
 
 export type Binary = string;
-
-export interface Coin {
-  denom: string;
-  amount: string;
-}
 
 export interface ExecuteEnv {
   block: {

@@ -1,3 +1,4 @@
+import { Coin } from '@cosmjs/amino';
 import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
 import { Err, Ok, OkImpl, Result } from 'ts-results';
@@ -11,7 +12,6 @@ import {
   AppResponse,
   Binary,
   CodeInfo,
-  Coin,
   ContractInfo,
   ContractInfoResponse,
   ContractResponse,

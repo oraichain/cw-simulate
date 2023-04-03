@@ -1,8 +1,8 @@
 import { Coin } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
-import { Binary, Event, ReplyOn, TraceLog } from '../src/types';
 import { CWSimulateApp } from '../src/CWSimulateApp';
 import { BankMessage } from '../src/modules/bank';
+import { Event, ReplyOn, TraceLog } from '../src/types';
 import { toBinary } from '../src/util';
 
 export const DEFAULT_CREATOR = 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu';
@@ -61,8 +61,8 @@ export const exec = {
       },
     };
   },
-  debug: (msg: string)  => ({ debug: { msg }}),
-  push: (data: string) => ({ push: { data }}),
+  debug: (msg: string) => ({ debug: { msg } }),
+  push: (data: string) => ({ push: { data } }),
   pop: () => ({ pop: {} }),
   reset: () => ({ reset: {} }),
   instantiate({ codeId, admin, msg, funds = [], label }: InstantiateParams) {
@@ -75,8 +75,8 @@ export const exec = {
         label,
       },
     };
-  }
-}
+  },
+};
 
 export const cmd = {
   msg(payload: any): MsgCommand {
@@ -162,7 +162,7 @@ export class TestContract {
       opts.funds ?? [],
       codeId,
       {},
-      "Test Contract"
+      'Test Contract'
     );
 
     const addr = res.unwrap().events[0].attributes[0].value;

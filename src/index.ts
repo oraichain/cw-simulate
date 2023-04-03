@@ -1,4 +1,5 @@
 export * from './CWSimulateApp';
+export * from './SimulateCosmwasmClient';
 export * from './types';
 export * from './store';
 

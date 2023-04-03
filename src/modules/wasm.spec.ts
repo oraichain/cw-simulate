@@ -1,6 +1,5 @@
 import { Coin } from '@cosmjs/amino';
 import { toAscii, toBase64 } from '@cosmjs/encoding';
-import { Err, Result } from 'ts-results';
 import {
   cmd,
   exec,

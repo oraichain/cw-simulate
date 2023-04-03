@@ -1,3 +1,4 @@
+import { Coin } from '@cosmjs/amino';
 import {
   BasicBackendApi,
   BasicKVIterStorage,
@@ -6,13 +7,7 @@ import {
 import { Map } from 'immutable';
 import { Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
-import {
-  Coin,
-  ContractResponse,
-  DebugLog,
-  ReplyMsg,
-  Snapshot,
-} from '../../types';
+import { ContractResponse, DebugLog, ReplyMsg, Snapshot } from '../../types';
 import { fromBinary, fromRustResult } from '../../util';
 import type { WasmModule } from './module';
 
