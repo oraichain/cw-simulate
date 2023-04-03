@@ -11,7 +11,7 @@ describe('SimulateCosmWasmClient', () => {
         bech32Prefix: 'orai',
       });
 
-      const { codeId } = await client.upload('alice', bytecode);
+      const { codeId } = await client.upload('alice', bytecode, 'auto');
 
       const { contractAddress } = await client.instantiate('alice', codeId, {}, '');
 

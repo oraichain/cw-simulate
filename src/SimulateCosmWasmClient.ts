@@ -31,7 +31,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   public upload(
     senderAddress: string,
     wasmCode: Uint8Array,
-    _fee?: StdFee | 'auto' | number,
+    _fee: StdFee | 'auto' | number,
     _memo?: string
   ): Promise<UploadResult> {
     // import the wasm bytecode
