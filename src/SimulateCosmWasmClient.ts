@@ -57,7 +57,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     codeId: number,
     msg: JsonObject,
     label: string,
-    _fee?: StdFee | 'auto' | number,
+    _fee: StdFee | 'auto' | number,
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract

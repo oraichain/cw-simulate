@@ -13,7 +13,7 @@ describe('SimulateCosmWasmClient', () => {
 
       const { codeId } = await client.upload('alice', bytecode, 'auto');
 
-      const { contractAddress } = await client.instantiate('alice', codeId, {}, '');
+      const { contractAddress } = await client.instantiate('alice', codeId, {}, '', 'auto');
 
       const result = await client.execute(
         'alice',
