@@ -11,7 +11,7 @@ import {
   CodeDetails,
   Code,
 } from '@cosmjs/cosmwasm-stargate';
-import { Account, SequenceResponse, Block, BlockHeader } from '@cosmjs/stargate';
+import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
