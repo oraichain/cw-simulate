@@ -5,6 +5,7 @@ import {
   InstantiateResult,
   JsonObject,
   UploadResult,
+  DeliverTxResponse,
 } from '@cosmjs/cosmwasm-stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
@@ -22,13 +23,24 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     }
   }
 
-  public setBalance(address: string, amount: Coin[]) {
-    return this.app.bank.setBalance(address, amount);
-  }
-
-  public getBalance(address: string, searchDenom: string): Promise<Coin> {
-    const coin = this.app.bank.getBalance(address).find(coin => coin.denom === searchDenom);
-    return Promise.resolve(coin);
+  public sendTokens(
+    senderAddress: string,
+    recipientAddress: string,
+    amount: readonly Coin[],
+    _fee: StdFee | 'auto' | number,
+    _memo?: string
+  ): Promise<DeliverTxResponse> {
+    const res = this.app.bank.send(senderAddress, recipientAddress, (amount as Coin[]) ?? []);
+    return Promise.resolve({
+      height: this.app.height,
+      txIndex: 0,
+      code: res.ok ? 0 : 1,
+      transactionHash: '',
+      events: [],
+      rawLog: typeof res.val === 'string' ? res.val : undefined,
+      gasUsed: 0,
+      gasWanted: 0,
+    });
   }
 
   public upload(
