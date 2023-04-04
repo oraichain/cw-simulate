@@ -6,10 +6,16 @@ import {
   JsonObject,
   UploadResult,
   DeliverTxResponse,
+  toBinary,
+  Contract,
+  CodeDetails,
+  Code,
 } from '@cosmjs/cosmwasm-stargate';
+import { Account, SequenceResponse, Block, BlockHeader } from '@cosmjs/stargate';
+
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
-import { toHex } from '@cosmjs/encoding';
+import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
@@ -21,6 +27,84 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     } else {
       this.app = new CWSimulateApp(appOrOptions);
     }
+  }
+
+  public getChainId(): Promise<string> {
+    return Promise.resolve(this.app.chainId);
+  }
+  public getHeight(): Promise<number> {
+    return Promise.resolve(this.app.height);
+  }
+  public getAccount(searchAddress: string): Promise<Account | null> {
+    return Promise.resolve({
+      address: searchAddress,
+      pubkey: null,
+      accountNumber: 0,
+      sequence: 0,
+    });
+  }
+  public getSequence(_address: string): Promise<SequenceResponse> {
+    return Promise.resolve({
+      accountNumber: 0,
+      sequence: 0,
+    });
+  }
+
+  public getBlock(height?: number): Promise<Block> {
+    return Promise.resolve({
+      id: '',
+      header: {
+        version: {
+          app: 'simulate',
+          block: 'simulate',
+        },
+        height: height,
+        chainId: this.app.chainId,
+        time: new Date().toString(),
+      },
+      txs: [],
+    });
+  }
+  public getBalance(address: string, searchDenom: string): Promise<Coin> {
+    const coin = this.app.bank.getBalance(address).find(coin => coin.denom === searchDenom);
+    return Promise.resolve(coin);
+  }
+
+  getCodes(): Promise<readonly Code[]> {
+    const codes: Code[] = [];
+    this.app.wasm.forEachCodeInfo((codeInfo, codeId) => {
+      codes.push({
+        id: Number(codeId),
+        creator: codeInfo.creator,
+        checksum: toHex(sha256(codeInfo.wasmCode)),
+      });
+    });
+
+    return Promise.resolve(codes);
+  }
+
+  public getCodeDetails(codeId: number): Promise<CodeDetails> {
+    const codeInfo = this.app.wasm.getCodeInfo(codeId);
+    const codeDetails = {
+      id: codeId,
+      creator: codeInfo.creator,
+      checksum: toHex(sha256(codeInfo.wasmCode)),
+      data: codeInfo.wasmCode,
+    };
+    return Promise.resolve(codeDetails);
+  }
+
+  public getContract(address: string): Promise<Contract> {
+    const contract = this.app.wasm.getContractInfo(address);
+
+    return Promise.resolve({
+      address,
+      codeId: contract.codeId,
+      creator: contract.creator,
+      admin: contract.admin,
+      label: contract.label,
+      ibcPortId: undefined,
+    });
   }
 
   public sendTokens(
@@ -54,7 +138,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     const codeId = this.app.wasm.create(senderAddress, wasmCode);
     return Promise.resolve({
       originalSize: wasmCode.length,
-      originalChecksum: toHex(sha256(wasmCode)),
+      originalChecksum,
       compressedSize: wasmCode.length,
       compressedChecksum: originalChecksum,
       codeId,
@@ -126,8 +210,18 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     };
   }
 
-  public async queryContractSmart(contractAddress: string, queryMsg: JsonObject): Promise<JsonObject> {
-    const result = this.app.wasm.query(contractAddress, queryMsg);
+  public async queryContractRaw(address: string, key: Uint8Array): Promise<Uint8Array | null> {
+    const result = this.app.wasm.handleQuery({ raw: { contract_addr: address, key: toBinary(key) } });
+
+    if (result instanceof Error) {
+      throw result;
+    }
+
+    return Promise.resolve(fromBase64(toBinary({ ok: result })));
+  }
+
+  public async queryContractSmart(address: string, queryMsg: JsonObject): Promise<JsonObject> {
+    const result = this.app.wasm.query(address, queryMsg);
     // check is ok or err
     return result.ok ? Promise.resolve(result.val) : Promise.reject(new Error(result.val));
   }

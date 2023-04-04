@@ -1,11 +1,6 @@
 import { Coin } from '@cosmjs/amino';
 import { toAscii, toBase64 } from '@cosmjs/encoding';
-import {
-  cmd,
-  exec,
-  TestContract,
-  TestContractInstance,
-} from '../../testing/wasm-util';
+import { cmd, exec, TestContract, TestContractInstance } from '../../testing/wasm-util';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { AppResponse, Event, ReplyOn, TraceLog } from '../types';
 import { fromBinary, toBinary } from '../util';
@@ -48,9 +43,7 @@ describe('Instantiate', () => {
     const evt = resp.events[0];
     expect(evt.type).toStrictEqual('instantiate');
 
-    const addr = evt.attributes.find(
-      attr => attr.key === '_contract_address'
-    )?.value;
+    const addr = evt.attributes.find(attr => attr.key === '_contract_address')?.value;
     expect(addr).toBeTruthy();
   });
 
@@ -81,18 +74,11 @@ describe('Instantiate', () => {
     expect(evts[0].type).toStrictEqual('execute');
     expect(evts[1].type).toStrictEqual('instantiate');
 
-    const addr = evts[1].attributes.find(
-      attr => attr.key === '_contract_address'
-    )?.value;
+    const addr = evts[1].attributes.find(attr => attr.key === '_contract_address')?.value;
     expect(addr).toBeTruthy();
 
     // Phase 2: Test contract-instantiated contract actually exists & works
-    result = await app.wasm.executeContract(
-      info.sender,
-      info.funds,
-      addr!,
-      exec.push('foobar')
-    );
+    result = await app.wasm.executeContract(info.sender, info.funds, addr!, exec.push('foobar'));
     expect(result.ok).toBeTruthy();
 
     const queryResult = await app.wasm.query(addr!, { get_buffer: {} });
@@ -190,13 +176,7 @@ describe('Events', function () {
   it('nested submessages', async () => {
     let executeMsg = exec.run(
       cmd.sub(1, exec.run(cmd.msg(exec.push('N1'))), ReplyOn.Success),
-      cmd.sub(
-        1,
-        exec.run(
-          cmd.sub(1, exec.run(cmd.msg(exec.push('N2'))), ReplyOn.Success)
-        ),
-        ReplyOn.Success
-      )
+      cmd.sub(1, exec.run(cmd.sub(1, exec.run(cmd.msg(exec.push('N2'))), ReplyOn.Success)), ReplyOn.Success)
     );
 
     let res = await testContract.execute(info.sender, executeMsg, info.funds);
@@ -268,11 +248,7 @@ describe('Rollback', function () {
   });
 
   it('rollbacks if message fails', async () => {
-    let executeMsg = exec.run(
-      cmd.msg(exec.push('A')),
-      cmd.msg(exec.push('B')),
-      cmd.err('error')
-    );
+    let executeMsg = exec.run(cmd.msg(exec.push('A')), cmd.msg(exec.push('B')), cmd.err('error'));
 
     await testContract.execute(info.sender, executeMsg, info.funds);
 
@@ -287,15 +263,7 @@ describe('Rollback', function () {
   it('partial rollback - submessages', async () => {
     let executeMsg = exec.run(
       cmd.msg(exec.push('A')),
-      cmd.sub(
-        2,
-        exec.run(
-          cmd.msg(exec.push('B')),
-          cmd.msg(exec.push('C')),
-          cmd.err('error')
-        ),
-        ReplyOn.Error
-      ),
+      cmd.sub(2, exec.run(cmd.msg(exec.push('B')), cmd.msg(exec.push('C')), cmd.err('error')), ReplyOn.Error),
       cmd.msg(exec.push('D'))
     );
 
@@ -316,15 +284,7 @@ describe('Rollback', function () {
         1,
         exec.run(
           cmd.msg(exec.push('B')),
-          cmd.sub(
-            2,
-            exec.run(
-              cmd.msg(exec.push('C')),
-              cmd.msg(exec.push('D')),
-              cmd.err('error')
-            ),
-            ReplyOn.Error
-          ),
+          cmd.sub(2, exec.run(cmd.msg(exec.push('C')), cmd.msg(exec.push('D')), cmd.err('error')), ReplyOn.Error),
           cmd.msg(exec.push('E'))
         ),
         ReplyOn.Success
@@ -418,11 +378,7 @@ describe('TraceLog', () => {
     let executeMsg = exec.run(
       cmd.sub(1, exec.debug('S1'), ReplyOn.Success),
       cmd.msg(exec.push('M1')),
-      cmd.sub(
-        1,
-        exec.run(cmd.sub(1, exec.debug('S2'), ReplyOn.Success)),
-        ReplyOn.Success
-      )
+      cmd.sub(1, exec.run(cmd.sub(1, exec.debug('S2'), ReplyOn.Success)), ReplyOn.Success)
     );
 
     let trace: TraceLog[] = [];
@@ -530,12 +486,7 @@ describe('Query', () => {
 
   it('raw', async () => {
     for (let i = 0; i < 3; ++i) {
-      await app.wasm.executeContract(
-        info.sender,
-        info.funds,
-        testContract.address,
-        exec.push(`foobar${i}`)
-      );
+      await app.wasm.executeContract(info.sender, info.funds, testContract.address, exec.push(`foobar${i}`));
     }
 
     let res = await app.wasm.handleQuery({
@@ -544,8 +495,8 @@ describe('Query', () => {
         key: toBase64(toAscii('buffer')),
       },
     });
-    expect(res.ok).toBeTruthy();
-    expect(fromBinary(res.val)).toEqual(['foobar0', 'foobar1', 'foobar2']);
+
+    expect(fromBinary(res)).toEqual(['foobar0', 'foobar1', 'foobar2']);
   });
 
   it('contract info', async () => {
@@ -555,8 +506,7 @@ describe('Query', () => {
       },
     });
 
-    expect(res.ok).toBeTruthy();
-    expect(fromBinary(res.val)).toMatchObject({
+    expect(res).toMatchObject({
       code_id: codeId,
       creator: info.sender,
       admin: null,
@@ -571,21 +521,12 @@ describe('Query', () => {
     const traces: TraceLog[] = [];
     await testContract.execute(
       info.sender,
-      exec.run(
-        cmd.msg(exec.push('M1')),
-        cmd.msg(exec.push('M2')),
-        cmd.msg(exec.push('M3'))
-      ),
+      exec.run(cmd.msg(exec.push('M1')), cmd.msg(exec.push('M2')), cmd.msg(exec.push('M3'))),
       [],
       traces
     );
 
-    await testContract.execute(
-      info.sender,
-      exec.run(cmd.msg(exec.push('M4'))),
-      [],
-      traces
-    );
+    await testContract.execute(info.sender, exec.run(cmd.msg(exec.push('M4'))), [], traces);
 
     expect(app.wasm.queryTrace(traces[0], queryMsg).val).toMatchObject({
       buffer: ['M1', 'M2', 'M3'],

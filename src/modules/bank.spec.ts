@@ -10,7 +10,7 @@ type WrappedBankMessage = {
 describe.only('BankModule', () => {
   let chain: CWSimulateApp;
 
-  beforeEach(function() {
+  beforeEach(function () {
     chain = new CWSimulateApp({
       chainId: 'test-1',
       bech32Prefix: 'terra',
@@ -30,7 +30,7 @@ describe.only('BankModule', () => {
     expect(bank.getBalance('bob')).toEqual([coin('foo', 100)]);
     expect(bank.getBalances()).toEqual({
       alice: [coin('foo', 900)],
-      bob:   [coin('foo', 100)],
+      bob: [coin('foo', 100)],
     });
   });
 
@@ -74,7 +74,7 @@ describe.only('BankModule', () => {
     const res = bank.burn('alice', [coin('foo', 1000)]);
 
     // Assert
-    expect(res.err).toBeDefined()
+    expect(res.err).toBeDefined();
     expect(bank.getBalance('alice')).toEqual([coin('foo', 100)]);
     expect(bank.getBalances()).toEqual({
       alice: [coin('foo', 100)],
@@ -92,15 +92,15 @@ describe.only('BankModule', () => {
         send: {
           to_address: 'bob',
           amount: [coin('foo', 100)],
-        }
-      }
+        },
+      },
     };
     chain.handleMsg('alice', msg);
 
     // Assert
     expect(bank.getBalances()).toEqual({
       alice: [coin('foo', 900)],
-      bob:   [coin('foo', 100)],
+      bob: [coin('foo', 100)],
     });
   });
 
@@ -128,7 +128,7 @@ describe.only('BankModule', () => {
         burn: {
           amount: [coin('foo', 100)],
         },
-      }),
+      })
     );
     const res = await contract.execute('alice', msg);
 
@@ -137,49 +137,38 @@ describe.only('BankModule', () => {
     expect(bank.getBalances()).toMatchObject({
       [contract.address]: [coin('foo', 700)],
       alice: [coin('foo', 100)],
-      bob:   [coin('foo', 100)],
+      bob: [coin('foo', 100)],
     });
   });
-  
+
   it('querier integration', () => {
     const bank = chain.bank;
-    
+
     const queryBalance: BankQuery = {
       balance: {
         address: 'alice',
         denom: 'foo',
       },
     };
-    
+
     const queryAllBalances: BankQuery = {
       all_balances: {
         address: 'bob',
       },
     };
-    
-    bank.setBalance('alice', [
-      coin('foo', 100),
-      coin('bar', 200),
-    ]);
-    bank.setBalance('bob', [
-      coin('foo', 200),
-      coin('bar', 200),
-    ]);
-    
+
+    bank.setBalance('alice', [coin('foo', 100), coin('bar', 200)]);
+    bank.setBalance('bob', [coin('foo', 200), coin('bar', 200)]);
+
     let res = chain.querier.handleQuery({ bank: queryBalance });
-    expect(res.ok).toBeTruthy();
-    expect(fromBinary(res.val)).toEqual({ amount: coin('foo', 100)});
-    
+    expect(res).toEqual({ amount: coin('foo', 100) });
+
     res = chain.querier.handleQuery({ bank: queryAllBalances });
-    expect(res.ok).toBeTruthy();
-    expect(fromBinary(res.val)).toEqual({
-      amount: [
-        coin('foo', 200),
-        coin('bar', 200),
-      ],
+    expect(res).toEqual({
+      amount: [coin('foo', 200), coin('bar', 200)],
     });
   });
-  
+
   it('handle delete', () => {
     // Arrange
     const bank = chain.bank;

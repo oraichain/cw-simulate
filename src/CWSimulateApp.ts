@@ -40,11 +40,7 @@ export class CWSimulateApp {
     this.querier = new Querier(this);
   }
 
-  public async handleMsg(
-    sender: string,
-    msg: any,
-    trace: any = []
-  ): Promise<Result<AppResponse, string>> {
+  public async handleMsg(sender: string, msg: any, trace: any = []): Promise<Result<AppResponse, string>> {
     if ('wasm' in msg) {
       return await this.wasm.handleMsg(sender, msg.wasm, trace);
     } else if ('bank' in msg) {
@@ -55,9 +51,7 @@ export class CWSimulateApp {
   }
 
   public pushBlock<T>(callback: () => Result<T, string>): Result<T, string>;
-  public pushBlock<T>(
-    callback: () => Promise<Result<T, string>>
-  ): Promise<Result<T, string>>;
+  public pushBlock<T>(callback: () => Promise<Result<T, string>>): Promise<Result<T, string>>;
   public pushBlock<T>(
     callback: () => Result<T, string> | Promise<Result<T, string>>
   ): Result<T, string> | Promise<Result<T, string>> {
@@ -84,13 +78,13 @@ export class Querier extends QuerierBase {
     super();
   }
 
-  handleQuery(query: QueryMessage): Result<Binary, string> | any {
+  handleQuery(query: QueryMessage): any {
     if ('bank' in query) {
       return this.app.bank.handleQuery(query.bank);
     } else if ('wasm' in query) {
       return this.app.wasm.handleQuery(query.wasm);
     } else {
-      return Err('Unknown query message');
+      return Error('Unknown query message');
     }
   }
 }

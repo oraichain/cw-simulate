@@ -175,25 +175,21 @@ export class BankModule {
     }
   }
 
-  public handleQuery(query: BankQuery): Result<Binary, string> {
+  public handleQuery(query: BankQuery): any {
     let bankQuery = query;
     if ('balance' in bankQuery) {
       let { address, denom } = bankQuery.balance;
       const hasCoin = this.getBalance(address).find(c => c.denom === denom);
-      return Ok(
-        toBinary({
-          amount: hasCoin ?? { denom, amount: '0' },
-        })
-      );
+      return {
+        amount: hasCoin ?? { denom, amount: '0' },
+      };
     } else if ('all_balances' in bankQuery) {
       let { address } = bankQuery.all_balances;
-      return Ok(
-        toBinary({
-          amount: this.getBalance(address),
-        })
-      );
+      return {
+        amount: this.getBalance(address),
+      };
     }
-    return Err('Unknown bank query');
+    return Error('Unknown bank query');
   }
   private lens(storage?: Snapshot) {
     return storage ? lensFromSnapshot(storage) : this.store;

@@ -6,7 +6,7 @@ export const isArrayLike = (value: any): value is any[] =>
   typeof value === 'object' && typeof value.length === 'number';
 
 export const toBinary = (value: any): Binary => toBase64(toUtf8(JSON.stringify(value)));
-export const fromBinary = (str: string): unknown => JSON.parse(fromUtf8(fromBase64(str)));
+export const fromBinary = (base64String: string): unknown => JSON.parse(fromUtf8(fromBase64(base64String)));
 
 export function fromRustResult<T>(res: RustResult<T>): Result<T, string>;
 export function fromRustResult<T>(res: any): Result<T, string>;

@@ -28,23 +28,15 @@ async function main() {
   // make 25 contracts
   console.time('calls');
   for (let i = 0; i < 25; i++) {
-    let res = await app.wasm.instantiateContract(
-      info.sender,
-      info.funds,
-      codeId,
-      {}
-    );
+    let res = await app.wasm.instantiateContract(info.sender, info.funds, codeId, {}, '');
     if (res.err) {
       throw new Error(res.val);
     }
     let contractAddress = getContractAddress(res.val);
     for (let j = 0; j < 1000; j++) {
-      res = await app.wasm.executeContract(
-        info.sender,
-        info.funds,
-        contractAddress,
-        { push: { data: 'A'.repeat(100) } }
-      );
+      res = await app.wasm.executeContract(info.sender, info.funds, contractAddress, {
+        push: { data: 'A'.repeat(100) },
+      });
       snapshots = snapshots.push(app.store);
     }
   }

@@ -1,3 +1,5 @@
+import { sha256 } from '@cosmjs/crypto';
+import { toHex } from '@cosmjs/encoding';
 import fs from 'fs';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
 
@@ -24,6 +26,15 @@ describe('SimulateCosmWasmClient', () => {
         'auto'
       );
       expect(result.events[0].attributes[0].value).toEqual(contractAddress);
+
+      const codes = await client.getCodes();
+      expect(codes).toEqual([
+        {
+          id: codeId,
+          creator: 'alice',
+          checksum: toHex(sha256(bytecode)),
+        },
+      ]);
     }
   });
 });

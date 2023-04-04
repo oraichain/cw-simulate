@@ -100,6 +100,18 @@ export class WasmModule {
     });
   }
 
+  forEachCodeInfo(callback: (codeInfo: CodeInfo, codeId: number) => void, storage?: Snapshot) {
+    const { data } = this.lens(storage).lens('codes');
+    const codeInfos: CodeInfo[] = [];
+    data.forEach((lens, codeId) => {
+      const codeInfo: CodeInfo = {
+        creator: lens.get('creator') as string,
+        wasmCode: new Uint8Array(lens.get('wasmCode') as Buffer),
+      };
+      callback(codeInfo, codeId);
+    });
+  }
+
   getCodeInfo(codeId: number, storage?: Snapshot) {
     const lens = this.lens(storage).lens('codes', codeId);
     if (!lens) return;
@@ -535,35 +547,34 @@ export class WasmModule {
     });
   }
 
-  handleQuery(query: WasmQuery): Result<Binary, string> | any {
+  handleQuery(query: WasmQuery): any {
     if ('smart' in query) {
       const { contract_addr, msg } = query.smart;
       const result = this.query(contract_addr, fromBinary(msg));
-
       // call query from other contract
-      if (result instanceof OkImpl) {
+      if (result.ok) {
         return result.val;
       }
-      return Ok(toBinary(result));
+      return Error(result.val.toString());
     } else if ('raw' in query) {
       const { contract_addr, key } = query.raw;
 
       const storage = this.getContractStorage(contract_addr);
       if (!storage) {
-        return Err(`Contract ${contract_addr} not found`);
+        return Error(`Contract ${contract_addr} not found`);
       }
 
       const value = storage.get(key);
       if (value === undefined) {
-        return Err(`Key ${key} not found`);
+        return Error(`Key ${key} not found`);
       } else {
-        return Ok(value);
+        return value;
       }
     } else if ('contract_info' in query) {
       const { contract_addr } = query.contract_info;
       const info = this.getContractInfo(contract_addr);
       if (info === undefined) {
-        return Err(`Contract ${contract_addr} not found`);
+        return Error(`Contract ${contract_addr} not found`);
       } else {
         const { codeId: code_id, creator, admin } = info;
         const resp: ContractInfoResponse = {
@@ -576,10 +587,10 @@ export class WasmModule {
           pinned: true,
         };
 
-        return Ok(toBinary(resp));
+        return resp;
       }
     } else {
-      return Err('Unknown wasm query');
+      return Error('Unknown wasm query');
     }
   }
 
