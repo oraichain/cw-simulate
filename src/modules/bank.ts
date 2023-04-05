@@ -2,8 +2,7 @@ import { Coin } from '@cosmjs/amino';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { Transactional, TransactionalLens } from '../store/transactional';
-import { AppResponse, Binary, Snapshot } from '../types';
-import { toBinary } from '../util';
+import { AppResponse, Snapshot } from '../types';
 
 type BankData = {
   balances: Record<string, Coin[]>;

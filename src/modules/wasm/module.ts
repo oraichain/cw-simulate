@@ -1,28 +1,27 @@
 import { Coin } from '@cosmjs/amino';
 import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
-import { Err, Ok, OkImpl, Result } from 'ts-results';
+import { Ok, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
 import { NEVER_IMMUTIFY, Transactional, TransactionalLens } from '../../store/transactional';
 import {
   AppResponse,
-  Binary,
   CodeInfo,
   ContractInfo,
   ContractInfoResponse,
   ContractResponse,
+  DebugLog,
   Event,
   ExecuteEnv,
   ExecuteTraceLog,
   ReplyMsg,
   ReplyOn,
   ReplyTraceLog,
+  Snapshot,
   SubMsg,
   TraceLog,
-  DebugLog,
-  Snapshot,
 } from '../../types';
-import { fromBinary, toBinary } from '../../util';
+import { fromBinary } from '../../util';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
 

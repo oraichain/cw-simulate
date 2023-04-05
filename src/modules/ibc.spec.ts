@@ -5,6 +5,7 @@ import { AppResponse, IbcOrder } from '../types';
 import { fromBinary, toBinary } from '../util';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { coins } from '@cosmjs/amino';
+import { BankMessage } from './bank';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
@@ -45,7 +46,7 @@ describe.only('IBCModule', () => {
   it('handle reflect', async () => {
     terraChain.ibc.relay('channel-0', oraiPort, oraiChain);
 
-    const channelOpenRes = await terraChain.ibc.send_channel_open({
+    const channelOpenRes = await terraChain.ibc.sendChannelOpen({
       open_init: {
         channel: {
           counterparty_endpoint: {
@@ -64,7 +65,7 @@ describe.only('IBCModule', () => {
     });
     expect(channelOpenRes).toEqual({ version: 'ibc-reflect-v1' });
 
-    const channelConnectRes = await terraChain.ibc.send_channel_connect({
+    const channelConnectRes = await terraChain.ibc.sendChannelConnect({
       open_ack: {
         channel: {
           counterparty_endpoint: {
@@ -89,7 +90,7 @@ describe.only('IBCModule', () => {
     ]);
 
     // get reflect address
-    let packetReceiveRes = await terraChain.ibc.send_packet_receive({
+    let packetReceiveRes = await terraChain.ibc.sendPacketReceive({
       packet: {
         data: toBinary({
           who_am_i: {},
@@ -119,7 +120,7 @@ describe.only('IBCModule', () => {
     oraiChain.bank.setBalance(reflectContractAddress, coins('500000000000', 'orai'));
 
     // send message to bob on oraichain
-    packetReceiveRes = await terraChain.ibc.send_packet_receive({
+    packetReceiveRes = await terraChain.ibc.sendPacketReceive({
       packet: {
         data: toBinary({
           dispatch: {
@@ -130,7 +131,7 @@ describe.only('IBCModule', () => {
                     to_address: bobAddress,
                     amount: coins(123456789, 'orai'),
                   },
-                },
+                } as BankMessage,
               },
             ],
           },
