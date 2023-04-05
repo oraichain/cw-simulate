@@ -1,32 +1,25 @@
 import { readFileSync } from 'fs';
 import { CWSimulateApp } from '../CWSimulateApp';
 import path from 'path';
-import { AppResponse, IbcOrder, RustResult } from '../types';
-import { coins } from '@cosmjs/amino';
+import { AppResponse, IbcOrder } from '../types';
 import { fromBinary, toBinary } from '../util';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
-import { Result } from 'ts-results';
 
+const terraChain = new CWSimulateApp({
+  chainId: 'test-1',
+  bech32Prefix: 'terra',
+});
+const oraiChain = new CWSimulateApp({
+  chainId: 'Oraichain',
+  bech32Prefix: 'orai',
+});
 const oraiSenderAddress = 'orai1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejvfgs7g';
+const terraSenderAddress = toBech32(terraChain.bech32Prefix, fromBech32(oraiSenderAddress).data);
 
 describe.only('IBCModule', () => {
-  let terraChain: CWSimulateApp;
-  let oraiChain: CWSimulateApp;
   let oraiPort: string;
   let terraPort: string;
   beforeEach(async () => {
-    terraChain = new CWSimulateApp({
-      chainId: 'test-1',
-      bech32Prefix: 'terra',
-    });
-
-    oraiChain = new CWSimulateApp({
-      chainId: 'Oraichain',
-      bech32Prefix: 'orai',
-    });
-
-    const terraSenderAddress = toBech32(terraChain.bech32Prefix, fromBech32(oraiSenderAddress).data);
-
     // currently we update price directly to feepool contract, and we can proxy to oracle hub later
     const terraSendCodeId = terraChain.wasm.create(
       terraSenderAddress,
@@ -69,7 +62,7 @@ describe.only('IBCModule', () => {
     terraChain.ibc.relay('channel-0', oraiPort, oraiChain);
     oraiChain.ibc.relay('channel-0', terraPort, terraChain);
 
-    const channelOpenRes = await terraChain.ibc.channel_open({
+    const channelOpenRes = await terraChain.ibc.send_channel_open({
       open_init: {
         channel: {
           counterparty_endpoint: {
@@ -88,7 +81,7 @@ describe.only('IBCModule', () => {
     });
     expect(channelOpenRes).toEqual({ version: 'ibc-reflect-v1' });
 
-    const channelConnectRes = await terraChain.ibc.channel_connect({
+    const channelConnectRes = await terraChain.ibc.send_channel_connect({
       open_ack: {
         channel: {
           counterparty_endpoint: {
@@ -117,7 +110,7 @@ describe.only('IBCModule', () => {
       who_am_i: {},
     });
 
-    const packetReceiveRes = await terraChain.ibc.packet_receive({
+    const packetReceiveRes = await terraChain.ibc.send_packet_receive({
       packet: {
         data,
         src: {

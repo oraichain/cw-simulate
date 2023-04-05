@@ -109,7 +109,7 @@ export class IbcModule {
     });
   }
 
-  public channel_open(data: IbcChannelOpenMsg): Promise<IbcChannelOpenResponse> {
+  public async send_channel_open(data: IbcChannelOpenMsg): Promise<IbcChannelOpenResponse> {
     const { counterparty_endpoint } = 'open_init' in data ? data.open_init.channel : data.open_try.channel;
 
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
@@ -122,7 +122,7 @@ export class IbcModule {
     });
   }
 
-  public channel_connect(data: IbcChannelConnectMsg): Promise<IbcBasicResponse> {
+  public async send_channel_connect(data: IbcChannelConnectMsg): Promise<IbcBasicResponse> {
     const { counterparty_endpoint } = 'open_ack' in data ? data.open_ack.channel : data.open_confirm.channel;
 
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
@@ -135,7 +135,7 @@ export class IbcModule {
     });
   }
 
-  public channel_close(data: IbcChannelCloseMsg): Promise<IbcBasicResponse> {
+  public async send_channel_close(data: IbcChannelCloseMsg): Promise<IbcBasicResponse> {
     const { counterparty_endpoint } = 'close_init' in data ? data.close_init.channel : data.close_confirm.channel;
 
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
@@ -148,7 +148,7 @@ export class IbcModule {
     });
   }
 
-  public packet_receive(data: IbcPacketReceiveMsg): Promise<IbcReceiveResponse> {
+  public async send_packet_receive(data: IbcPacketReceiveMsg): Promise<IbcReceiveResponse> {
     const counterparty_endpoint = data.packet.dest;
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
     const eventKey = getEventKey(destChain.chainId, counterparty_endpoint.channel_id, counterparty_endpoint.port_id);
@@ -160,7 +160,7 @@ export class IbcModule {
     });
   }
 
-  public packet_ack(data: IbcPacketAckMsg): Promise<IbcBasicResponse> {
+  public async send_packet_ack(data: IbcPacketAckMsg): Promise<IbcBasicResponse> {
     const counterparty_endpoint = data.original_packet.dest;
 
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
@@ -173,7 +173,7 @@ export class IbcModule {
     });
   }
 
-  public packet_timeout(data: IbcPacketTimeoutMsg): Promise<IbcBasicResponse> {
+  public async send_packet_timeout(data: IbcPacketTimeoutMsg): Promise<IbcBasicResponse> {
     const counterparty_endpoint = data.packet.dest;
 
     const destChain = this.chainMap.get(counterparty_endpoint.channel_id + ':' + counterparty_endpoint.port_id);
