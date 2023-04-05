@@ -32,8 +32,8 @@ type IbcMessage = {
 const emitter = new EventEmitter();
 const callbacks = new Map<string, [Function, Function]>();
 
-function getEventKey(chainId: string, channel: string, port): string {
-  return chainId + ':' + channel + ':' + port;
+function getKey(...args: string[]): string {
+  return args.join(':');
 }
 
 export class IbcModule {
@@ -49,7 +49,7 @@ export class IbcModule {
 
     try {
       let logs: DebugLog[] = [];
-      const destChain = this.chainMap.get(msg.endpoint.channel_id + ':' + msg.endpoint.port_id);
+      const destChain = this.chainMap.get(getKey(msg.endpoint.channel_id, msg.endpoint.port_id));
       const destContractAddress = msg.endpoint.port_id.substring(5); // remove wasm. prefix
       const contract = destChain.wasm.getContract(destContractAddress);
       const ret = contract[msg.type](msg.data, logs) as any;
@@ -68,8 +68,8 @@ export class IbcModule {
   }
 
   protected sendMsg<T>(type: IbcMessageType, endpoint: IbcEndpoint, data: any): Promise<T> {
-    const destChain = this.chainMap.get(endpoint.channel_id + ':' + endpoint.port_id);
-    const eventKey = getEventKey(destChain.chainId, endpoint.channel_id, endpoint.port_id);
+    const destChain = this.chainMap.get(getKey(endpoint.channel_id, endpoint.port_id));
+    const eventKey = getKey(destChain.chainId, endpoint.channel_id, endpoint.port_id);
 
     const id = Date.now().toString();
     return new Promise((resolve, reject) => {
@@ -79,8 +79,8 @@ export class IbcModule {
   }
 
   public relay(channel: string, port: string, destChain: CWSimulateApp) {
-    const eventKey = getEventKey(destChain.chainId, channel, port);
-    this.chainMap.set(channel + ':' + port, destChain);
+    const eventKey = getKey(destChain.chainId, channel, port);
+    this.chainMap.set(getKey(channel, port), destChain);
     emitter.removeAllListeners(eventKey);
     emitter.addListener(eventKey, this.handleRelayMsg);
   }
