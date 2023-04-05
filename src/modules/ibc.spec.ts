@@ -144,11 +144,11 @@ describe.only('IBCModule', () => {
           port_id: oraiPort,
           channel_id: 'channel-0',
         },
-        sequence: 27,
+        sequence: 28,
         timeout: {
           block: {
             revision: 1,
-            height: 12345678,
+            height: 12345679,
           },
         },
       },
