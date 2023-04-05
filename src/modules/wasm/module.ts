@@ -363,8 +363,20 @@ export class WasmModule {
     });
   }
 
+  // like AppResponse, just extend attribute and process subMsg instead of return Result
+  public async handleIbcResponse(
+    contractAddress: string,
+    res: ContractResponse,
+    trace: any = []
+  ): Promise<ContractResponse> {
+    if (res.messages) {
+      await this.handleContractResponse(contractAddress, res.messages, res, trace);
+    }
+    return res;
+  }
+
   /** Process contract response & execute (sub)messages */
-  public async handleContractResponse(
+  protected async handleContractResponse(
     contractAddress: string,
     messages: ContractResponse['messages'],
     res: AppResponse,

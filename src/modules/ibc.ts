@@ -99,13 +99,8 @@ export class IbcModule {
           throw new Error(ret.val);
         }
 
-        // like AppResponse, just extend attribute and process subMsg
-        if (ret.val.messages) {
-          let subtrace: TraceLog[] = [];
-          await destChain.wasm.handleContractResponse(contract.address, ret.val.messages, ret.val, subtrace);
-        }
-        // resolve
-        if (resolve) resolve(ret.val);
+        // process Ibc response
+        if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
       } catch (ex) {
         if (reject) reject(ex);
       } finally {
