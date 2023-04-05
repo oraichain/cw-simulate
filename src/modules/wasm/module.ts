@@ -72,7 +72,7 @@ export class WasmModule {
   // TODO: benchmark w/ many coexisting VMs
   private contracts: Record<string, Contract> = {};
 
-  constructor(public chain: CWSimulateApp) {
+  constructor(public readonly chain: CWSimulateApp) {
     this.store = chain.store.db.lens<WasmData>('wasm').initialize({
       lastCodeId: 0,
       lastInstanceId: 0,
@@ -177,6 +177,10 @@ export class WasmModule {
       this.contracts[address] = new Contract(this, address);
     }
     return this.contracts[address]!;
+  }
+
+  getContracts(): Contract[] {
+    return Object.values(this.contracts);
   }
 
   /** Register a new contract instance from codeId */
@@ -360,7 +364,7 @@ export class WasmModule {
   }
 
   /** Process contract response & execute (sub)messages */
-  protected async handleContractResponse(
+  public async handleContractResponse(
     contractAddress: string,
     messages: ContractResponse['messages'],
     res: AppResponse,

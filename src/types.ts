@@ -158,3 +158,108 @@ export interface ExecuteEnv {
     address: string;
   };
 }
+
+export interface IbcEndpoint {
+  port_id: string;
+  channel_id: string;
+}
+
+export interface IbcChannel {
+  endpoint: IbcEndpoint;
+  counterparty_endpoint: IbcEndpoint;
+  order: IbcOrder;
+  version: string;
+  connection_id: string;
+}
+
+export enum IbcOrder {
+  Unordered = 'ORDER_UNORDERED',
+  Ordered = 'ORDER_ORDERED',
+}
+
+export interface IbcAcknowledgement {
+  data: Binary;
+}
+
+export interface IbcTimeoutBlock {
+  revision: number;
+  height: number;
+}
+
+export interface IbcTimeout {
+  block?: IbcTimeoutBlock;
+  timestamp?: string;
+}
+
+export interface IbcPacket {
+  /// The raw data sent from the other side in the packet
+  data: Binary;
+  /// identifies the channel and port on the sending chain.
+  src: IbcEndpoint;
+  /// identifies the channel and port on the receiving chain.
+  dest: IbcEndpoint;
+  /// The sequence number of the packet on the given channel
+  sequence: number;
+  timeout: IbcTimeout;
+}
+
+export interface IbcPacketAckMsg {
+  acknowledgement: IbcAcknowledgement;
+  original_packet: IbcPacket;
+  relayer?: string;
+}
+
+export interface IbcPacketReceiveMsg {
+  packet: IbcPacket;
+  relayer?: string;
+}
+
+export interface IbcPacketTimeoutMsg {
+  packet: IbcPacket;
+  relayer?: string;
+}
+
+export type IbcChannelOpenMsg =
+  | { open_init: { channel: IbcChannel } }
+  | {
+      open_try: {
+        channel: IbcChannel;
+        counterparty_version: string;
+      };
+    };
+
+export type IbcChannelCloseMsg =
+  | { close_init: { channel: IbcChannel } }
+  | {
+      close_confirm: {
+        channel: IbcChannel;
+      };
+    };
+
+export type IbcChannelConnectMsg =
+  | {
+      open_ack: {
+        channel: IbcChannel;
+        counterparty_version: String;
+      };
+    }
+  | {
+      open_confirm: { channel: IbcChannel };
+    };
+
+export interface IbcChannelOpenResponse {
+  version: String;
+}
+
+export interface IbcBasicResponse {
+  messages: SubMsg[];
+  attributes: Attribute[];
+  events: Event[];
+}
+
+export interface IbcReceiveResponse {
+  acknowledgement: Binary;
+  messages: SubMsg[];
+  attributes: Attribute[];
+  events: Event[];
+}

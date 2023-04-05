@@ -41,7 +41,7 @@ export type AllBalancesResponse = { amount: Coin[] };
 export class BankModule {
   public readonly store: TransactionalLens<BankData>;
 
-  constructor(public chain: CWSimulateApp) {
+  constructor(public readonly chain: CWSimulateApp) {
     this.store = this.chain.store.db.lens<BankData>('bank').initialize({
       balances: {},
     });

@@ -1,13 +1,23 @@
 import { Coin } from '@cosmjs/amino';
-import {
-  BasicBackendApi,
-  BasicKVIterStorage,
-  IBackend,
-} from '@terran-one/cosmwasm-vm-js';
+import { BasicBackendApi, BasicKVIterStorage, IBackend } from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
-import { ContractResponse, DebugLog, ReplyMsg, Snapshot } from '../../types';
+import {
+  ContractResponse,
+  DebugLog,
+  IbcBasicResponse,
+  IbcChannelCloseMsg,
+  IbcChannelConnectMsg,
+  IbcChannelOpenMsg,
+  IbcChannelOpenResponse,
+  IbcPacketAckMsg,
+  IbcPacketReceiveMsg,
+  IbcPacketTimeoutMsg,
+  IbcReceiveResponse,
+  ReplyMsg,
+  Snapshot,
+} from '../../types';
 import { fromBinary, fromRustResult } from '../../util';
 import type { WasmModule } from './module';
 
@@ -47,20 +57,13 @@ export default class Contract {
     return this;
   }
 
-  instantiate(
-    sender: string,
-    funds: Coin[],
-    instantiateMsg: any,
-    logs: DebugLog[]
-  ): Result<ContractResponse, string> {
+  instantiate(sender: string, funds: Coin[], instantiateMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
     if (!this._vm) throw new NoVMError(this.address);
     const vm = this._vm;
     const env = this.getExecutionEnv();
     const info = { sender, funds };
 
-    const res = fromRustResult<ContractResponse>(
-      vm.instantiate(env, info, instantiateMsg).json
-    );
+    const res = fromRustResult<ContractResponse>(vm.instantiate(env, info, instantiateMsg).json);
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
@@ -69,12 +72,7 @@ export default class Contract {
     return res;
   }
 
-  execute(
-    sender: string,
-    funds: Coin[],
-    executeMsg: any,
-    logs: DebugLog[]
-  ): Result<ContractResponse, string> {
+  execute(sender: string, funds: Coin[], executeMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
     const vm = this._vm;
     if (!vm) throw new NoVMError(this.address);
     vm.resetDebugInfo();
@@ -82,8 +80,32 @@ export default class Contract {
     const env = this.getExecutionEnv();
     const info = { sender, funds };
 
-    const res = fromRustResult<ContractResponse>(
-      vm.execute(env, info, executeMsg).json
+    const res = fromRustResult<ContractResponse>(vm.execute(env, info, executeMsg).json);
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  reply(replyMsg: ReplyMsg, logs: DebugLog[]): Result<ContractResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg).json);
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  ibc_channel_open(ibcChannelOpenMsg: IbcChannelOpenMsg, logs: DebugLog[]): Result<IbcChannelOpenResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<IbcChannelOpenResponse>(
+      vm.ibc_channel_open(this.getExecutionEnv(), ibcChannelOpenMsg).json
     );
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
@@ -93,14 +115,63 @@ export default class Contract {
     return res;
   }
 
-  reply(
-    replyMsg: ReplyMsg,
-    logs: DebugLog[]
-  ): Result<ContractResponse, string> {
+  ibc_channel_connect(ibcChannelConnectMsg: IbcChannelConnectMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
     if (!this._vm) throw new NoVMError(this.address);
     const vm = this._vm;
-    const res = fromRustResult<ContractResponse>(
-      vm.reply(this.getExecutionEnv(), replyMsg).json
+    const res = fromRustResult<IbcBasicResponse>(
+      vm.ibc_channel_connect(this.getExecutionEnv(), ibcChannelConnectMsg).json
+    );
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  ibc_channel_close(ibcChannelCloseMsg: IbcChannelCloseMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_close(this.getExecutionEnv(), ibcChannelCloseMsg).json);
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  ibc_packet_receive(ibcPacketReceiveMsg: IbcPacketReceiveMsg, logs: DebugLog[]): Result<IbcReceiveResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<IbcReceiveResponse>(
+      vm.ibc_packet_receive(this.getExecutionEnv(), ibcPacketReceiveMsg).json
+    );
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  ibc_packet_ack(ibcPacketAckMsg: IbcPacketAckMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_ack(this.getExecutionEnv(), ibcPacketAckMsg).json);
+
+    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+    logs.push(...vm.logs);
+
+    return res;
+  }
+
+  ibc_packet_timeout(ibcPacketTimeoutMsg: IbcPacketTimeoutMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
+    if (!this._vm) throw new NoVMError(this.address);
+    const vm = this._vm;
+    const res = fromRustResult<IbcBasicResponse>(
+      vm.ibc_packet_timeout(this.getExecutionEnv(), ibcPacketTimeoutMsg).json
     );
 
     this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
@@ -124,9 +195,7 @@ export default class Contract {
 
     try {
       let env = this.getExecutionEnv();
-      return fromRustResult<string>(vm.query(env, queryMsg).json).andThen(v =>
-        Ok(fromBinary(v))
-      );
+      return fromRustResult<string>(vm.query(env, queryMsg).json).andThen(v => Ok(fromBinary(v)));
     } finally {
       // reset time travel
       vm.backend = currBackend;

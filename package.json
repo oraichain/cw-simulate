@@ -42,6 +42,7 @@
     "@cosmjs/encoding": "^0.29.5",
     "@kiruse/serde": "^0.8.0-rc.6",
     "@terran-one/cosmwasm-vm-js": "https://github.com/oraichain/cosmwasm-vm-js.git",
+    "eventemitter3": "^5.0.0",
     "immutable": "^4.1.0",
     "lobyte": "^0.0.3",
     "lodash": "^4.17.21",
