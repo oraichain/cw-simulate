@@ -37,7 +37,7 @@ describe.only('IBCModule', () => {
       [],
       ibcReflectCodeId,
       { reflect_code_id: reflectCodeId },
-      'ibc reflect'
+      'ibc-reflect'
     );
 
     oraiPort = 'wasm.' + (oraiRet.val as AppResponse).events[0].attributes[0].value;
