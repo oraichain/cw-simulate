@@ -4,6 +4,7 @@ import path from 'path';
 import { AppResponse, IbcOrder } from '../types';
 import { fromBinary, toBinary } from '../util';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { coins } from '@cosmjs/amino';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
@@ -14,26 +15,18 @@ const oraiChain = new CWSimulateApp({
   bech32Prefix: 'orai',
 });
 const oraiSenderAddress = 'orai1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejvfgs7g';
+const bobAddress = 'orai1ur2vsjrjarygawpdwtqteaazfchvw4fg6uql76';
 const terraSenderAddress = toBech32(terraChain.bech32Prefix, fromBech32(oraiSenderAddress).data);
 
 describe.only('IBCModule', () => {
   let oraiPort: string;
-  let terraPort: string;
+  let terraPort: string = 'transfer';
   beforeEach(async () => {
-    // currently we update price directly to feepool contract, and we can proxy to oracle hub later
-    const terraSendCodeId = terraChain.wasm.create(
-      terraSenderAddress,
-      readFileSync(path.join(__dirname, '..', '..', 'testing', 'ibc_reflect_send.wasm'))
-    );
-    const terraCodeId = terraChain.wasm.create(
-      terraSenderAddress,
-      readFileSync(path.join(__dirname, '..', '..', 'testing', 'ibc_reflect.wasm'))
-    );
-    const oraiSendCodeId = oraiChain.wasm.create(
+    const reflectCodeId = oraiChain.wasm.create(
       oraiSenderAddress,
-      readFileSync(path.join(__dirname, '..', '..', 'testing', 'ibc_reflect_send.wasm'))
+      readFileSync(path.join(__dirname, '..', '..', 'testing', 'reflect.wasm'))
     );
-    const oraiCodeId = oraiChain.wasm.create(
+    const ibcReflectCodeId = oraiChain.wasm.create(
       oraiSenderAddress,
       readFileSync(path.join(__dirname, '..', '..', 'testing', 'ibc_reflect.wasm'))
     );
@@ -41,26 +34,16 @@ describe.only('IBCModule', () => {
     const oraiRet = await oraiChain.wasm.instantiateContract(
       oraiSenderAddress,
       [],
-      oraiCodeId,
-      { reflect_code_id: terraSendCodeId },
+      ibcReflectCodeId,
+      { reflect_code_id: reflectCodeId },
       'ibc reflect'
     );
 
     oraiPort = 'wasm.' + (oraiRet.val as AppResponse).events[0].attributes[0].value;
-
-    const terraRet = await terraChain.wasm.instantiateContract(
-      terraSenderAddress,
-      [],
-      terraCodeId,
-      { reflect_code_id: oraiSendCodeId },
-      'ibc reflect'
-    );
-    terraPort = 'wasm.' + (terraRet.val as AppResponse).events[0].attributes[0].value;
   });
 
   it('handle reflect', async () => {
     terraChain.ibc.relay('channel-0', oraiPort, oraiChain);
-    oraiChain.ibc.relay('channel-0', terraPort, terraChain);
 
     const channelOpenRes = await terraChain.ibc.send_channel_open({
       open_init: {
@@ -105,14 +88,12 @@ describe.only('IBCModule', () => {
       { key: 'channel_id', value: 'channel-0' },
     ]);
 
-    // send message to bob on oraichain
-    const data = toBinary({
-      who_am_i: {},
-    });
-
-    const packetReceiveRes = await terraChain.ibc.send_packet_receive({
+    // get reflect address
+    let packetReceiveRes = await terraChain.ibc.send_packet_receive({
       packet: {
-        data,
+        data: toBinary({
+          who_am_i: {},
+        }),
         src: {
           port_id: terraPort,
           channel_id: 'channel-0',
@@ -129,13 +110,51 @@ describe.only('IBCModule', () => {
           },
         },
       },
-      relayer: oraiSenderAddress,
+      relayer: terraSenderAddress,
+    });
+    const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
+    const reflectContractAddress = res.ok.account;
+    expect(reflectContractAddress).toEqual(oraiChain.wasm.getContracts()[1].address);
+    // set some balance for reflect contract
+    oraiChain.bank.setBalance(reflectContractAddress, coins('500000000000', 'orai'));
+
+    // send message to bob on oraichain
+    packetReceiveRes = await terraChain.ibc.send_packet_receive({
+      packet: {
+        data: toBinary({
+          dispatch: {
+            msgs: [
+              {
+                bank: {
+                  send: {
+                    to_address: bobAddress,
+                    amount: coins(123456789, 'orai'),
+                  },
+                },
+              },
+            ],
+          },
+        }),
+        src: {
+          port_id: terraPort,
+          channel_id: 'channel-0',
+        },
+        dest: {
+          port_id: oraiPort,
+          channel_id: 'channel-0',
+        },
+        sequence: 27,
+        timeout: {
+          block: {
+            revision: 1,
+            height: 12345678,
+          },
+        },
+      },
+      relayer: terraSenderAddress,
     });
 
-    // check contract remote
-    const oraichainContractAddreses = oraiChain.wasm.getContracts().map(c => c.address);
-    const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
-    const remoteOraiContractAddress = res.ok.account;
-    expect(remoteOraiContractAddress).toEqual(oraichainContractAddreses[1]);
+    const bobBalance = oraiChain.bank.getBalance(bobAddress);
+    expect(bobBalance).toEqual(coins(123456789, 'orai'));
   });
 });
