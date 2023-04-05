@@ -368,7 +368,7 @@ export class WasmModule {
     res: ContractResponse,
     trace: any = []
   ): Promise<ContractResponse> {
-    if (res.messages) {
+    if (res?.messages) {
       await this.handleContractResponse(contractAddress, res.messages, res, trace);
     }
     return res;
