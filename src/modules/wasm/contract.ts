@@ -45,8 +45,7 @@ export default class Contract {
       const { wasmCode } = codeInfo;
       const contractState = this.getStorage();
 
-      let storage = new BasicKVIterStorage();
-      storage.dict = contractState;
+      const storage = new BasicKVIterStorage(contractState);
 
       let backend: IBackend = {
         backend_api: wasm.chain.zkFeatures
