@@ -1,28 +1,11 @@
-import { Coin } from '@cosmjs/amino';
 import Immutable from 'immutable';
 import { Result } from 'ts-results';
 import type { NEVER_IMMUTIFY } from './store/transactional';
+import { Attribute, Binary, ContractResponse, Env, IbcTimeout, MessageInfo, SubMsg } from '@terran-one/cosmwasm-vm-js';
 
 export interface AppResponse {
   events: any[];
   data: string | null;
-}
-
-export interface ContractResponse {
-  messages: SubMsg[];
-  events: Event[];
-  attributes: Attribute[];
-  data: Binary | null;
-}
-
-export interface Attribute {
-  key: string;
-  value: string;
-}
-
-export interface Event {
-  type: string;
-  attributes: Attribute[];
 }
 
 export type RustResult<T> = { ok: T } | { error: string };
@@ -108,7 +91,7 @@ interface TraceLogCommon {
   [NEVER_IMMUTIFY]: true;
   type: string;
   contractAddress: string;
-  env: ExecuteEnv;
+  env: Env;
   msg: any;
   response: Result<ContractResponse, string>;
   logs: DebugLog[];
@@ -119,10 +102,7 @@ interface TraceLogCommon {
 
 export type ExecuteTraceLog = TraceLogCommon & {
   type: 'execute' | 'instantiate';
-  info: {
-    sender: string;
-    funds: Coin[];
-  };
+  info: MessageInfo;
 };
 
 export type ReplyTraceLog = TraceLogCommon & {
@@ -131,33 +111,6 @@ export type ReplyTraceLog = TraceLogCommon & {
 };
 
 export type TraceLog = ExecuteTraceLog | ReplyTraceLog;
-
-export interface SubMsg {
-  id: number;
-  msg: any;
-  gas_limit: number | null;
-  reply_on: ReplyOn;
-}
-
-export enum ReplyOn {
-  Always = 'always',
-  Never = 'never',
-  Success = 'success',
-  Error = 'error',
-}
-
-export type Binary = string;
-
-export interface ExecuteEnv {
-  block: {
-    height: number;
-    time: string;
-    chain_id: string;
-  };
-  contract: {
-    address: string;
-  };
-}
 
 export interface IbcEndpoint {
   port_id: string;
@@ -179,16 +132,6 @@ export enum IbcOrder {
 
 export interface IbcAcknowledgement {
   data: Binary;
-}
-
-export interface IbcTimeoutBlock {
-  revision: number;
-  height: number;
-}
-
-export interface IbcTimeout {
-  block?: IbcTimeoutBlock;
-  timestamp?: string;
 }
 
 export interface IbcPacket {

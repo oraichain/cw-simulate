@@ -3,7 +3,7 @@ import { Err, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
 import { Transactional, TransactionalLens } from './store/transactional';
-import { AppResponse, Binary } from './types';
+import { AppResponse } from './types';
 import { SERDE } from '@kiruse/serde';
 import { IbcModule } from './modules/ibc';
 

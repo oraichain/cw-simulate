@@ -1,5 +1,6 @@
 import { Coin } from '@cosmjs/amino';
 import { Err, Ok, Result } from 'ts-results';
+import { BankMsg } from '@terran-one/cosmwasm-vm-js';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { Transactional, TransactionalLens } from '../store/transactional';
 import { AppResponse, Snapshot } from '../types';
@@ -7,19 +8,6 @@ import { AppResponse, Snapshot } from '../types';
 type BankData = {
   balances: Record<string, Coin[]>;
 };
-
-export type BankMessage =
-  | {
-      send: {
-        to_address: string;
-        amount: Coin[];
-      };
-    }
-  | {
-      burn: {
-        amount: Coin[];
-      };
-    };
 
 export type BankQuery =
   | {
@@ -135,7 +123,7 @@ export class BankModule {
     });
   }
 
-  public async handleMsg(sender: string, msg: BankMessage): Promise<Result<AppResponse, string>> {
+  public async handleMsg(sender: string, msg: BankMsg): Promise<Result<AppResponse, string>> {
     if ('send' in msg) {
       const result = this.send(sender, msg.send.to_address, msg.send.amount);
       return result.andThen(() =>

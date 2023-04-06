@@ -1,11 +1,11 @@
+import { CosmosMsg } from '@terran-one/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
-import { CWSimulateApp } from '../CWSimulateApp';
 import path from 'path';
+import { CWSimulateApp } from '../CWSimulateApp';
+import { coins } from '@cosmjs/amino';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { AppResponse, IbcOrder } from '../types';
 import { fromBinary, toBinary } from '../util';
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
-import { coins } from '@cosmjs/amino';
-import { BankMessage } from './bank';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
@@ -131,8 +131,8 @@ describe.only('IBCModule', () => {
                     to_address: bobAddress,
                     amount: coins(123456789, 'orai'),
                   },
-                } as BankMessage,
-              },
+                },
+              } as CosmosMsg,
             ],
           },
         }),

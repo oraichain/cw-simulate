@@ -9,21 +9,17 @@ import {
   CodeInfo,
   ContractInfo,
   ContractInfoResponse,
-  ContractResponse,
   DebugLog,
-  Event,
-  ExecuteEnv,
   ExecuteTraceLog,
   ReplyMsg,
-  ReplyOn,
   ReplyTraceLog,
   Snapshot,
-  SubMsg,
   TraceLog,
 } from '../../types';
 import { fromBinary } from '../../util';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
+import { ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@terran-one/cosmwasm-vm-js';
 
 type WasmData = {
   lastCodeId: number;
@@ -32,20 +28,6 @@ type WasmData = {
   contracts: Record<string, ContractInfo>;
   contractStorage: Record<string, Record<string, string>>;
 };
-
-export interface Execute {
-  contract_addr: string;
-  msg: string;
-  funds: { denom: string; amount: string }[];
-}
-
-export interface Instantiate {
-  admin: string | null;
-  code_id: number;
-  msg: string;
-  funds: { denom: string; amount: string }[];
-  label: string;
-}
 
 export interface SmartQuery {
   contract_addr: string;
@@ -60,8 +42,6 @@ export interface RawQuery {
 export interface ContractInfoQuery {
   contract_addr: string;
 }
-
-export type WasmMsg = { execute: Execute } | { instantiate: Instantiate };
 
 export type WasmQuery = { smart: SmartQuery } | { raw: RawQuery } | { contract_info: ContractInfoQuery };
 
@@ -157,8 +137,8 @@ export class WasmModule {
     return this.storeCode(creator, wasmCode).unwrap();
   }
 
-  /** Get the `ExecuteEnv` under which the next execution should run */
-  getExecutionEnv(contractAddress: string): ExecuteEnv {
+  /** Get the `Env` under which the next execution should run */
+  getExecutionEnv(contractAddress: string): Env {
     return {
       block: {
         height: this.chain.height,

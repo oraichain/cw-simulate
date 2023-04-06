@@ -1,8 +1,8 @@
 import { Coin } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { CWSimulateApp } from '../src/CWSimulateApp';
-import { BankMessage } from '../src/modules/bank';
-import { Event, ReplyOn, TraceLog } from '../src/types';
+import { BankMsg, Event, ReplyOn } from '@terran-one/cosmwasm-vm-js';
+import { TraceLog } from '../src/types';
 import { toBinary } from '../src/util';
 
 export const DEFAULT_CREATOR = 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu';
@@ -13,7 +13,7 @@ interface MsgCommand {
 }
 
 interface BankCommand {
-  bank_msg: BankMessage;
+  bank_msg: BankMsg;
 }
 
 interface SubCommand {
@@ -36,14 +36,7 @@ interface ThrowCommand {
   throw: string;
 }
 
-type Command =
-  | MsgCommand
-  | BankCommand
-  | SubCommand
-  | EvCommand
-  | AttrCommand
-  | DataCommand
-  | ThrowCommand;
+type Command = MsgCommand | BankCommand | SubCommand | EvCommand | AttrCommand | DataCommand | ThrowCommand;
 
 interface InstantiateParams {
   codeId: number;
@@ -85,7 +78,7 @@ export const cmd = {
     };
   },
 
-  bank(msg: BankMessage): BankCommand {
+  bank(msg: BankMsg): BankCommand {
     return {
       bank_msg: msg,
     };
@@ -144,10 +137,7 @@ type InstantiateOptions = {
 /** Utility methods for registration, instantiation, and interaction
  * with our test contract. */
 export class TestContract {
-  constructor(
-    public readonly app: CWSimulateApp,
-    public readonly creator = DEFAULT_CREATOR
-  ) {}
+  constructor(public readonly app: CWSimulateApp, public readonly creator = DEFAULT_CREATOR) {}
 
   /** Register the test contract wasm code w/ the app */
   register(creator?: string): number {
@@ -171,24 +161,10 @@ export class TestContract {
 }
 
 export class TestContractInstance {
-  constructor(
-    public readonly contract: TestContract,
-    public readonly address: string
-  ) {}
+  constructor(public readonly contract: TestContract, public readonly address: string) {}
 
-  async execute(
-    sender: string,
-    msg: any,
-    funds: Coin[] = [],
-    trace: TraceLog[] = []
-  ) {
-    return await this.app.wasm.executeContract(
-      sender,
-      funds,
-      this.address,
-      msg,
-      trace
-    );
+  async execute(sender: string, msg: any, funds: Coin[] = [], trace: TraceLog[] = []) {
+    return await this.app.wasm.executeContract(sender, funds, this.address, msg, trace);
   }
 
   get app() {

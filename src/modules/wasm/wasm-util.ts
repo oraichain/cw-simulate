@@ -1,6 +1,7 @@
 import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
-import { AppResponse, ContractResponse, Event } from '../../types';
+import { ContractResponse, Event } from '@terran-one/cosmwasm-vm-js';
+import { AppResponse } from '../../types';
 
 function numberToBigEndianUint64(n: number): Uint8Array {
   const buffer = new ArrayBuffer(8);
@@ -28,9 +29,7 @@ const protobufRoot = protobuf.Root.fromJSON({
 });
 
 export function wrapReplyResponse(res: AppResponse): AppResponse {
-  const MsgInstantiateContractResponse = protobufRoot.lookupType(
-    'MsgInstantiateContractResponse'
-  );
+  const MsgInstantiateContractResponse = protobufRoot.lookupType('MsgInstantiateContractResponse');
 
   const payload = {
     data: res.data,
@@ -38,9 +37,7 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
   };
 
   for (const event of res.events) {
-    const address = event.attributes.find(
-      attr => attr.key === '_contract_address'
-    )?.value;
+    const address = event.attributes.find(attr => attr.key === '_contract_address')?.value;
     if (address) {
       payload.address = address;
       break;
@@ -50,26 +47,15 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
   const message = MsgInstantiateContractResponse.create(payload); //;
   return {
     events: res.events,
-    data: Buffer.from(
-      MsgInstantiateContractResponse.encode(message).finish()
-    ).toString('base64'),
+    data: Buffer.from(MsgInstantiateContractResponse.encode(message).finish()).toString('base64'),
   };
 }
 
-export function buildContractAddress(
-  codeId: number,
-  instanceId: number
-): Uint8Array {
-  let contractId = new Uint8Array([
-    ...numberToBigEndianUint64(codeId),
-    ...numberToBigEndianUint64(instanceId),
-  ]);
+export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
+  let contractId = new Uint8Array([...numberToBigEndianUint64(codeId), ...numberToBigEndianUint64(instanceId)]);
 
   // append module name
-  let mKey = new Uint8Array([
-    ...Uint8Array.from(Buffer.from('wasm', 'utf-8')),
-    0,
-  ]);
+  let mKey = new Uint8Array([...Uint8Array.from(Buffer.from('wasm', 'utf-8')), 0]);
   let payload = new Uint8Array([...mKey, ...contractId]);
 
   let hasher = new Sha256();
@@ -81,11 +67,7 @@ export function buildContractAddress(
   return hash.slice(0, 20);
 }
 
-export function buildAppResponse(
-  contract: string,
-  customEvent: Event,
-  response: ContractResponse
-): AppResponse {
+export function buildAppResponse(contract: string, customEvent: Event, response: ContractResponse): AppResponse {
   const appEvents: Event[] = [];
   // add custom event
   appEvents.push(customEvent);
@@ -108,10 +90,7 @@ export function buildAppResponse(
   for (const event of response.events) {
     appEvents.push({
       type: `wasm-${event.type}`,
-      attributes: [
-        { key: '_contract_addr', value: contract },
-        ...event.attributes,
-      ],
+      attributes: [{ key: '_contract_addr', value: contract }, ...event.attributes],
     });
   }
 

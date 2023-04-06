@@ -1,6 +1,7 @@
 import { fromBase64, fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { Err, Ok, Result } from 'ts-results';
-import { Binary, RustResult } from './types';
+import { RustResult } from './types';
+import { Binary } from '@terran-one/cosmwasm-vm-js';
 
 export const isArrayLike = (value: any): value is any[] =>
   typeof value === 'object' && typeof value.length === 'number';

@@ -1,10 +1,10 @@
+import { BankMsg } from '@terran-one/cosmwasm-vm-js';
 import { cmd, exec, TestContract } from '../../testing/wasm-util';
 import { CWSimulateApp } from '../CWSimulateApp';
-import { fromBinary } from '../util';
-import { BankMessage, BankQuery } from './bank';
+import { BankQuery } from './bank';
 
-type WrappedBankMessage = {
-  bank: BankMessage;
+type WrappedBankMsg = {
+  bank: BankMsg;
 };
 
 describe.only('BankModule', () => {
@@ -87,7 +87,7 @@ describe.only('BankModule', () => {
     bank.setBalance('alice', [coin('foo', 1000)]);
 
     // Act
-    let msg: WrappedBankMessage = {
+    let msg: WrappedBankMsg = {
       bank: {
         send: {
           to_address: 'bob',
