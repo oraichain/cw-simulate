@@ -1,5 +1,11 @@
 import { Coin } from '@cosmjs/amino';
-import { BasicBackendApi, BasicKVIterStorage, ContractResponse, IBackend } from '@terran-one/cosmwasm-vm-js';
+import {
+  BasicBackendApi,
+  ZkBackendApi,
+  BasicKVIterStorage,
+  ContractResponse,
+  IBackend,
+} from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
@@ -43,7 +49,9 @@ export default class Contract {
       storage.dict = contractState;
 
       let backend: IBackend = {
-        backend_api: new BasicBackendApi(wasm.chain.bech32Prefix),
+        backend_api: wasm.chain.zkFeatures
+          ? new ZkBackendApi(wasm.chain.bech32Prefix)
+          : new BasicBackendApi(wasm.chain.bech32Prefix),
         storage,
         querier: wasm.chain.querier,
       };

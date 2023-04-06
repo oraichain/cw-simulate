@@ -10,6 +10,7 @@ import { IbcModule } from './modules/ibc';
 export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
+  zkFeatures?: boolean;
 }
 
 export type ChainData = {
@@ -21,7 +22,7 @@ export class CWSimulateApp {
   [SERDE] = 'cw-simulate-app' as const;
   public chainId: string;
   public bech32Prefix: string;
-
+  public zkFeatures: boolean;
   public store: TransactionalLens<ChainData>;
 
   public wasm: WasmModule;
@@ -32,6 +33,7 @@ export class CWSimulateApp {
   constructor(options: CWSimulateAppOptions) {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
+    this.zkFeatures = options.zkFeatures ?? false;
     this.store = new Transactional().lens<ChainData>().initialize({
       height: 1,
       time: Date.now(),
