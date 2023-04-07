@@ -1,11 +1,11 @@
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
 import { CosmosMsg } from '@terran-one/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { coins } from '@cosmjs/amino';
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { AppResponse, IbcOrder } from '../types';
-import { fromBinary, toBinary } from '../util';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
@@ -113,7 +113,7 @@ describe.only('IBCModule', () => {
       },
       relayer: terraSenderAddress,
     });
-    const res = fromBinary<{ ok: { account: string } }>(packetReceiveRes.acknowledgement);
+    const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
     const reflectContractAddress = res.ok.account;
     expect(reflectContractAddress).toEqual(oraiChain.wasm.getContracts()[1].address);
     // set some balance for reflect contract

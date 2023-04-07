@@ -1,10 +1,10 @@
+import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import { toAscii, toBase64 } from '@cosmjs/encoding';
 import { Event, ReplyOn } from '@terran-one/cosmwasm-vm-js';
 import { cmd, exec, TestContract, TestContractInstance } from '../../testing/wasm-util';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { AppResponse, TraceLog } from '../types';
-import { fromBinary, toBinary } from '../util';
 
 function event(ty: string, attrs: [string, string][]): Event {
   return {

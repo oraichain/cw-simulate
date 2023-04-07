@@ -1,13 +1,8 @@
-import { fromBase64, fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding';
 import { Err, Ok, Result } from 'ts-results';
 import { RustResult } from './types';
-import { Binary } from '@terran-one/cosmwasm-vm-js';
 
 export const isArrayLike = (value: any): value is any[] =>
   typeof value === 'object' && typeof value.length === 'number';
-
-export const toBinary = (value: any): Binary => toBase64(toUtf8(JSON.stringify(value)));
-export const fromBinary = <T>(base64String: string): T => JSON.parse(fromUtf8(fromBase64(base64String)));
 
 export function fromRustResult<T>(res: RustResult<T>): Result<T, string>;
 export function fromRustResult<T>(res: any): Result<T, string>;

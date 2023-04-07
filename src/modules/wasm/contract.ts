@@ -1,3 +1,4 @@
+import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import {
   BasicBackendApi,
@@ -23,7 +24,7 @@ import {
   ReplyMsg,
   Snapshot,
 } from '../../types';
-import { fromBinary, fromRustResult } from '../../util';
+import { fromRustResult } from '../../util';
 import type { WasmModule } from './module';
 
 /** An interface to interact with CW SCs */

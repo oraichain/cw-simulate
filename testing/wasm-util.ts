@@ -1,9 +1,9 @@
+import { toBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { CWSimulateApp } from '../src/CWSimulateApp';
 import { BankMsg, Event, ReplyOn } from '@terran-one/cosmwasm-vm-js';
 import { TraceLog } from '../src/types';
-import { toBinary } from '../src/util';
 
 export const DEFAULT_CREATOR = 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu';
 const BYTECODE = readFileSync(`${__dirname}/cw_simulate_tests-aarch64.wasm`);

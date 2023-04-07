@@ -1,3 +1,4 @@
+import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
@@ -16,7 +17,6 @@ import {
   Snapshot,
   TraceLog,
 } from '../../types';
-import { fromBinary } from '../../util';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
 import { ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@terran-one/cosmwasm-vm-js';
