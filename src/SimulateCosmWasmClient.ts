@@ -18,7 +18,7 @@ import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
-  private readonly app: CWSimulateApp;
+  public readonly app: CWSimulateApp;
   public constructor(appOrOptions: CWSimulateApp | CWSimulateAppOptions) {
     super(null, null, {});
     if (appOrOptions instanceof CWSimulateApp) {
