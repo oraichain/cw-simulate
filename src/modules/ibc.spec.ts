@@ -113,7 +113,7 @@ describe.only('IBCModule', () => {
       },
       relayer: terraSenderAddress,
     });
-    const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
+    const res = fromBinary<{ ok: { account: string } }>(packetReceiveRes.acknowledgement);
     const reflectContractAddress = res.ok.account;
     expect(reflectContractAddress).toEqual(oraiChain.wasm.getContracts()[1].address);
     // set some balance for reflect contract
