@@ -1,6 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import { CWSimulateApp } from '../CWSimulateApp';
 import {
+  AppResponse,
   DebugLog,
   IbcBasicResponse,
   IbcChannelCloseMsg,
@@ -13,6 +14,8 @@ import {
   IbcPacketTimeoutMsg,
   IbcReceiveResponse,
 } from '../types';
+import { IbcMsg } from '@terran-one/cosmwasm-vm-js/src';
+import { Err, Ok, Result } from 'ts-results';
 
 type IbcMessageType =
   | 'ibc_channel_open'
@@ -65,6 +68,62 @@ export class IbcModule {
     } finally {
       callbacks.delete(msg.id);
     }
+  }
+
+  public async handleMsg(sender: string, msg: IbcMsg): Promise<Result<AppResponse, string>> {
+    if ('send_packet' in msg) {
+      return Ok<AppResponse>({
+        events: [
+          {
+            type: 'send_packet',
+            attributes: [
+              { key: 'packet_data', value: Buffer.from(msg.send_packet.data, 'base64').toString('ascii') },
+              {
+                key: 'packet_timeout_height',
+                value: `${msg.send_packet.timeout.block?.revision ?? 0}-${msg.send_packet.timeout.block?.height ?? 0}`,
+              },
+              {
+                key: 'packet_timeout_timestamp',
+                value: msg.send_packet.timeout?.timestamp ?? "0",
+              },
+              {
+                key: 'packet_src_channel',
+                value: msg.send_packet.channel_id,
+              },
+
+            ],
+          },
+        ],
+        data: null,
+      });
+    }
+    if ('transfer' in msg) {
+      return Ok<AppResponse>({
+        events: [
+          {
+            type: 'transfer',
+            attributes: [
+              { key: 'recipient', value: msg.transfer.to_address },
+              {
+                key: 'sender',
+                value: sender,
+              },
+              {
+                key: 'amount',
+                value: `${msg.transfer.amount.amount}${msg.transfer.amount.denom}`,
+              },
+              {
+                key: 'channel',
+                value: msg.transfer.channel_id,
+              },
+
+            ],
+          },
+        ],
+        data: null,
+      });
+    }
+    return Err('Unknown ibc message');
   }
 
   protected sendMsg<T>(type: IbcMessageType, endpoint: IbcEndpoint, data: any): Promise<T> {

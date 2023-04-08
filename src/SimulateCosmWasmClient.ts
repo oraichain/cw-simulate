@@ -16,6 +16,7 @@ import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
 import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
+import { readFileSync } from 'fs';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   public readonly app: CWSimulateApp;
@@ -126,10 +127,24 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     });
   }
 
+  public async deploy(
+    senderAddress: string,
+    wasmPath: string,
+    msg: JsonObject,
+    label: string,
+    _fee?: StdFee | 'auto' | number,
+    options?: InstantiateOptions
+  ): Promise<InstantiateResult> {
+    // upload and instantiate the contract
+    const wasmBytecode = readFileSync(wasmPath);
+    const { codeId } = await this.upload(senderAddress, wasmBytecode);
+    return this.instantiate(senderAddress, codeId, msg, label, _fee, options);
+  }
+
   public upload(
     senderAddress: string,
     wasmCode: Uint8Array,
-    _fee: StdFee | 'auto' | number,
+    _fee?: StdFee | 'auto' | number,
     _memo?: string
   ): Promise<UploadResult> {
     // import the wasm bytecode
@@ -155,16 +170,12 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     codeId: number,
     msg: JsonObject,
     label: string,
-    _fee: StdFee | 'auto' | number,
+    _fee?: StdFee | 'auto' | number,
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
-    const result = await this.app.wasm.instantiateContract(
-      senderAddress,
-      (options?.funds as Coin[]) ?? [],
-      codeId,
-      msg,
-      label
+    const result = (
+      await this.app.wasm.instantiateContract(senderAddress, (options?.funds as Coin[]) ?? [], codeId, msg, label)
     );
 
     if (result.err || typeof result.val === 'string') {

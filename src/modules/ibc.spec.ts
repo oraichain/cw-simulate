@@ -1,6 +1,6 @@
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
-import { CosmosMsg } from '@terran-one/cosmwasm-vm-js';
+import { CosmosMsg, IbcMsg } from '@terran-one/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';
@@ -157,5 +157,33 @@ describe.only('IBCModule', () => {
 
     const bobBalance = oraiChain.bank.getBalance(bobAddress);
     expect(bobBalance).toEqual(coins(123456789, 'orai'));
+  });
+
+  it('ibc-handle msg', async () => {
+    // Arrange
+    const ibc = oraiChain.ibc;
+    // Act
+    let msg: IbcMsg = {
+      send_packet: {
+        channel_id: 'channel-0',
+        data: Buffer.from(
+          JSON.stringify({
+            amount: '100000000',
+            denom:
+              'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F',
+            receiver: 'cosmos1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejl67nlm',
+            sender: 'orai1ur2vsjrjarygawpdwtqteaazfchvw4fg6uql76',
+            memo: null,
+          })
+        ).toString('base64'),
+        timeout: {
+          timestamp: '123456',
+        },
+      },
+    };
+    let result = await ibc.handleMsg('alice', msg);
+    const attributes = result.val['events'][0]['attributes'];
+    expect(attributes.find((attr: { key: string, value: string }) => attr.key === 'packet_data').value).toEqual(Buffer.from(msg.send_packet.data, 'base64').toString('ascii'));
+    expect(attributes.find((attr: { key: string, value: string }) => attr.key === 'packet_timeout_timestamp').value).toEqual('123456');
   });
 });

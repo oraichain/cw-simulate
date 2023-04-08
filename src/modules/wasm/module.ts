@@ -235,35 +235,34 @@ export class WasmModule {
           result: response,
         });
         return response;
-      } else {
-        let customEvent: Event = {
-          type: 'instantiate',
-          attributes: [
-            { key: '_contract_address', value: contractAddress },
-            { key: 'code_id', value: codeId.toString() },
-          ],
-        };
-
-        if (response.err || typeof response.val === 'string') {
-          throw new Error(response.val.toString());
-        }
-
-        let res = buildAppResponse(contractAddress, customEvent, response.val);
-
-        let subtrace: TraceLog[] = [];
-
-        let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
-
-        trace.push({
-          ...tracebase,
-          response,
-          result,
-          trace: subtrace,
-          storeSnapshot: this.store.db.data,
-        });
-
-        return result;
       }
+      let customEvent: Event = {
+        type: 'instantiate',
+        attributes: [
+          { key: '_contract_address', value: contractAddress },
+          { key: 'code_id', value: codeId.toString() },
+        ],
+      };
+
+      if (typeof response.val === 'string') {
+        throw new Error(response.val.toString());
+      }
+
+      let res = buildAppResponse(contractAddress, customEvent, response.val);
+
+      let subtrace: TraceLog[] = [];
+
+      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+
+      trace.push({
+        ...tracebase,
+        response,
+        result,
+        trace: subtrace,
+        storeSnapshot: this.store.db.data,
+      });
+
+      return result;
     });
   }
 
@@ -309,36 +308,35 @@ export class WasmModule {
           result: response,
         });
         return response;
-      } else {
-        let customEvent = {
-          type: 'execute',
-          attributes: [
-            {
-              key: '_contract_addr',
-              value: contractAddress,
-            },
-          ],
-        };
-
-        if (response.err || typeof response.val === 'string') {
-          throw new Error(response.val.toString());
-        }
-
-        let res = buildAppResponse(contractAddress, customEvent, response.val);
-
-        let subtrace: TraceLog[] = [];
-        let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
-
-        trace.push({
-          ...tracebase,
-          response,
-          result,
-          trace: subtrace,
-          storeSnapshot: this.store.db.data,
-        });
-
-        return result;
       }
+      let customEvent = {
+        type: 'execute',
+        attributes: [
+          {
+            key: '_contract_addr',
+            value: contractAddress,
+          },
+        ],
+      };
+
+      if (typeof response.val === 'string') {
+        throw new Error(response.val.toString());
+      }
+
+      let res = buildAppResponse(contractAddress, customEvent, response.val);
+
+      let subtrace: TraceLog[] = [];
+      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+
+      trace.push({
+        ...tracebase,
+        response,
+        result,
+        trace: subtrace,
+        storeSnapshot: this.store.db.data,
+      });
+
+      return result;
     });
   }
 
@@ -365,16 +363,15 @@ export class WasmModule {
       const subres = await this.handleSubmsg(contractAddress, message, trace);
       if (subres.err) {
         return subres;
-      } else {
-        if (subres.err || typeof subres.val === 'string') {
-          throw new Error(subres.val.toString());
-        }
+      }
+      if (typeof subres.val === 'string') {
+        throw new Error(subres.val.toString());
+      }
 
-        res.events = [...res.events, ...subres.val.events];
+      res.events = [...res.events, ...subres.val.events];
 
-        if (subres.val.data !== null) {
-          res.data = subres.val.data;
-        }
+      if (subres.val.data !== null) {
+        res.data = subres.val.data;
       }
     }
 
@@ -412,48 +409,44 @@ export class WasmModule {
           if (replyRes.err) {
             // submessage success, call reply, reply failed
             return replyRes;
-          } else {
-            if (replyRes.err || typeof replyRes.val === 'string') {
-              throw new Error(replyRes.val.toString());
-            }
-
-            // submessage success, call reply, reply success
-            if (replyRes.val.data !== null) {
-              data = replyRes.val.data;
-            }
-            events = [...events, ...replyRes.val.events];
           }
+          if (typeof replyRes.val === 'string') {
+            throw new Error(replyRes.val.toString());
+          }
+
+          // submessage success, call reply, reply success
+          if (replyRes.val.data !== null) {
+            data = replyRes.val.data;
+          }
+          events = [...events, ...replyRes.val.events];
         } else {
           // submessage success, don't call reply
           data = null;
         }
 
         return Ok({ events, data });
-      } else {
-        // submessage failed
-        if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
-          // submessage failed, call reply
-          let replyMsg: ReplyMsg = {
-            id,
-            result: {
-              error: r.val as string,
-            },
-          };
-
-          let replyRes = await this.reply(contractAddress, replyMsg, trace);
-          if (replyRes.err) {
-            // submessage failed, call reply, reply failed
-            return replyRes;
-          } else {
-            // submessage failed, call reply, reply success
-            let { events, data } = replyRes.val as AppResponse;
-            return Ok({ events, data });
-          }
-        } else {
-          // submessage failed, don't call reply (equivalent to normal message)
-          return r;
-        }
       }
+      // submessage failed
+      if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
+        // submessage failed, call reply
+        let replyMsg: ReplyMsg = {
+          id,
+          result: {
+            error: r.val as string,
+          },
+        };
+
+        let replyRes = await this.reply(contractAddress, replyMsg, trace);
+        if (replyRes.err) {
+          // submessage failed, call reply, reply failed
+          return replyRes;
+        }
+        // submessage failed, call reply, reply success
+        let { events, data } = replyRes.val as AppResponse;
+        return Ok({ events, data });
+      }
+      // submessage failed, don't call reply (equivalent to normal message)
+      return r;
     });
   }
 
@@ -483,39 +476,38 @@ export class WasmModule {
         result: response,
       });
       return response;
-    } else {
-      const customEvent = {
-        type: 'reply',
-        attributes: [
-          {
-            key: '_contract_addr',
-            value: contractAddress,
-          },
-          {
-            key: 'mode',
-            value: 'ok' in replyMsg.result ? 'handle_success' : 'handle_failure',
-          },
-        ],
-      };
-
-      if (response.err || typeof response.val === 'string') {
-        throw new Error(response.val.toString());
-      }
-
-      let res = buildAppResponse(contractAddress, customEvent, response.val);
-
-      let subtrace: TraceLog[] = [];
-      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
-
-      trace.push({
-        ...tracebase,
-        response,
-        result,
-        storeSnapshot: this.store.db.data,
-      });
-
-      return result;
     }
+    const customEvent = {
+      type: 'reply',
+      attributes: [
+        {
+          key: '_contract_addr',
+          value: contractAddress,
+        },
+        {
+          key: 'mode',
+          value: 'ok' in replyMsg.result ? 'handle_success' : 'handle_failure',
+        },
+      ],
+    };
+
+    if (response.err || typeof response.val === 'string') {
+      throw new Error(response.val.toString());
+    }
+
+    let res = buildAppResponse(contractAddress, customEvent, response.val);
+
+    let subtrace: TraceLog[] = [];
+    let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+
+    trace.push({
+      ...tracebase,
+      response,
+      result,
+      storeSnapshot: this.store.db.data,
+    });
+
+    return result;
   }
 
   query(contractAddress: string, queryMsg: any): Result<any, string> {
@@ -533,12 +525,12 @@ export class WasmModule {
       if ('execute' in wasm) {
         let { contract_addr, funds, msg } = wasm.execute;
         return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), trace);
-      } else if ('instantiate' in wasm) {
+      }
+      if ('instantiate' in wasm) {
         let { code_id, funds, msg, label } = wasm.instantiate;
         return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, trace);
-      } else {
-        throw new Error('Unknown wasm message');
       }
+      throw new Error('Unknown wasm message');
     });
   }
 
@@ -551,7 +543,8 @@ export class WasmModule {
         return result.val;
       }
       return Error(result.val.toString());
-    } else if ('raw' in query) {
+    }
+    if ('raw' in query) {
       const { contract_addr, key } = query.raw;
 
       const storage = this.getContractStorage(contract_addr);
@@ -565,28 +558,27 @@ export class WasmModule {
       } else {
         return value;
       }
-    } else if ('contract_info' in query) {
+    }
+    if ('contract_info' in query) {
       const { contract_addr } = query.contract_info;
       const info = this.getContractInfo(contract_addr);
       if (info === undefined) {
         return Error(`Contract ${contract_addr} not found`);
-      } else {
-        const { codeId: code_id, creator, admin } = info;
-        const resp: ContractInfoResponse = {
-          code_id,
-          creator,
-          admin,
-          ibc_port: null,
-          // TODO: VM lifetime mgmt
-          // currently all VMs are always loaded ie pinned
-          pinned: true,
-        };
-
-        return resp;
       }
-    } else {
-      return Error('Unknown wasm query');
+      const { codeId: code_id, creator, admin } = info;
+      const resp: ContractInfoResponse = {
+        code_id,
+        creator,
+        admin,
+        ibc_port: null,
+        // TODO: VM lifetime mgmt
+        // currently all VMs are always loaded ie pinned
+        pinned: true,
+      };
+
+      return resp;
     }
+    return Error('Unknown wasm query');
   }
 
   private lens(storage?: Snapshot) {

@@ -48,11 +48,14 @@ export class CWSimulateApp {
   public async handleMsg(sender: string, msg: any, trace: any = []): Promise<Result<AppResponse, string>> {
     if ('wasm' in msg) {
       return await this.wasm.handleMsg(sender, msg.wasm, trace);
-    } else if ('bank' in msg) {
-      return await this.bank.handleMsg(sender, msg.bank);
-    } else {
-      return Err(`unknown message: ${JSON.stringify(msg)}`);
     }
+    if ('bank' in msg) {
+      return await this.bank.handleMsg(sender, msg.bank);
+    }
+    if ('ibc' in msg) {
+      return await this.ibc.handleMsg(sender, msg.ibc);
+    }
+    return Err(`unknown message: ${JSON.stringify(msg)}`);
   }
 
   public pushBlock<T>(callback: () => Result<T, string>): Result<T, string>;
