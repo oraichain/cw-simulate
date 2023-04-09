@@ -1,10 +1,10 @@
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { coin, coins } from '@cosmjs/amino';
 import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
-import { CosmosMsg, IbcMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { CosmosMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';
-import { coin, coins } from '@cosmjs/amino';
 import { AppResponse, IbcOrder } from '../types';
 
 const terraChain = new CWSimulateApp({

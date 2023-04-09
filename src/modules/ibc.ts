@@ -1,4 +1,7 @@
+import { coin } from '@cosmjs/amino';
+import { IbcMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js/src';
 import EventEmitter from 'eventemitter3';
+import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateApp } from '../CWSimulateApp';
 import {
   AppResponse,
@@ -15,10 +18,6 @@ import {
   IbcPacketTimeoutMsg,
   IbcReceiveResponse,
 } from '../types';
-import { IbcMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js/src';
-import { Err, Ok, Result } from 'ts-results';
-import { fromAscii, fromBase64, fromBech32 } from '@cosmjs/encoding';
-import { coin } from '@cosmjs/amino';
 
 const DEFAULT_IBC_TIMEOUT = 2000;
 type IbcMessageType =
