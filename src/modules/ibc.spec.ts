@@ -44,7 +44,7 @@ describe.only('IBCModule', () => {
   });
 
   it('handle-reflect', async () => {
-    oraiChain.ibc.relay('channel-0', oraiPort, oraiChain, 'channel-0', terraPort, terraChain);
+    oraiChain.ibc.relay('channel-0', oraiPort, 'channel-0', terraPort, terraChain);
 
     const channelOpenRes = await terraChain.ibc.sendChannelOpen({
       open_init: {
@@ -197,7 +197,7 @@ describe.only('IBCModule', () => {
 
   it('ibc-handle-msg', async () => {
     // Arrange
-    oraiChain.ibc.relay('channel-0', oraiPort, oraiChain, 'channel-0', terraPort, terraChain);
+    oraiChain.ibc.relay('channel-0', oraiPort, 'channel-0', terraPort, terraChain);
 
     // call transfer module, does not require wasm module
     let msg: IbcMsgTransfer = {

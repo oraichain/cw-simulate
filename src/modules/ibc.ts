@@ -66,13 +66,12 @@ export class IbcModule {
   public relay(
     sourceChannel: string,
     sourcePort: string,
-    sourceChain: CWSimulateApp,
     destChannel: string,
     destPort: string,
     destChain: CWSimulateApp
   ) {
-    sourceChain.ibc.innerRelay(sourceChannel, sourcePort, destChannel, destPort, destChain);
-    destChain.ibc.innerRelay(destChannel, destPort, sourceChannel, sourcePort, sourceChain);
+    this.innerRelay(sourceChannel, sourcePort, destChannel, destPort, destChain);
+    destChain.ibc.innerRelay(destChannel, destPort, sourceChannel, sourcePort, this.chain);
   }
 
   private async handleRelayMsg(msg: IbcMessage) {
