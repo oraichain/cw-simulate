@@ -43,8 +43,8 @@ describe.only('IBCModule', () => {
     oraiPort = 'wasm.' + (oraiRet.val as AppResponse).events[0].attributes[0].value;
   });
 
-  it('handle reflect', async () => {
-    terraChain.ibc.relay('channel-0', oraiPort, oraiChain);
+  it('handle-reflect', async () => {
+    oraiChain.ibc.relay('channel-0', oraiPort, oraiChain, 'channel-0', terraPort, terraChain);
 
     const channelOpenRes = await terraChain.ibc.sendChannelOpen({
       open_init: {
@@ -159,19 +159,16 @@ describe.only('IBCModule', () => {
     expect(bobBalance).toEqual(coins(123456789, 'orai'));
   });
 
-  it('ibc-handle msg', async () => {
+  it('ibc-handle-msg', async () => {
     // Arrange
-    oraiChain.ibc.relay('channel-0', terraPort, terraChain);
+    oraiChain.ibc.relay('channel-0', oraiPort, oraiChain, 'channel-0', terraPort, terraChain);
+
     // Act
     let msg: IbcMsgTransfer = {
       transfer: {
         channel_id: 'channel-0',
-
-        amount: coin(
-          '100000000',
-          'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F'
-        ),
-        to_address: terraSenderAddress,
+        amount: coin('100000000', 'ust'),
+        to_address: oraiSenderAddress,
 
         timeout: {
           timestamp: '123456',
@@ -179,14 +176,14 @@ describe.only('IBCModule', () => {
       },
     };
     // to receive events and attributes we must call handleMsg, otherwise we only get response from sending message
-    const ret = await oraiChain.ibc.handleMsg(oraiSenderAddress, msg);
+    const ret = await terraChain.ibc.handleMsg(terraSenderAddress, msg);
     console.log(JSON.stringify(ret.val));
 
-    expect(terraChain.bank.getBalance(terraSenderAddress)).toEqual(
-      coins(
-        '100000000',
-        'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F'
-      )
-    );
+    expect(oraiChain.bank.getBalance(oraiSenderAddress)).toEqual(coins('100000000', 'ust'));
+
+    // const res1 = await oraiChain.ibc.handleMsg(oraiSenderAddress, {
+    //   close_channel: { channel_id: 'channel-0' },
+    // });
+    // console.log(res1);
   });
 });

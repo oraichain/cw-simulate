@@ -183,7 +183,7 @@ export type IbcChannelConnectMsg =
   | {
       open_ack: {
         channel: IbcChannel;
-        counterparty_version: String;
+        counterparty_version: string;
       };
     }
   | {
@@ -191,7 +191,7 @@ export type IbcChannelConnectMsg =
     };
 
 export interface IbcChannelOpenResponse {
-  version: String;
+  version: string;
 }
 
 export interface IbcBasicResponse {
