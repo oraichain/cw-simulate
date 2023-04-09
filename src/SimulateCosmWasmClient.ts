@@ -127,18 +127,19 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     });
   }
 
-  public async deploy(
+  public async deploy<T = JsonObject>(
     senderAddress: string,
     wasmPath: string,
-    msg: JsonObject,
+    msg: T,
     label: string,
     _fee?: StdFee | 'auto' | number,
     options?: InstantiateOptions
-  ): Promise<InstantiateResult> {
+  ): Promise<UploadResult & InstantiateResult> {
     // upload and instantiate the contract
     const wasmBytecode = readFileSync(wasmPath);
-    const { codeId } = await this.upload(senderAddress, wasmBytecode);
-    return this.instantiate(senderAddress, codeId, msg, label, _fee, options);
+    const uploadRes = await this.upload(senderAddress, wasmBytecode);
+    const initRes = await this.instantiate(senderAddress, uploadRes.codeId, msg, label, _fee, options);
+    return { ...uploadRes, ...initRes };
   }
 
   public upload(
@@ -174,8 +175,12 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
-    const result = (
-      await this.app.wasm.instantiateContract(senderAddress, (options?.funds as Coin[]) ?? [], codeId, msg, label)
+    const result = await this.app.wasm.instantiateContract(
+      senderAddress,
+      (options?.funds as Coin[]) ?? [],
+      codeId,
+      msg,
+      label
     );
 
     if (result.err || typeof result.val === 'string') {
