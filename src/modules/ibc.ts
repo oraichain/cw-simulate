@@ -52,7 +52,8 @@ type MiddleWareCallback = (msg: IbcMessage, appRes: AppResponse) => Promise<void
 
 const emitter = new EventEmitter();
 const callbacks = new Map<string, [Function, Function, NodeJS.Timeout]>();
-const relayMap: Map<string, ChannelInfo> = new Map();
+const relayMap = new Map<string, ChannelInfo>();
+const middlWares = new Map<string, MiddleWareCallback[]>();
 
 function getKey(...args: string[]): string {
   return args.join(':');
@@ -60,18 +61,21 @@ function getKey(...args: string[]): string {
 
 export class IbcModule {
   public sequence: number = 0;
-  private readonly middlWares: MiddleWareCallback[] = [];
+
   constructor(public readonly chain: CWSimulateApp) {
     this.handleRelayMsg = this.handleRelayMsg.bind(this);
+    // reset middle ware
+    middlWares.set(chain.chainId, []);
   }
 
   public addMiddleWare(callback: MiddleWareCallback) {
-    this.middlWares.push(callback);
+    middlWares.get(this.chain.chainId).push(callback);
   }
 
   public removeMiddelWare(callback: MiddleWareCallback) {
-    const findInd = this.middlWares.findIndex(c => c === callback);
-    if (findInd !== -1) this.middlWares.splice(findInd, 1);
+    const chainMiddleWares = middlWares.get(this.chain.chainId);
+    const findInd = chainMiddleWares.findIndex(c => c === callback);
+    if (findInd !== -1) chainMiddleWares.splice(findInd, 1);
   }
 
   // connection is optional: you can set what ever
@@ -131,14 +135,15 @@ export class IbcModule {
           // process Ibc response
           if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
         } else {
-          if (!this.middlWares.length) {
+          const chainMiddleWares = middlWares.get(destChain.chainId);
+          if (!chainMiddleWares.length) {
             // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
             reject(new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`));
           }
 
           // run through callback following the order
           const appRes: AppResponse = { events: [], data: null };
-          for (const middleware of this.middlWares) {
+          for (const middleware of chainMiddleWares) {
             await middleware(msg, appRes);
           }
           if (resolve) resolve(appRes);
