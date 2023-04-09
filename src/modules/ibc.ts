@@ -299,7 +299,10 @@ export class IbcModule {
     return Err('Unknown ibc message');
   }
 
-  // endpoint is dest endpoint
+  // this method should be called from relayer, because blockchain can not call other rpc
+  // such as A -> sendChannelOpen(open_init) -> B
+  // if success then B -> sendChannelOpen(open_confirm) -> B
+  // same for sendChannelConnect and sendChannelClose
   protected sendMsg<T>(
     type: IbcMessageType,
     endpoint: IbcEndpoint,
