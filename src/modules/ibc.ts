@@ -198,9 +198,7 @@ export class IbcModule {
                 { key: 'packet_data_hex', value: Buffer.from(msg.send_packet.data, 'base64').toString('hex') },
                 {
                   key: 'packet_timeout_height',
-                  value: `${msg.send_packet.timeout.block?.revision ?? 0}-${
-                    msg.send_packet.timeout.block?.height ?? 0
-                  }`,
+                  value: msg.send_packet.timeout.block?.height ?? 0,
                 },
                 {
                   key: 'packet_sequence',
@@ -208,7 +206,7 @@ export class IbcModule {
                 },
                 {
                   key: 'packet_timeout_timestamp',
-                  value: msg.send_packet.timeout?.timestamp ?? '0',
+                  value: msg.send_packet.timeout.timestamp ?? '',
                 },
                 {
                   key: 'packet_src_channel',
