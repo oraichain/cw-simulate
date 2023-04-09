@@ -1,7 +1,16 @@
 import Immutable from 'immutable';
 import { Result } from 'ts-results';
 import type { NEVER_IMMUTIFY } from './store/transactional';
-import { Attribute, Binary, ContractResponse, Env, IbcTimeout, MessageInfo, SubMsg } from '@terran-one/cosmwasm-vm-js';
+import {
+  Attribute,
+  Binary,
+  ContractResponse,
+  Env,
+  IbcTimeout,
+  MessageInfo,
+  SubMsg,
+  Event,
+} from '@terran-one/cosmwasm-vm-js';
 
 export interface AppResponse {
   events: any[];

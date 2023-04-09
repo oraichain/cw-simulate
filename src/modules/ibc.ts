@@ -165,9 +165,11 @@ export class IbcModule {
         }
       });
 
-      return result.andThen(() =>
+      return result.andThen(ret =>
         Ok<AppResponse>({
+          ...ret,
           events: [
+            ...ret.events,
             {
               type: 'send_packet',
               attributes: [
@@ -236,9 +238,11 @@ export class IbcModule {
         }
       });
 
-      return result.andThen(() =>
+      return result.andThen(ret =>
         Ok<AppResponse>({
+          ...ret,
           events: [
+            ...ret.events,
             {
               type: 'transfer',
               attributes: [
@@ -296,9 +300,11 @@ export class IbcModule {
         }
       });
 
-      return result.andThen(() =>
+      return result.andThen(ret =>
         Ok<AppResponse>({
+          ...ret,
           events: [
+            ...ret.events,
             {
               type: 'channel_close_init',
               attributes: [

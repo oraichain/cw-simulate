@@ -161,38 +161,38 @@ describe.only('IBCModule', () => {
     const { val } = (await oraiChain.ibc.handleMsg(oraiSenderAddress, {
       close_channel: { channel_id: 'channel-0' },
     })) as { val: AppResponse };
-    expect(val.events).toEqual([
-      {
-        type: 'channel_close_init',
-        attributes: [
-          { key: 'port_id', value: oraiPort },
-          {
-            key: 'channel_id',
-            value: oraiSenderAddress,
-          },
-          {
-            key: 'counterparty_port_id',
-            value: terraPort,
-          },
-          {
-            key: 'counterparty_channel_id',
-            value: 'channel-0',
-          },
-          {
-            key: 'connection_id',
-            value: 'connection-0',
-          },
-          {
-            key: 'action',
-            value: 'channel_close_init',
-          },
-          {
-            key: 'module',
-            value: 'ibc_channel',
-          },
-        ],
-      },
-    ]);
+
+    // call handle will merge all events from application module
+    expect(val.events[3]).toEqual({
+      type: 'channel_close_init',
+      attributes: [
+        { key: 'port_id', value: oraiPort },
+        {
+          key: 'channel_id',
+          value: oraiSenderAddress,
+        },
+        {
+          key: 'counterparty_port_id',
+          value: terraPort,
+        },
+        {
+          key: 'counterparty_channel_id',
+          value: 'channel-0',
+        },
+        {
+          key: 'connection_id',
+          value: 'connection-0',
+        },
+        {
+          key: 'action',
+          value: 'channel_close_init',
+        },
+        {
+          key: 'module',
+          value: 'ibc_channel',
+        },
+      ],
+    });
   });
 
   it('ibc-handle-msg', async () => {
