@@ -178,6 +178,7 @@ describe.only('IBCModule', () => {
         },
       },
     };
+    // to receive events and attributes we must call handleMsg, otherwise we only get response from sending message
     const ret = await oraiChain.ibc.handleMsg(oraiSenderAddress, msg);
     console.log(JSON.stringify(ret.val));
 
