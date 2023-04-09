@@ -383,7 +383,7 @@ export class IbcModule {
         DEFAULT_IBC_TIMEOUT
       );
       callbacks.set(id, [resolve, reject, timer]);
-      emitter.emit(eventKey, { type, endpoint, counterparty_endpoint, data, id });
+      emitter.emit(eventKey, { type, endpoint, counterparty_endpoint, data, id }); // call handleRelayMsg
     });
   }
 
