@@ -82,7 +82,7 @@ export class IbcModule {
       let logs: DebugLog[] = [];
 
       const { chain: destChain } = relayMap.get(getKey(this.chain.chainId, msg.endpoint.channel_id));
-      console.log('handleRelayMsg', msg);
+
       if (msg.type === 'transfer') {
         const ibcMsg = msg.data as IbcMsgTransfer;
 
@@ -232,18 +232,18 @@ export class IbcModule {
 
       const result = await this.chain.store.tx(async () => {
         try {
-          // channel_id is source channel
-          const result = await this.sendChannelClose({
+          // when source channel call handle close msg, we can call sendChannelClose from dest chain to trigger it,
+          const result = await destInfo.chain.ibc.sendChannelClose({
             close_init: {
               channel: {
                 order: IbcOrder.Unordered,
                 version: destInfo.version,
                 connection_id: destInfo.connection_id,
-                endpoint: {
+                counterparty_endpoint: {
                   channel_id: msg.close_channel.channel_id,
                   port_id: destInfo.source_port_id,
                 },
-                counterparty_endpoint: {
+                endpoint: {
                   channel_id: destInfo.channel_id,
                   port_id: destInfo.port_id,
                 },

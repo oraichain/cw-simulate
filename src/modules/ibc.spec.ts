@@ -157,13 +157,49 @@ describe.only('IBCModule', () => {
 
     const bobBalance = oraiChain.bank.getBalance(bobAddress);
     expect(bobBalance).toEqual(coins(123456789, 'orai'));
+
+    const { val } = (await oraiChain.ibc.handleMsg(oraiSenderAddress, {
+      close_channel: { channel_id: 'channel-0' },
+    })) as { val: AppResponse };
+    expect(val.events).toEqual([
+      {
+        type: 'channel_close_init',
+        attributes: [
+          { key: 'port_id', value: oraiPort },
+          {
+            key: 'channel_id',
+            value: oraiSenderAddress,
+          },
+          {
+            key: 'counterparty_port_id',
+            value: terraPort,
+          },
+          {
+            key: 'counterparty_channel_id',
+            value: 'channel-0',
+          },
+          {
+            key: 'connection_id',
+            value: 'connection-0',
+          },
+          {
+            key: 'action',
+            value: 'channel_close_init',
+          },
+          {
+            key: 'module',
+            value: 'ibc_channel',
+          },
+        ],
+      },
+    ]);
   });
 
   it('ibc-handle-msg', async () => {
     // Arrange
     oraiChain.ibc.relay('channel-0', oraiPort, oraiChain, 'channel-0', terraPort, terraChain);
 
-    // Act
+    // call transfer module, does not require wasm module
     let msg: IbcMsgTransfer = {
       transfer: {
         channel_id: 'channel-0',
@@ -180,10 +216,5 @@ describe.only('IBCModule', () => {
     console.log(JSON.stringify(ret.val));
 
     expect(oraiChain.bank.getBalance(oraiSenderAddress)).toEqual(coins('100000000', 'ust'));
-
-    // const res1 = await oraiChain.ibc.handleMsg(oraiSenderAddress, {
-    //   close_channel: { channel_id: 'channel-0' },
-    // });
-    // console.log(res1);
   });
 });
