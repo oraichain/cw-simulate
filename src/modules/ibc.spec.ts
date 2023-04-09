@@ -1,10 +1,10 @@
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
-import { CosmosMsg, IbcMsg } from '@terran-one/cosmwasm-vm-js';
+import { CosmosMsg, IbcMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';
-import { coins } from '@cosmjs/amino';
+import { coin, coins } from '@cosmjs/amino';
 import { AppResponse, IbcOrder } from '../types';
 
 const terraChain = new CWSimulateApp({
@@ -103,11 +103,11 @@ describe.only('IBCModule', () => {
           port_id: oraiPort,
           channel_id: 'channel-0',
         },
-        sequence: 27,
+        sequence: terraChain.ibc.sequence++,
         timeout: {
           block: {
             revision: 1,
-            height: 12345678,
+            height: terraChain.height,
           },
         },
       },
@@ -125,14 +125,14 @@ describe.only('IBCModule', () => {
         data: toBinary({
           dispatch: {
             msgs: [
-              {
+              <CosmosMsg>{
                 bank: {
                   send: {
                     to_address: bobAddress,
                     amount: coins(123456789, 'orai'),
                   },
                 },
-              } as CosmosMsg,
+              },
             ],
           },
         }),
@@ -144,11 +144,11 @@ describe.only('IBCModule', () => {
           port_id: oraiPort,
           channel_id: 'channel-0',
         },
-        sequence: 28,
+        sequence: terraChain.ibc.sequence++,
         timeout: {
           block: {
             revision: 1,
-            height: 12345679,
+            height: terraChain.height,
           },
         },
       },
@@ -161,29 +161,31 @@ describe.only('IBCModule', () => {
 
   it('ibc-handle msg', async () => {
     // Arrange
-    const ibc = oraiChain.ibc;
+    oraiChain.ibc.relay('channel-0', terraPort, terraChain);
     // Act
-    let msg: IbcMsg = {
-      send_packet: {
+    let msg: IbcMsgTransfer = {
+      transfer: {
         channel_id: 'channel-0',
-        data: Buffer.from(
-          JSON.stringify({
-            amount: '100000000',
-            denom:
-              'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F',
-            receiver: 'cosmos1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejl67nlm',
-            sender: 'orai1ur2vsjrjarygawpdwtqteaazfchvw4fg6uql76',
-            memo: null,
-          })
-        ).toString('base64'),
+
+        amount: coin(
+          '100000000',
+          'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F'
+        ),
+        to_address: terraSenderAddress,
+
         timeout: {
           timestamp: '123456',
         },
       },
     };
-    let result = await ibc.handleMsg('alice', msg);
-    const attributes = result.val['events'][0]['attributes'];
-    expect(attributes.find((attr: { key: string, value: string }) => attr.key === 'packet_data').value).toEqual(Buffer.from(msg.send_packet.data, 'base64').toString('ascii'));
-    expect(attributes.find((attr: { key: string, value: string }) => attr.key === 'packet_timeout_timestamp').value).toEqual('123456');
+    const ret = await oraiChain.ibc.handleMsg(oraiSenderAddress, msg);
+    console.log(JSON.stringify(ret.val));
+
+    expect(terraChain.bank.getBalance(terraSenderAddress)).toEqual(
+      coins(
+        '100000000',
+        'wasm.orai1kpjz6jsyxg0wd5r5hhyquawgt3zva34m96qdl2/channel-0/oraib0x7e2A35C746F2f7C240B664F1Da4DD100141AE71F'
+      )
+    );
   });
 });

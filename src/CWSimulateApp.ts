@@ -1,9 +1,9 @@
-import { QuerierBase } from '@terran-one/cosmwasm-vm-js';
+import { CosmosMsg, QuerierBase } from '@terran-one/cosmwasm-vm-js';
 import { Err, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
 import { Transactional, TransactionalLens } from './store/transactional';
-import { AppResponse } from './types';
+import { AppResponse, TraceLog } from './types';
 import { SERDE } from '@kiruse/serde';
 import { IbcModule } from './modules/ibc';
 
@@ -45,7 +45,7 @@ export class CWSimulateApp {
     this.querier = new Querier(this);
   }
 
-  public async handleMsg(sender: string, msg: any, trace: any = []): Promise<Result<AppResponse, string>> {
+  public async handleMsg(sender: string, msg: CosmosMsg, trace: TraceLog[] = []): Promise<Result<AppResponse, string>> {
     if ('wasm' in msg) {
       return await this.wasm.handleMsg(sender, msg.wasm, trace);
     }
