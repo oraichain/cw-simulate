@@ -48,6 +48,8 @@ type ChannelInfo = {
   chain: CWSimulateApp;
 };
 
+type MiddleWareCallback = (msg: IbcMessage, appRes: AppResponse) => Promise<void> | void;
+
 const emitter = new EventEmitter();
 const callbacks = new Map<string, [Function, Function, NodeJS.Timeout]>();
 const relayMap: Map<string, ChannelInfo> = new Map();
@@ -58,8 +60,18 @@ function getKey(...args: string[]): string {
 
 export class IbcModule {
   public sequence: number = 0;
+  private readonly middlWares: MiddleWareCallback[] = [];
   constructor(public readonly chain: CWSimulateApp) {
     this.handleRelayMsg = this.handleRelayMsg.bind(this);
+  }
+
+  public addMiddleWare(callback: MiddleWareCallback) {
+    this.middlWares.push(callback);
+  }
+
+  public removeMiddelWare(callback: MiddleWareCallback) {
+    const findInd = this.middlWares.findIndex(c => c === callback);
+    if (findInd !== -1) this.middlWares.splice(findInd, 1);
   }
 
   // connection is optional: you can set what ever
@@ -119,8 +131,17 @@ export class IbcModule {
           // process Ibc response
           if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
         } else {
-          // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
-          reject(new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`));
+          if (!this.middlWares.length) {
+            // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
+            reject(new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`));
+          }
+
+          // run through callback following the order
+          const appRes: AppResponse = { events: [], data: null };
+          for (const middleware of this.middlWares) {
+            await middleware(msg, appRes);
+          }
+          if (resolve) resolve(appRes);
         }
       }
     } catch (ex) {
