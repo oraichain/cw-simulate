@@ -64,8 +64,6 @@ export class IbcModule {
 
   constructor(public readonly chain: CWSimulateApp) {
     this.handleRelayMsg = this.handleRelayMsg.bind(this);
-    // reset middle ware
-    middlWares.set(chain.chainId, []);
   }
 
   public addMiddleWare(callback: MiddleWareCallback) {
@@ -400,13 +398,15 @@ export class IbcModule {
     destChain: CWSimulateApp
   ) {
     const eventKey = getKey(this.chain.chainId, sourceChannel);
+    // override
     relayMap.set(eventKey, {
       channel_id: destChannel,
       port_id: destPort,
       source_port_id: sourcePort,
       chain: destChain,
     });
-
+    // reset all
+    middlWares.set(this.chain.chainId, []);
     emitter.removeAllListeners(eventKey);
     emitter.addListener(eventKey, this.handleRelayMsg);
   }
