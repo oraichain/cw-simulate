@@ -101,23 +101,28 @@ export class IbcModule {
 
         destChain.bank.setBalance(ibcMsg.transfer.to_address, currentBalance);
         if (resolve) resolve(<AppResponse>{ events: [], data: null });
-      } else if (msg.counterparty_endpoint.port_id.startsWith('wasm.')) {
-        const destContractAddress = msg.counterparty_endpoint.port_id.substring(5); // remove wasm. prefix
+      } else {
+        if (msg.counterparty_endpoint.port_id.startsWith('wasm.')) {
+          const destContractAddress = msg.counterparty_endpoint.port_id.substring(5); // remove wasm. prefix
 
-        const contract = destChain.wasm.getContract(destContractAddress);
+          const contract = destChain.wasm.getContract(destContractAddress);
 
-        if (!(msg.type in contract)) {
-          throw new Error(`Contract ${destContractAddress} does not have entrypoint ${msg.type}`);
+          if (!(msg.type in contract)) {
+            throw new Error(`Contract ${destContractAddress} does not have entrypoint ${msg.type}`);
+          }
+
+          const ret = contract[msg.type](msg.data, logs) as any;
+
+          if (ret.err) {
+            throw new Error(ret.val);
+          }
+
+          // process Ibc response
+          if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
+        } else {
+          // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
+          reject(new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`));
         }
-
-        const ret = contract[msg.type](msg.data, logs) as any;
-
-        if (ret.err) {
-          throw new Error(ret.val);
-        }
-
-        // process Ibc response
-        if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
       }
     } catch (ex) {
       if (reject) reject(ex);
