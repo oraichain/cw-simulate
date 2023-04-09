@@ -127,6 +127,8 @@ export class IbcModule {
     }
   }
 
+  // currently we only support handleMsg from cosmwasm contract that is IbcMsg, other event will not be covered from this module
+  // it is at application level
   public async handleMsg(sender: string, msg: IbcMsg): Promise<Result<AppResponse, string>> {
     if ('send_packet' in msg) {
       const destInfo = relayMap.get(getKey(this.chain.chainId, msg.send_packet.channel_id));
@@ -164,12 +166,16 @@ export class IbcModule {
             {
               type: 'send_packet',
               attributes: [
-                { key: 'packet_data', value: fromAscii(fromBase64(msg.send_packet.data)) },
+                { key: 'packet_data_hex', value: Buffer.from(msg.send_packet.data, 'base64').toString('hex') },
                 {
                   key: 'packet_timeout_height',
                   value: `${msg.send_packet.timeout.block?.revision ?? 0}-${
                     msg.send_packet.timeout.block?.height ?? 0
                   }`,
+                },
+                {
+                  key: 'packet_sequence',
+                  value: this.sequence,
                 },
                 {
                   key: 'packet_timeout_timestamp',
@@ -178,6 +184,34 @@ export class IbcModule {
                 {
                   key: 'packet_src_channel',
                   value: msg.send_packet.channel_id,
+                },
+                {
+                  key: 'packet_src_port',
+                  value: destInfo.source_port_id,
+                },
+                {
+                  key: 'packet_dest_channel',
+                  value: destInfo.channel_id,
+                },
+                {
+                  key: 'packet_dest_port',
+                  value: destInfo.port_id,
+                },
+                {
+                  key: 'packet_channel_ordering',
+                  value: IbcOrder.Unordered,
+                },
+                {
+                  key: 'connection_id',
+                  value: destInfo.connection_id,
+                },
+                {
+                  key: 'action',
+                  value: 'application-module-defined-field',
+                },
+                {
+                  key: 'module',
+                  value: 'ibc_channel',
                 },
               ],
             },
