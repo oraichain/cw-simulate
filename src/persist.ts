@@ -85,14 +85,12 @@ export const serde = Serde<Protocols>()
     }
   );
 
-export const save = (app: CWSimulateApp) =>
-  serde.serializeAs('cw-simulate-app', app).compress().buffer;
+export const save = (app: CWSimulateApp) => serde.serializeAs('cw-simulate-app', app).compress().buffer;
+
 export const load = async (bytes: Uint8Array) => {
   const app = serde.deserializeAs('cw-simulate-app', bytes);
   const contracts = [...app.wasm.store.get('contracts').keys()];
-  await Promise.all(
-    contracts.map(address => app.wasm.getContract(address).init())
-  );
+  await Promise.all(contracts.map(address => app.wasm.getContract(address).init()));
   return app;
 };
 

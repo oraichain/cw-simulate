@@ -17,8 +17,15 @@ import { sha256 } from '@cosmjs/crypto';
 import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
+import { load, save } from './persist';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
+  // deserialize from bytes
+  public static async from(bytes: Uint8Array | Buffer): Promise<SimulateCosmWasmClient> {
+    const app = await load(Uint8Array.from(bytes));
+    return new SimulateCosmWasmClient(app);
+  }
+
   public readonly app: CWSimulateApp;
   public constructor(appOrOptions: CWSimulateApp | CWSimulateAppOptions) {
     super(null, null, {});
@@ -27,6 +34,11 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     } else {
       this.app = new CWSimulateApp(appOrOptions);
     }
+  }
+
+  // serialize to bytes
+  public toBytes(): Uint8Array {
+    return save(this.app);
   }
 
   public getChainId(): Promise<string> {

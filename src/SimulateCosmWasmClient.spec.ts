@@ -2,6 +2,7 @@ import { sha256 } from '@cosmjs/crypto';
 import { toHex } from '@cosmjs/encoding';
 import fs from 'fs';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
+import { save, load } from './persist';
 
 const bytecode = fs.readFileSync('./testing/cw_simulate_tests-aarch64.wasm');
 
@@ -21,13 +22,22 @@ describe('SimulateCosmWasmClient', () => {
         'alice',
         contractAddress,
         {
-          debug: { msg: 'foobar' },
+          push: { data: 'foobar' },
         },
         'auto'
       );
       expect(result.events[0].attributes[0].value).toEqual(contractAddress);
 
-      const codes = await client.getCodes();
+      expect(await client.queryContractSmart(contractAddress, { get_buffer: {} })).toEqual({ buffer: ['foobar'] });
+
+      const bytes = client.toBytes();
+      const clientRestore = await SimulateCosmWasmClient.from(bytes);
+
+      expect(await clientRestore.queryContractSmart(contractAddress, { get_buffer: {} })).toEqual({
+        buffer: ['foobar'],
+      });
+
+      const codes = await clientRestore.getCodes();
       expect(codes).toEqual([
         {
           id: codeId,
