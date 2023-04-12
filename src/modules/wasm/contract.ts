@@ -239,31 +239,28 @@ export default class Contract {
   }
 
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
-    let currBackend: IBackend = undefined;
+    if (!this._vm) {
+      throw new ContractNotFoundError(this.address);
+    }
+
+    const vm = this._vm;
+
+    // time travel
+    const currBackend = vm.backend;
+    const storage = new BasicKVIterStorage(this.getStorage(store));
+    vm.backend = {
+      ...vm.backend,
+      storage,
+    };
+
+    let env = this.getExecutionEnv();
     try {
-      if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
-      }
-
-      const vm = this._vm;
-
-      // time travel
-      currBackend = vm.backend;
-      const storage = new BasicKVIterStorage(this.getStorage(store));
-      vm.backend = {
-        ...vm.backend,
-        storage,
-      };
-
-      let env = this.getExecutionEnv();
       return fromRustResult<string>(vm.query(env, queryMsg)).andThen(v => Ok(fromBinary(v)));
     } catch (ex) {
       return Err((ex as Error).message);
     } finally {
       // reset time travel
-      if (currBackend) {
-        this._vm.backend = currBackend;
-      }
+      this._vm.backend = currBackend;
     }
   }
 
