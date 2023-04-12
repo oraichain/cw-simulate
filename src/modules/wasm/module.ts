@@ -111,7 +111,7 @@ export class WasmModule {
 
   getContractInfo(contractAddress: string, storage?: Snapshot) {
     const lens = this.lens(storage).lens('contracts', contractAddress);
-    if (!lens) return;
+    if (!lens?.data) return;
     return lens.data.toObject() as any as ContractInfo;
   }
 
