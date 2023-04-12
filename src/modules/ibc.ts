@@ -135,7 +135,7 @@ export class IbcModule {
           const chainMiddleWares = middlWares.get(destChain.chainId);
           if (!chainMiddleWares.length) {
             // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
-            reject(new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`));
+            throw new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`);
           }
 
           // run through callback following the order

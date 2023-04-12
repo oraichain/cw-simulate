@@ -240,7 +240,7 @@ export default class Contract {
 
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
     if (!this._vm) {
-      throw new ContractNotFoundError(this.address);
+      return Err(new ContractNotFoundError(this.address).message);
     }
 
     const vm = this._vm;
