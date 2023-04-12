@@ -286,6 +286,6 @@ export default class Contract {
 
 class ContractNotFoundError extends Error {
   constructor(contractAddress: string) {
-    super(`contract ${contractAddress} not found`);
+    super(`Contract ${contractAddress} not found`);
   }
 }
