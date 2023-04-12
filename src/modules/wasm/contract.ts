@@ -37,7 +37,7 @@ export default class Contract {
     if (!this._vm) {
       const { _wasm: wasm, address } = this;
       const contractInfo = wasm.getContractInfo(address);
-      if (!contractInfo) throw new Error(`contract ${address} not found`);
+      if (!contractInfo) throw new ContractNotFoundError(address);
 
       const { codeId } = contractInfo;
       const codeInfo = wasm.getCodeInfo(codeId);
@@ -65,34 +65,36 @@ export default class Contract {
   }
 
   instantiate(sender: string, funds: Coin[], instantiateMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const env = this.getExecutionEnv();
+      const info = { sender, funds };
+
+      const res = fromRustResult<ContractResponse>(vm.instantiate(env, info, instantiateMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const env = this.getExecutionEnv();
-    const info = { sender, funds };
-
-    const res = fromRustResult<ContractResponse>(vm.instantiate(env, info, instantiateMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   execute(sender: string, funds: Coin[], executeMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
-    const vm = this._vm;
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
-    }
-    vm.resetDebugInfo();
-
     try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      vm.resetDebugInfo();
       const env = this.getExecutionEnv();
       const info = { sender, funds };
-      const result = vm.execute(env, info, executeMsg);
-      const res = fromRustResult<ContractResponse>(result);
+      const res = fromRustResult<ContractResponse>(vm.execute(env, info, executeMsg));
 
       this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
@@ -105,124 +107,163 @@ export default class Contract {
   }
 
   reply(replyMsg: ReplyMsg, logs: DebugLog[]): Result<ContractResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_channel_open(ibcChannelOpenMsg: IbcChannelOpenMsg, logs: DebugLog[]): Result<IbcChannelOpenResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcChannelOpenResponse>(
+        vm.ibc_channel_open(this.getExecutionEnv(), ibcChannelOpenMsg)
+      );
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcChannelOpenResponse>(vm.ibc_channel_open(this.getExecutionEnv(), ibcChannelOpenMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_channel_connect(ibcChannelConnectMsg: IbcChannelConnectMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcBasicResponse>(
+        vm.ibc_channel_connect(this.getExecutionEnv(), ibcChannelConnectMsg)
+      );
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_connect(this.getExecutionEnv(), ibcChannelConnectMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_channel_close(ibcChannelCloseMsg: IbcChannelCloseMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_close(this.getExecutionEnv(), ibcChannelCloseMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_close(this.getExecutionEnv(), ibcChannelCloseMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_packet_receive(ibcPacketReceiveMsg: IbcPacketReceiveMsg, logs: DebugLog[]): Result<IbcReceiveResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcReceiveResponse>(
+        vm.ibc_packet_receive(this.getExecutionEnv(), ibcPacketReceiveMsg)
+      );
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcReceiveResponse>(vm.ibc_packet_receive(this.getExecutionEnv(), ibcPacketReceiveMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_packet_ack(ibcPacketAckMsg: IbcPacketAckMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_ack(this.getExecutionEnv(), ibcPacketAckMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_ack(this.getExecutionEnv(), ibcPacketAckMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   ibc_packet_timeout(ibcPacketTimeoutMsg: IbcPacketTimeoutMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
+    try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_timeout(this.getExecutionEnv(), ibcPacketTimeoutMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message);
     }
-    const vm = this._vm;
-    const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_timeout(this.getExecutionEnv(), ibcPacketTimeoutMsg));
-
-    this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
-
-    logs.push(...vm.logs);
-
-    return res;
   }
 
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
-    if (!this._vm) {
-      return Err(new NoVMError(this.address).message);
-    }
-
-    const vm = this._vm;
-
-    // time travel
-    const currBackend = vm.backend;
-    const storage = new BasicKVIterStorage(this.getStorage(store));
-    vm.backend = {
-      ...vm.backend,
-      storage,
-    };
-
+    let currBackend: IBackend = undefined;
     try {
+      if (!this._vm) {
+        throw new ContractNotFoundError(this.address);
+      }
+
+      const vm = this._vm;
+
+      // time travel
+      currBackend = vm.backend;
+      const storage = new BasicKVIterStorage(this.getStorage(store));
+      vm.backend = {
+        ...vm.backend,
+        storage,
+      };
+
       let env = this.getExecutionEnv();
       return fromRustResult<string>(vm.query(env, queryMsg)).andThen(v => Ok(fromBinary(v)));
+    } catch (ex) {
+      return Err((ex as Error).message);
     } finally {
       // reset time travel
-      vm.backend = currBackend;
+      if (currBackend) {
+        this._vm.backend = currBackend;
+      }
     }
   }
 
@@ -246,8 +287,8 @@ export default class Contract {
   }
 }
 
-class NoVMError extends Error {
+class ContractNotFoundError extends Error {
   constructor(contractAddress: string) {
-    super(`No VM for contract ${contractAddress}`);
+    super(`contract ${contractAddress} not found`);
   }
 }
