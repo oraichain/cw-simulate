@@ -8,7 +8,7 @@ import {
   IBackend,
 } from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
-import { Ok, Result } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
 import {
   DebugLog,
@@ -181,7 +181,10 @@ export default class Contract {
   }
 
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
-    if (!this._vm) throw new NoVMError(this.address);
+    if (!this._vm) {
+      return Err(new NoVMError(this.address).message);
+    }
+
     const vm = this._vm;
 
     // time travel
