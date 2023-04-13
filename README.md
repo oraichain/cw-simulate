@@ -49,44 +49,40 @@ The following example creates a chain, instantiates a contract on it, and perfor
 import { CWSimulateApp } from '@terran-one/cw-simulate';
 import { readFileSync } from 'fs';
 
-const sender = 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu';
+const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';
 const funds = [];
 const wasmBytecode = readFileSync('cw-template.wasm');
 
-const app = new CWSimulateApp({
-  chainId: 'phoenix-1',
-  bech32Prefix: 'terra',
+const client = new SimulateCosmWasmClient({
+  chainId: 'Oraichain',
+  bech32Prefix: 'orai',
 });
 
 // import the wasm bytecode
-const codeId = app.wasm.create(sender, wasmBytecode);
+const codeId = client.app.wasm.create(sender, wasmBytecode);
 
 // instantiate the contract
-let result = await app.wasm.instantiateContract(sender, funds, codeId, {
+let result = await client.app.wasm.instantiateContract(sender, funds, codeId, {
   count: 0,
 });
-console.log(
-  'instantiateContract:',
-  result.constructor.name,
-  JSON.stringify(result, null, 2)
-);
+console.log('instantiateContract:', result.constructor.name, JSON.stringify(result, null, 2));
 
 // pull out the contract address
 const contractAddress = result.val.events[0].attributes[0].value;
 
 // execute the contract
-result = await app.wasm.executeContract(sender, funds, contractAddress, {
+result = await client.app.wasm.executeContract(sender, funds, contractAddress, {
   increment: {},
 });
-console.log(
-  'executeContract:',
-  result.constructor.name,
-  JSON.stringify(result, null, 2)
-);
+console.log('executeContract:', result.constructor.name, JSON.stringify(result, null, 2));
 
 // query the contract
-result = await app.wasm.query(contractAddress, { get_count: {} });
+result = await client.app.wasm.query(contractAddress, { get_count: {} });
 console.log('query:', result.constructor.name, JSON.stringify(result, null, 2));
+
+// use with codegen
+const contractClient = new ContractClient(client, senderAddress, contractAddress);
+const res = await contractClient.executeMethod({});
 ```
 
 ## Using with Vue.js and vite
