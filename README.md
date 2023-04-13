@@ -4,12 +4,6 @@ This package combines `cosmwasm-vm-js` with additional abstractions and state ma
 more accurately simulate the effects of CosmWasm contracts on the blockchain environments on which
 they are hosted.
 
-To build cosmwasm-vm-js, you need to go to `node_modules/@terran-one/cosmwasm-vm-js` then manually build it
-
-```bash
-yarn && yarn build
-```
-
 ## Features
 
 - configure multiple host chain environments with chain-specific settings / state
@@ -22,21 +16,21 @@ yarn && yarn build
 Import the `cw-simulate` library from NPM in your `package.json`.
 
 ```bash
-$ npm install -S @terran-one/cw-simulate
+$ npm install -S "https://github.com/oraichain/cosmwasm-vm-js.git"
 ```
 
 If you're using Yarn:
 
 ```bash
-$ yarn add @terran-one/cw-simulate
+$ yarn add "https://github.com/oraichain/cosmwasm-vm-js.git"
 ```
 
 ## Usage
 
-1. Create a `CWSimulateApp` object - this is a simulation environment describing a single chain.
+1. Create a `SimulateCosmWasmClient` object - this is a simulation environment describing a single chain that extends SigningCosmWasmClient.
 2. As needed, per chain:
-   - Upload the WASM bytecode using `App.wasm.create`. This will register a new `codeId` to reference the uploaded contract code.
-   - Create a new contract instance using `App.wasm.instantiateContract`, passing in the `codeId` generated in the previous step.
+   - Upload the WASM bytecode using `client.update`. This will register a new `codeId` to reference the uploaded contract code.
+   - Create a new contract instance using `client.instantiate`, passing in the `codeId` generated in the previous step.
    - From the response, retrieve the `contractAddress` to refer to the contract instance.
 
 - You can now run `execute` and `query` messages against the instance, and they should work as expected.
