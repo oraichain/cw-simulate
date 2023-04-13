@@ -46,12 +46,11 @@ $ yarn add @terran-one/cw-simulate
 The following example creates a chain, instantiates a contract on it, and performs an `execute` and `query`.
 
 ```javascript
-import { CWSimulateApp } from '@terran-one/cw-simulate';
+import { SimulateCosmWasmClient } from '@terran-one/cw-simulate';
 import { readFileSync } from 'fs';
 
 const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';
 const funds = [];
-const wasmBytecode = readFileSync('cw-template.wasm');
 
 const client = new SimulateCosmWasmClient({
   chainId: 'Oraichain',
@@ -59,16 +58,9 @@ const client = new SimulateCosmWasmClient({
 });
 
 // import the wasm bytecode
-const codeId = client.app.wasm.create(sender, wasmBytecode);
-
-// instantiate the contract
-let result = await client.app.wasm.instantiateContract(sender, funds, codeId, {
+const { codeId, contractAddress } = client.deploy(sender, 'cw-template.wasm', {
   count: 0,
 });
-console.log('instantiateContract:', result.constructor.name, JSON.stringify(result, null, 2));
-
-// pull out the contract address
-const contractAddress = result.val.events[0].attributes[0].value;
 
 // execute the contract
 result = await client.app.wasm.executeContract(sender, funds, contractAddress, {
@@ -81,7 +73,7 @@ result = await client.app.wasm.query(contractAddress, { get_count: {} });
 console.log('query:', result.constructor.name, JSON.stringify(result, null, 2));
 
 // use with codegen
-const contractClient = new ContractClient(client, senderAddress, contractAddress);
+const contractClient = new ContractClient(client, sender, contractAddress);
 const res = await contractClient.executeMethod({});
 ```
 
