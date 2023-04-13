@@ -257,7 +257,7 @@ export default class Contract {
     try {
       return fromRustResult<string>(vm.query(env, queryMsg)).andThen(v => Ok(fromBinary(v)));
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     } finally {
       // reset time travel
       this._vm.backend = currBackend;
