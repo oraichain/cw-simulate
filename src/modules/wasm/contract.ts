@@ -81,7 +81,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -102,7 +102,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -120,7 +120,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -140,7 +140,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -160,7 +160,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -178,7 +178,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -198,7 +198,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -216,7 +216,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
@@ -234,7 +234,7 @@ export default class Contract {
 
       return res;
     } catch (ex) {
-      return Err((ex as Error).message);
+      return Err((ex as Error).message ?? ex.toString());
     }
   }
 
