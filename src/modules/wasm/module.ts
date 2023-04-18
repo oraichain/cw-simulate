@@ -542,19 +542,19 @@ export class WasmModule {
       if (result.ok) {
         return result.val;
       }
-      return Error(result.val.toString());
+      throw new Error(result.val.toString());
     }
     if ('raw' in query) {
       const { contract_addr, key } = query.raw;
 
       const storage = this.getContractStorage(contract_addr);
       if (!storage) {
-        return Error(`Contract ${contract_addr} not found`);
+        throw new Error(`Contract ${contract_addr} not found`);
       }
 
       const value = storage.get(key);
       if (value === undefined) {
-        return Error(`Key ${key} not found`);
+        throw new Error(`Key ${key} not found`);
       } else {
         return value;
       }
@@ -563,7 +563,7 @@ export class WasmModule {
       const { contract_addr } = query.contract_info;
       const info = this.getContractInfo(contract_addr);
       if (info === undefined) {
-        return Error(`Contract ${contract_addr} not found`);
+        throw new Error(`Contract ${contract_addr} not found`);
       }
       const { codeId: code_id, creator, admin } = info;
       const resp: ContractInfoResponse = {
@@ -578,7 +578,7 @@ export class WasmModule {
 
       return resp;
     }
-    return Error('Unknown wasm query');
+    throw new Error('Unknown wasm query');
   }
 
   private lens(storage?: Snapshot) {
