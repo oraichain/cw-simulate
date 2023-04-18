@@ -22,6 +22,7 @@ const terraSenderAddress = toBech32(terraChain.bech32Prefix, fromBech32(oraiSend
 describe.only('IBCModule', () => {
   let oraiPort: string;
   let terraPort: string = 'transfer';
+  let contractAddress: string;
   beforeEach(async () => {
     const reflectCodeId = oraiChain.wasm.create(
       oraiSenderAddress,
@@ -39,13 +40,13 @@ describe.only('IBCModule', () => {
       { reflect_code_id: reflectCodeId },
       'ibc-reflect'
     );
-
-    oraiPort = 'wasm.' + (oraiRet.val as AppResponse).events[0].attributes[0].value;
+    contractAddress = (oraiRet.val as AppResponse).events[0].attributes[0].value;
+    oraiPort = 'wasm.' + contractAddress;
   });
 
   it('handle-reflect', async () => {
     oraiChain.ibc.relay('channel-0', oraiPort, 'channel-0', terraPort, terraChain);
-
+    expect(oraiPort).toEqual(oraiChain.ibc.getContractIbcPort(contractAddress));
     const channelOpenRes = await terraChain.ibc.sendChannelOpen({
       open_init: {
         channel: {

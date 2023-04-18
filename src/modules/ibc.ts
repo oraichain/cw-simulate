@@ -87,6 +87,16 @@ export class IbcModule {
     destChain.ibc.innerRelay(destChannel, destPort, sourceChannel, sourcePort, this.chain);
   }
 
+  public getContractIbcPort(address: string): string | null {
+    const contractIbcPort = `wasm.${address}`;
+    for (const channelInfo of relayMap.values()) {
+      if (channelInfo.source_port_id === contractIbcPort) {
+        return contractIbcPort;
+      }
+    }
+    return null;
+  }
+
   private async handleRelayMsg(msg: IbcMessage) {
     const [resolve, reject, timer] = callbacks.get(msg.id);
 

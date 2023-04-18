@@ -570,7 +570,7 @@ export class WasmModule {
         code_id,
         creator,
         admin,
-        ibc_port: null,
+        ibc_port: this.chain.ibc.getContractIbcPort(contract_addr),
         // TODO: VM lifetime mgmt
         // currently all VMs are always loaded ie pinned
         pinned: true,
