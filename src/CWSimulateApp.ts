@@ -66,7 +66,7 @@ export class CWSimulateApp {
     //@ts-ignore
     return this.store.tx(setter => {
       setter('height')(this.height + 1);
-      setter('time')(Date.now());
+      setter('time')(Date.now() * 1e6); // 1 millisecond = 1e6 nano seconds
       return callback();
     });
   }
