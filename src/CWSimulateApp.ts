@@ -93,7 +93,7 @@ export class Querier extends QuerierBase {
     } else if ('wasm' in query) {
       return this.app.wasm.handleQuery(query.wasm);
     } else {
-      return Error('Unknown query message');
+      throw new Error('Unknown query message');
     }
   }
 }

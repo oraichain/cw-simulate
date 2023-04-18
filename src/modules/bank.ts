@@ -176,7 +176,7 @@ export class BankModule {
         amount: this.getBalance(address),
       };
     }
-    return Error('Unknown bank query');
+    throw new Error('Unknown bank query');
   }
   private lens(storage?: Snapshot) {
     return storage ? lensFromSnapshot(storage) : this.store;
