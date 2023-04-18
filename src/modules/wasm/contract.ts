@@ -8,7 +8,7 @@ import {
   IBackend,
 } from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
-import { Err, Ok, Result } from 'ts-results';
+import { Err, ErrImpl, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
 import {
   DebugLog,
@@ -37,7 +37,7 @@ export default class Contract {
     if (!this._vm) {
       const { _wasm: wasm, address } = this;
       const contractInfo = wasm.getContractInfo(address);
-      if (!contractInfo) throw new ContractNotFoundError(address);
+      if (!contractInfo) throw new Error(`Contract ${address} not found`);
 
       const { codeId } = contractInfo;
       const codeInfo = wasm.getCodeInfo(codeId);
@@ -67,7 +67,7 @@ export default class Contract {
   instantiate(sender: string, funds: Coin[], instantiateMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const env = this.getExecutionEnv();
@@ -88,7 +88,7 @@ export default class Contract {
   execute(sender: string, funds: Coin[], executeMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       vm.resetDebugInfo();
@@ -109,7 +109,7 @@ export default class Contract {
   reply(replyMsg: ReplyMsg, logs: DebugLog[]): Result<ContractResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg));
@@ -127,7 +127,7 @@ export default class Contract {
   ibc_channel_open(ibcChannelOpenMsg: IbcChannelOpenMsg, logs: DebugLog[]): Result<IbcChannelOpenResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcChannelOpenResponse>(
@@ -147,7 +147,7 @@ export default class Contract {
   ibc_channel_connect(ibcChannelConnectMsg: IbcChannelConnectMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(
@@ -167,7 +167,7 @@ export default class Contract {
   ibc_channel_close(ibcChannelCloseMsg: IbcChannelCloseMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_close(this.getExecutionEnv(), ibcChannelCloseMsg));
@@ -185,7 +185,7 @@ export default class Contract {
   ibc_packet_receive(ibcPacketReceiveMsg: IbcPacketReceiveMsg, logs: DebugLog[]): Result<IbcReceiveResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcReceiveResponse>(
@@ -205,7 +205,7 @@ export default class Contract {
   ibc_packet_ack(ibcPacketAckMsg: IbcPacketAckMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_ack(this.getExecutionEnv(), ibcPacketAckMsg));
@@ -223,7 +223,7 @@ export default class Contract {
   ibc_packet_timeout(ibcPacketTimeoutMsg: IbcPacketTimeoutMsg, logs: DebugLog[]): Result<IbcBasicResponse, string> {
     try {
       if (!this._vm) {
-        throw new ContractNotFoundError(this.address);
+        return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_timeout(this.getExecutionEnv(), ibcPacketTimeoutMsg));
@@ -240,7 +240,7 @@ export default class Contract {
 
   query(queryMsg: any, store?: Map<string, string>): Result<any, string> {
     if (!this._vm) {
-      return Err(new ContractNotFoundError(this.address).message);
+      return new ContractNotFoundError(this.address);
     }
 
     const vm = this._vm;
@@ -284,8 +284,14 @@ export default class Contract {
   }
 }
 
-class ContractNotFoundError extends Error {
+export class VmError extends ErrImpl<string> {
+  constructor(msg: string) {
+    super(`VmError: ${msg}`);
+  }
+}
+
+export class ContractNotFoundError extends VmError {
   constructor(contractAddress: string) {
-    super(`Contract ${contractAddress} not found`);
+    super(`contract ${contractAddress} not found`);
   }
 }

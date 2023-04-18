@@ -2,7 +2,7 @@ import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import { toBech32 } from '@cosmjs/encoding';
 import { Map } from 'immutable';
-import { Ok, Result } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
 import { NEVER_IMMUTIFY, Transactional, TransactionalLens } from '../../store/transactional';
 import {
@@ -542,7 +542,12 @@ export class WasmModule {
       if (result.ok) {
         return result.val;
       }
-      throw new Error(result.val.toString());
+      // wrap Err message for contract query result
+      const errMsg: string = result.val.toString();
+      if (errMsg.startsWith('VmError:')) {
+        return Err(errMsg);
+      }
+      throw new Error(errMsg);
     }
     if ('raw' in query) {
       const { contract_addr, key } = query.raw;
