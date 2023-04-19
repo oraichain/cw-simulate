@@ -195,7 +195,9 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       label
     );
 
-    if (result.err || typeof result.val === 'string') {
+    if (result.err) throw result;
+    // can not process this response
+    if (typeof result.val === 'string') {
       throw new Error(result.val.toString());
     }
 
@@ -223,7 +225,9 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<ExecuteResult> {
     const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
 
-    if (result.err || typeof result.val === 'string') {
+    if (result.err) throw result;
+    // can not process this response
+    if (typeof result.val === 'string') {
       throw new Error(result.val.toString());
     }
 
@@ -239,11 +243,6 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
 
   public async queryContractRaw(address: string, key: Uint8Array): Promise<Uint8Array | null> {
     const result = this.app.wasm.handleQuery({ raw: { contract_addr: address, key: toBinary(key) } });
-
-    if (result instanceof Error) {
-      throw result;
-    }
-
     return Promise.resolve(fromBase64(toBinary({ ok: result })));
   }
 
