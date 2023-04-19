@@ -26,6 +26,7 @@ import {
 } from '../../types';
 import { fromRustResult } from '../../util';
 import type { WasmModule } from './module';
+import { ContractNotFoundError } from './error';
 
 /** An interface to interact with CW SCs */
 export default class Contract {
@@ -281,23 +282,5 @@ export default class Contract {
   }
   get valid() {
     return !!this._vm;
-  }
-}
-
-export class VmError extends ErrImpl<string> {
-  constructor(msg: string) {
-    super(`VmError: ${msg}`);
-  }
-}
-
-export class GenericError extends ErrImpl<string> {
-  constructor(msg: string) {
-    super(`Generic error: ${msg}`);
-  }
-}
-
-export class ContractNotFoundError extends VmError {
-  constructor(contractAddress: string) {
-    super(`contract ${contractAddress} not found`);
   }
 }
