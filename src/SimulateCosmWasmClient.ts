@@ -195,9 +195,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       label
     );
 
-    if (result.err) throw result;
-    // can not process this response
-    if (typeof result.val === 'string') {
+    if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
     }
 
@@ -225,9 +223,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<ExecuteResult> {
     const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
 
-    if (result.err) throw result;
-    // can not process this response
-    if (typeof result.val === 'string') {
+    if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
     }
 
