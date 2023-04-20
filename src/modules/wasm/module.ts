@@ -544,9 +544,17 @@ export class WasmModule {
       }
       // wrap Err message for contract query result
       const errMsg: string = result.val.toString();
+
+      // panic divide by zero should not process in query but return original value
+      if (errMsg.startsWith('Divide by zero:')) {
+        return '0';
+      }
+
       if (errMsg.startsWith('VmError:')) {
         return Err(errMsg);
       }
+
+      // normal error
       throw new Error(errMsg);
     }
     if ('raw' in query) {
