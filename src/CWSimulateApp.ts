@@ -67,7 +67,10 @@ export class CWSimulateApp {
     return this.store.tx(setter => {
       setter('height')(this.height + 1);
       // if height or time are alredy increased, we will wait for it, this will help simulating future moment
-      setter('time')(Math.max(this.store.get('time'), Date.now() * 1e6)); // 1 millisecond = 1e6 nano seconds
+      const current = Date.now() * 1e6;
+      if (this.time < current) {
+        setter('time')(current); // 1 millisecond = 1e6 nano seconds
+      }
       return callback();
     });
   }
