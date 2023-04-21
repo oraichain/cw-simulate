@@ -289,14 +289,16 @@ export class WasmModule {
         storeSnapshot: this.store.db.data,
       };
 
-      const send = this.chain.bank.send(sender, contractAddress, funds);
-      if (send.err) {
-        trace.push({
-          ...tracebase,
-          response: send,
-          result: send,
-        });
-        return send;
+      if (funds.length) {
+        const send = this.chain.bank.send(sender, contractAddress, funds);
+        if (send.err) {
+          trace.push({
+            ...tracebase,
+            response: send,
+            result: send,
+          });
+          return send;
+        }
       }
 
       const response = contract.execute(sender, funds, executeMsg, logs);
@@ -426,13 +428,20 @@ export class WasmModule {
 
         return Ok({ events, data });
       }
+
+      // if panicked then throw Error
+      const errMsg = r.val.toString();
+      if (errMsg.startsWith('abort: panicked')) {
+        throw new Error(errMsg);
+      }
+
       // submessage failed
       if (reply_on === ReplyOn.Error || reply_on === ReplyOn.Always) {
         // submessage failed, call reply
         let replyMsg: ReplyMsg = {
           id,
           result: {
-            error: r.val as string,
+            error: errMsg,
           },
         };
 
