@@ -78,7 +78,7 @@ export function buildAppResponse(contract: string, customEvent: Event, response:
       type: 'wasm',
       attributes: [
         {
-          key: '_contract_addr',
+          key: '_contract_address',
           value: contract,
         },
         ...response.attributes,
@@ -90,7 +90,7 @@ export function buildAppResponse(contract: string, customEvent: Event, response:
   for (const event of response.events) {
     appEvents.push({
       type: `wasm-${event.type}`,
-      attributes: [{ key: '_contract_addr', value: contract }, ...event.attributes],
+      attributes: [{ key: '_contract_address', value: contract }, ...event.attributes],
     });
   }
 

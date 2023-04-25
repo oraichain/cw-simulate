@@ -115,19 +115,19 @@ describe('Events', function () {
 
     expect(res.val).toEqual({
       events: [
-        event('execute', [['_contract_addr', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
         event('wasm', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['A1-K', 'A1-V'],
           ['A2-K', 'A2-V'],
         ]),
         event('wasm-EV1', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['EV1-K1', 'EV1-V1'],
           ['EV1-K2', 'EV1-V2'],
         ]),
         event('wasm-EV2', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['EV2-K1', 'EV2-V1'],
           ['EV2-K2', 'EV2-V2'],
         ]),
@@ -147,27 +147,27 @@ describe('Events', function () {
     expect(res.val).toEqual({
       data: null,
       events: [
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
         event('wasm-push', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key', 'value'],
         ]),
         event('reply', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['mode', 'handle_success'],
         ]),
         event('wasm-reply_id', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key1', 'value1'],
         ]),
         event('reply', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['mode', 'handle_failure'],
         ]),
         event('wasm-reply_inv', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['err', 'custom: error-S2'],
         ]),
       ],
@@ -185,42 +185,42 @@ describe('Events', function () {
     expect(res.val).toEqual({
       data: null,
       events: [
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
         event('wasm-push', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key', 'value'],
         ]),
         event('reply', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['mode', 'handle_success'],
         ]),
         event('wasm-reply_id', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key1', 'value1'],
         ]),
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
-        event('execute', [['_contract_addr', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
+        event('execute', [['_contract_address', testContract.address]]),
         event('wasm-push', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key', 'value'],
         ]),
         event('reply', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['mode', 'handle_success'],
         ]),
         event('wasm-reply_id', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key1', 'value1'],
         ]),
         event('reply', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['mode', 'handle_success'],
         ]),
         event('wasm-reply_id', [
-          ['_contract_addr', testContract.address],
+          ['_contract_address', testContract.address],
           ['key1', 'value1'],
         ]),
       ],

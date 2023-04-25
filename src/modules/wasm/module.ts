@@ -315,7 +315,7 @@ export class WasmModule {
         type: 'execute',
         attributes: [
           {
-            key: '_contract_addr',
+            key: '_contract_address',
             value: contractAddress,
           },
         ],
@@ -490,7 +490,7 @@ export class WasmModule {
       type: 'reply',
       attributes: [
         {
-          key: '_contract_addr',
+          key: '_contract_address',
           value: contractAddress,
         },
         {
