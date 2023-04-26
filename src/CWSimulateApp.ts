@@ -36,7 +36,7 @@ export class CWSimulateApp {
     this.zkFeatures = options.zkFeatures ?? false;
     this.store = new Transactional().lens<ChainData>().initialize({
       height: 1,
-      time: Date.now(),
+      time: Date.now() * 1e6,
     });
 
     this.wasm = new WasmModule(this);
