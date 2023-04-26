@@ -387,7 +387,7 @@ export class IbcModule {
     const eventKey = getKey(this.chain.chainId, endpoint.channel_id);
     const id = Date.now().toString();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(
         () => reject(new Error(`Call ${type} timeout after ${DEFAULT_IBC_TIMEOUT}`)),
         DEFAULT_IBC_TIMEOUT
@@ -418,12 +418,12 @@ export class IbcModule {
     emitter.addListener(eventKey, this.handleRelayMsg);
   }
 
-  public async sendChannelOpen(data: IbcChannelOpenMsg): Promise<IbcChannelOpenResponse> {
+  public sendChannelOpen(data: IbcChannelOpenMsg): Promise<IbcChannelOpenResponse> {
     const { endpoint, counterparty_endpoint } = 'open_init' in data ? data.open_init.channel : data.open_try.channel;
     return this.sendMsg('ibc_channel_open', endpoint, counterparty_endpoint, data);
   }
 
-  public async sendChannelConnect(data: IbcChannelConnectMsg): Promise<IbcBasicResponse> {
+  public sendChannelConnect(data: IbcChannelConnectMsg): Promise<IbcBasicResponse> {
     const { endpoint, counterparty_endpoint } = 'open_ack' in data ? data.open_ack.channel : data.open_confirm.channel;
 
     // update version
@@ -440,25 +440,25 @@ export class IbcModule {
     return this.sendMsg('ibc_channel_connect', endpoint, counterparty_endpoint, data);
   }
 
-  public async sendChannelClose(data: IbcChannelCloseMsg): Promise<IbcBasicResponse> {
+  public sendChannelClose(data: IbcChannelCloseMsg): Promise<IbcBasicResponse> {
     const { endpoint, counterparty_endpoint } =
       'close_init' in data ? data.close_init.channel : data.close_confirm.channel;
     return this.sendMsg('ibc_channel_close', endpoint, counterparty_endpoint, data);
   }
 
-  public async sendPacketReceive(data: IbcPacketReceiveMsg): Promise<IbcReceiveResponse> {
+  public sendPacketReceive(data: IbcPacketReceiveMsg): Promise<IbcReceiveResponse> {
     return this.sendMsg('ibc_packet_receive', data.packet.src, data.packet.dest, data);
   }
 
-  public async sendPacketAck(data: IbcPacketAckMsg): Promise<IbcBasicResponse> {
+  public sendPacketAck(data: IbcPacketAckMsg): Promise<IbcBasicResponse> {
     return this.sendMsg('ibc_packet_ack', data.original_packet.src, data.original_packet.dest, data);
   }
 
-  public async sendPacketTimeout(data: IbcPacketTimeoutMsg): Promise<IbcBasicResponse> {
+  public sendPacketTimeout(data: IbcPacketTimeoutMsg): Promise<IbcBasicResponse> {
     return this.sendMsg('ibc_packet_timeout', data.packet.src, data.packet.dest, data);
   }
 
-  public async sendTransfer(data: IbcMsgTransfer): Promise<IbcBasicResponse> {
+  public sendTransfer(data: IbcMsgTransfer): Promise<IbcBasicResponse> {
     // from source channel => get dest channel
     const destInfo = relayMap.get(getKey(this.chain.chainId, data.transfer.channel_id));
     if (!destInfo) {
