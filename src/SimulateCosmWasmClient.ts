@@ -205,13 +205,22 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
+    const traces: TraceLog[] = [];
     const result = await this.app.wasm.instantiateContract(
       senderAddress,
       (options?.funds as Coin[]) ?? [],
       codeId,
       msg,
-      label
+      label,
+      traces
     );
+
+    // debug each log
+    for (const trace of traces) {
+      for (const log of trace.logs) {
+        this.debug(log);
+      }
+    }
 
     if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
@@ -248,15 +257,15 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       traces
     );
 
-    if (result.err || typeof result.val === 'string') {
-      throw new Error(result.val.toString());
-    }
-
     // debug each log
     for (const trace of traces) {
       for (const log of trace.logs) {
         this.debug(log);
       }
+    }
+
+    if (result.err || typeof result.val === 'string') {
+      throw new Error(result.val.toString());
     }
 
     return {
