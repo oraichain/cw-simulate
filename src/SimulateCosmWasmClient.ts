@@ -19,12 +19,15 @@ import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
-import { PrintDebugLog, TraceLog } from './types';
+import { DebugLog, TraceLog } from './types';
 
-type PrintDebugFunction = (msg: PrintDebugLog) => void;
+type DebugFunction = (log: DebugLog) => void;
 
-const PrintDebugDefault = (msg: PrintDebugLog) => {
-  console.log(msg.message);
+// debug debug print
+const PrintDebugDefault = (log: DebugLog) => {
+  if (log.type == 'print') {
+    console.log(log.message);
+  }
 };
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
@@ -34,10 +37,10 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     return new SimulateCosmWasmClient(app);
   }
 
-  private readonly debug: PrintDebugFunction;
+  private readonly debug: DebugFunction;
 
   public readonly app: CWSimulateApp;
-  public constructor(appOrOptions: CWSimulateApp | (CWSimulateAppOptions & { debug?: PrintDebugFunction })) {
+  public constructor(appOrOptions: CWSimulateApp | (CWSimulateAppOptions & { debug?: DebugFunction })) {
     super(null, null, {});
     if (appOrOptions instanceof CWSimulateApp) {
       this.app = appOrOptions;
@@ -249,11 +252,10 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       throw new Error(result.val.toString());
     }
 
+    // debug each log
     for (const trace of traces) {
       for (const log of trace.logs) {
-        if (log.type == 'print') {
-          this.debug(log);
-        }
+        this.debug(log);
       }
     }
 
