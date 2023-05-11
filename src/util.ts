@@ -34,7 +34,7 @@ export const getTransactionHash = (height: number, data: any, encoding?: BufferE
 
 // debug debug print
 export const printDebug = (log: DebugLog) => {
-  if (log.type == 'print') {
+  if (log.type === 'print') {
     console.log(log.message);
   }
 };
