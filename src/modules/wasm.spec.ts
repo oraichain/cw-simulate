@@ -55,7 +55,7 @@ describe('Instantiate', () => {
       funds: info.funds,
     });
 
-    const trace: TraceLog[] = [];
+    const traces: TraceLog[] = [];
     let result = await testContract.execute(
       info.sender,
       exec.instantiate({
@@ -65,7 +65,7 @@ describe('Instantiate', () => {
         label: 'contract-instantiated',
       }),
       info.funds,
-      trace
+      traces
     );
 
     expect(result.ok).toBeTruthy();
@@ -382,10 +382,10 @@ describe('TraceLog', () => {
       cmd.sub(1, exec.run(cmd.sub(1, exec.debug('S2'), ReplyOn.Success)), ReplyOn.Success)
     );
 
-    let trace: TraceLog[] = [];
-    await testContract.execute(info.sender, executeMsg, info.funds, trace);
-
-    expect(trace).toMatchObject([
+    let traces: TraceLog[] = [];
+    await testContract.execute(info.sender, executeMsg, info.funds, traces);
+    console.log(traces);
+    expect(traces).toMatchObject([
       {
         type: 'execute',
         trace: [
@@ -420,12 +420,12 @@ describe('TraceLog', () => {
   });
 
   it('traces errors', async () => {
-    const trace: TraceLog[] = [];
+    const traces: TraceLog[] = [];
 
     const executeMsg1 = {
       run: { failure: true },
     };
-    await testContract.execute(info.sender, executeMsg1, [], trace);
+    await testContract.execute(info.sender, executeMsg1, [], traces);
 
     const err1 = { ok: false, err: true };
     const ref1 = {
@@ -439,13 +439,13 @@ describe('TraceLog', () => {
       response: err1,
       result: err1,
     };
-    expect(trace).toMatchObject([ref1]);
+    expect(traces).toMatchObject([ref1]);
 
     const funds = [{ denom: 'uluna', amount: '99999999999999999999' }];
     const executeMsg2 = {
       debug: { msg: 'foobar' },
     };
-    await testContract.execute(info.sender, executeMsg2, funds, trace);
+    await testContract.execute(info.sender, executeMsg2, funds, traces);
 
     const err2 = { ok: false, err: true };
     const ref2 = {
@@ -459,7 +459,7 @@ describe('TraceLog', () => {
       response: err2,
       result: err2,
     };
-    expect(trace).toMatchObject([ref1, ref2]);
+    expect(traces).toMatchObject([ref1, ref2]);
   });
 });
 

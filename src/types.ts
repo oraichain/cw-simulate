@@ -104,7 +104,7 @@ interface TraceLogCommon {
   msg: any;
   response: Result<ContractResponse, string>;
   logs: DebugLog[];
-  trace?: TraceLog[];
+  traces?: TraceLog[];
   storeSnapshot: Snapshot;
   result: Result<AppResponse, string>;
 }

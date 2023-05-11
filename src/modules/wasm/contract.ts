@@ -8,7 +8,7 @@ import {
   IBackend,
 } from '@terran-one/cosmwasm-vm-js';
 import { Map } from 'immutable';
-import { Err, ErrImpl, Ok, Result } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
 import {
   DebugLog,
@@ -71,7 +71,7 @@ export default class Contract {
         return new ContractNotFoundError(this.address);
       }
       const vm = this._vm;
-      vm.resetDebugInfo();
+
       const env = this.getExecutionEnv();
       const info = { sender, funds };
 
@@ -80,9 +80,6 @@ export default class Contract {
       this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
       logs.push(...vm.logs);
-
-      // debug msg
-      vm.debugMsgs.forEach(msg => this._wasm.chain.debug(msg));
 
       return res;
     } catch (ex) {
@@ -104,9 +101,6 @@ export default class Contract {
       this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
 
       logs.push(...vm.logs);
-
-      // debug msg
-      vm.debugMsgs.forEach(msg => this._wasm.chain.debug(msg));
 
       return res;
     } catch (ex) {

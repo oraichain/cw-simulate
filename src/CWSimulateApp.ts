@@ -11,7 +11,6 @@ export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
   zkFeatures?: boolean;
-  debug?: (msg: string) => void;
 }
 
 export type ChainData = {
@@ -24,7 +23,6 @@ export class CWSimulateApp {
   public chainId: string;
   public bech32Prefix: string;
   public zkFeatures: boolean;
-  public debug: (msg: string) => void;
   public store: TransactionalLens<ChainData>;
 
   public wasm: WasmModule;
@@ -36,7 +34,6 @@ export class CWSimulateApp {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
     this.zkFeatures = options.zkFeatures ?? false;
-    this.debug = options.debug ?? console.log;
     this.store = new Transactional().lens<ChainData>().initialize({
       height: 1,
       time: Date.now() * 1e6,
@@ -48,9 +45,13 @@ export class CWSimulateApp {
     this.querier = new Querier(this);
   }
 
-  public async handleMsg(sender: string, msg: CosmosMsg, trace: TraceLog[] = []): Promise<Result<AppResponse, string>> {
+  public async handleMsg(
+    sender: string,
+    msg: CosmosMsg,
+    traces: TraceLog[] = []
+  ): Promise<Result<AppResponse, string>> {
     if ('wasm' in msg) {
-      return await this.wasm.handleMsg(sender, msg.wasm, trace);
+      return await this.wasm.handleMsg(sender, msg.wasm, traces);
     }
     if ('bank' in msg) {
       return await this.bank.handleMsg(sender, msg.bank);

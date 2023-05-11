@@ -107,16 +107,8 @@ export class CWSimulateVMInstance extends VMInstance {
     return result;
   }
 
-  do_secp256k1_recover_pubkey(
-    msgHash: Region,
-    signature: Region,
-    recover_param: number
-  ): Region {
-    let result = super.do_secp256k1_recover_pubkey(
-      msgHash,
-      signature,
-      recover_param
-    );
+  do_secp256k1_recover_pubkey(msgHash: Region, signature: Region, recover_param: number): Region {
+    let result = super.do_secp256k1_recover_pubkey(msgHash, signature, recover_param);
     this.logs.push({
       type: 'call',
       fn: 'secp256k1_recover_pubkey',
@@ -146,22 +138,15 @@ export class CWSimulateVMInstance extends VMInstance {
       args: { message: message.read_str() },
     });
     super.do_debug(message);
+    // this help for implementing contract debug
     this.logs.push({
       type: 'print',
       message: message.str,
     });
   }
 
-  do_ed25519_batch_verify(
-    messages_ptr: Region,
-    signatures_ptr: Region,
-    public_keys_ptr: Region
-  ): number {
-    let result = super.do_ed25519_batch_verify(
-      messages_ptr,
-      signatures_ptr,
-      public_keys_ptr
-    );
+  do_ed25519_batch_verify(messages_ptr: Region, signatures_ptr: Region, public_keys_ptr: Region): number {
+    let result = super.do_ed25519_batch_verify(messages_ptr, signatures_ptr, public_keys_ptr);
     this.logs.push({
       type: 'call',
       fn: 'ed25519_batch_verify',
@@ -175,11 +160,7 @@ export class CWSimulateVMInstance extends VMInstance {
     return result;
   }
 
-  do_ed25519_verify(
-    message: Region,
-    signature: Region,
-    pubkey: Region
-  ): number {
+  do_ed25519_verify(message: Region, signature: Region, pubkey: Region): number {
     let result = super.do_ed25519_verify(message, signature, pubkey);
     this.logs.push({
       type: 'call',
