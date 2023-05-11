@@ -26,7 +26,7 @@ export class CWSimulateApp {
   public chainId: string;
   public bech32Prefix: string;
   public zkFeatures: boolean;
-  public debug: DebugFunction; // make sure can not re-assign it
+  public debug?: DebugFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
 
   public wasm: WasmModule;
