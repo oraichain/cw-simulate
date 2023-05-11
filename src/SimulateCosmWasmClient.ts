@@ -154,7 +154,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<UploadResult & InstantiateResult> {
     // upload and instantiate the contract
     const wasmBytecode = readFileSync(wasmPath);
-    const uploadRes = await this.upload(senderAddress, wasmBytecode);
+    const uploadRes = await this.upload(senderAddress, wasmBytecode, 'auto');
     const initRes = await this.instantiate(senderAddress, uploadRes.codeId, msg, label, _fee, options);
     return { ...uploadRes, ...initRes };
   }
@@ -162,7 +162,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   public upload(
     senderAddress: string,
     wasmCode: Uint8Array,
-    _fee?: StdFee | 'auto' | number,
+    _fee: StdFee | 'auto' | number,
     _memo?: string
   ): Promise<UploadResult> {
     // import the wasm bytecode
