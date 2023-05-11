@@ -18,11 +18,7 @@ import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { load, save } from './persist';
-
-const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
-  const buf = Buffer.from(height.toString() + (typeof data === 'string' ? data : JSON.stringify(data)), encoding);
-  return toHex(sha256(buf));
-};
+import { getTransactionHash } from './util';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes

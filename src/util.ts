@@ -1,5 +1,7 @@
 import { Err, Ok, Result } from 'ts-results';
 import { RustResult } from './types';
+import { sha256 } from '@cosmjs/crypto';
+import { toHex } from '@cosmjs/encoding';
 
 export const isArrayLike = (value: any): value is any[] =>
   typeof value === 'object' && typeof value.length === 'number';
@@ -24,3 +26,8 @@ export function toRustResult<T>(res: Result<T, string>): RustResult<T> {
 export const isRustResult = <T = unknown>(value: any): value is RustResult<T> => 'ok' in value || 'err' in value;
 export const isTSResult = <T = unknown, E = string>(value: any): value is Result<T, E> =>
   typeof value.ok === 'boolean' && typeof value.err === 'boolean' && 'val' in value;
+
+export const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
+  const buf = Buffer.from(height.toString() + (typeof data === 'string' ? data : JSON.stringify(data)), encoding);
+  return toHex(sha256(buf));
+};
