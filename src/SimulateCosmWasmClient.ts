@@ -20,9 +20,7 @@ import { readFileSync } from 'fs';
 import { load, save } from './persist';
 
 const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
-  const buf = Buffer.allocUnsafe(4); // Init buffer without writing all data to zeros
-  buf.writeInt32LE(height); // Little endian this time..
-  buf.write(typeof data === 'string' ? data : JSON.stringify(data), encoding);
+  const buf = Buffer.from(height.toString() + (typeof data === 'string' ? data : JSON.stringify(data)), encoding);
   return toHex(sha256(buf));
 };
 
