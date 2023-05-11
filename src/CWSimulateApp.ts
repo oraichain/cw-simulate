@@ -6,11 +6,14 @@ import { Transactional, TransactionalLens } from './store/transactional';
 import { AppResponse, TraceLog } from './types';
 import { SERDE } from '@kiruse/serde';
 import { IbcModule } from './modules/ibc';
+import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
+import { printDebug } from './util';
 
 export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
   zkFeatures?: boolean;
+  debug?: DebugFunction;
 }
 
 export type ChainData = {
@@ -23,6 +26,7 @@ export class CWSimulateApp {
   public chainId: string;
   public bech32Prefix: string;
   public zkFeatures: boolean;
+  public debug: DebugFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
 
   public wasm: WasmModule;
@@ -34,6 +38,7 @@ export class CWSimulateApp {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
     this.zkFeatures = options.zkFeatures ?? false;
+    this.debug = options.debug ?? printDebug;
     this.store = new Transactional().lens<ChainData>().initialize({
       height: 1,
       time: Date.now() * 1e6,

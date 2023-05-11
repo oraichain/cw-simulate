@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from 'ts-results';
-import { RustResult } from './types';
+import { RustResult, DebugLog } from './types';
 import { sha256 } from '@cosmjs/crypto';
 import { toHex } from '@cosmjs/encoding';
 
@@ -30,4 +30,11 @@ export const isTSResult = <T = unknown, E = string>(value: any): value is Result
 export const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
   const buf = Buffer.from(height.toString() + (typeof data === 'string' ? data : JSON.stringify(data)), encoding);
   return toHex(sha256(buf));
+};
+
+// debug debug print
+export const printDebug = (log: DebugLog) => {
+  if (log.type == 'print') {
+    console.log(log.message);
+  }
 };

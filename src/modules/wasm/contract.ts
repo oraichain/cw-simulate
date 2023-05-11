@@ -58,7 +58,7 @@ export default class Contract {
       };
 
       const logs: DebugLog[] = [];
-      const vm = new CWSimulateVMInstance(logs, backend);
+      const vm = new CWSimulateVMInstance(logs, wasm.chain.debug, backend); // pass debug reference from wasm.chain
       await vm.build(wasmCode);
       this._vm = vm;
     }

@@ -19,16 +19,6 @@ import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
-import { DebugLog, TraceLog } from './types';
-
-type DebugFunction = (log: DebugLog) => void;
-
-// debug debug print
-const PrintDebugDefault = (log: DebugLog) => {
-  if (log.type == 'print') {
-    console.log(log.message);
-  }
-};
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes
@@ -37,16 +27,13 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     return new SimulateCosmWasmClient(app);
   }
 
-  private readonly debug: DebugFunction;
-
   public readonly app: CWSimulateApp;
-  public constructor(appOrOptions: CWSimulateApp | (CWSimulateAppOptions & { debug?: DebugFunction })) {
+  public constructor(appOrOptions: CWSimulateApp | CWSimulateAppOptions) {
     super(null, null, {});
     if (appOrOptions instanceof CWSimulateApp) {
       this.app = appOrOptions;
     } else {
       this.app = new CWSimulateApp(appOrOptions);
-      this.debug = appOrOptions.debug ?? PrintDebugDefault;
     }
   }
 
@@ -205,22 +192,13 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
-    const traces: TraceLog[] = [];
     const result = await this.app.wasm.instantiateContract(
       senderAddress,
       (options?.funds as Coin[]) ?? [],
       codeId,
       msg,
-      label,
-      traces
+      label
     );
-
-    // debug each log
-    for (const trace of traces) {
-      for (const log of trace.logs) {
-        this.debug(log);
-      }
-    }
 
     if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
@@ -248,21 +226,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     _memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult> {
-    const traces: TraceLog[] = [];
-    const result = await this.app.wasm.executeContract(
-      senderAddress,
-      (funds as Coin[]) ?? [],
-      contractAddress,
-      msg,
-      traces
-    );
-
-    // debug each log
-    for (const trace of traces) {
-      for (const log of trace.logs) {
-        this.debug(log);
-      }
-    }
+    const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
 
     if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
