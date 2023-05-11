@@ -346,10 +346,10 @@ export class WasmModule {
   public async handleIbcResponse(
     contractAddress: string,
     res: ContractResponse,
-    trace: any = []
+    traces: TraceLog[] = []
   ): Promise<ContractResponse> {
     if (res?.messages) {
-      await this.handleContractResponse(contractAddress, res.messages, res, trace);
+      await this.handleContractResponse(contractAddress, res.messages, res, traces);
     }
     return res;
   }

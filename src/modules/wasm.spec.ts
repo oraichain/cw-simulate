@@ -384,11 +384,10 @@ describe('TraceLog', () => {
 
     let traces: TraceLog[] = [];
     await testContract.execute(info.sender, executeMsg, info.funds, traces);
-    console.log(traces);
     expect(traces).toMatchObject([
       {
         type: 'execute',
-        trace: [
+        traces: [
           {
             type: 'execute', // S1
             logs: [{}, { type: 'print', message: 'S1' }],
@@ -401,7 +400,7 @@ describe('TraceLog', () => {
           },
           {
             type: 'execute', // S2
-            trace: [
+            traces: [
               {
                 type: 'execute',
                 logs: [{}, { type: 'print', message: 'S2' }],
