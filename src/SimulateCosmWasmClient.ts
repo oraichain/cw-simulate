@@ -78,7 +78,11 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     });
   }
   public getBalance(address: string, searchDenom: string): Promise<Coin> {
-    const coin = this.app.bank.getBalance(address).find(coin => coin.denom === searchDenom);
+    // default return zero balance
+    const coin = this.app.bank.getBalance(address).find(coin => coin.denom === searchDenom) ?? {
+      denom: searchDenom,
+      amount: '0',
+    };
     return Promise.resolve(coin);
   }
 
