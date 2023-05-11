@@ -19,6 +19,13 @@ import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { load, save } from './persist';
 
+const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
+  const buf = Buffer.allocUnsafe(4); // Init buffer without writing all data to zeros
+  buf.writeInt32LE(height); // Little endian this time..
+  buf.write(typeof data === 'string' ? data : JSON.stringify(data), encoding);
+  return toHex(sha256(buf));
+};
+
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes
   public static async from(bytes: Uint8Array | Buffer): Promise<SimulateCosmWasmClient> {
@@ -135,7 +142,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       txIndex: 0,
       code: res.ok ? 0 : 1,
-      transactionHash: '',
+      transactionHash: getTransactionHash(this.app.height, res.val),
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
       gasUsed: 0,
@@ -175,7 +182,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       codeId,
       logs: [],
       height: this.app.height,
-      transactionHash: '',
+      transactionHash: getTransactionHash(this.app.height, originalChecksum),
       events: [],
       gasWanted: 0,
       gasUsed: 0,
@@ -209,7 +216,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       contractAddress,
       logs: [],
       height: this.app.height,
-      transactionHash: '',
+      transactionHash: getTransactionHash(this.app.height, result.val),
       events: result.val.events,
       gasWanted: 0,
       gasUsed: 0,
@@ -234,7 +241,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     return {
       logs: [],
       height: this.app.height,
-      transactionHash: '',
+      transactionHash: getTransactionHash(this.app.height, result.val),
       events: result.val.events,
       gasWanted: 0,
       gasUsed: 0,
