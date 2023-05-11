@@ -196,7 +196,7 @@ export class WasmModule {
     codeId: number,
     instantiateMsg: any,
     label: string,
-    trace: TraceLog[] = []
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
@@ -217,7 +217,7 @@ export class WasmModule {
 
       const send = this.chain.bank.send(sender, contract.address, funds);
       if (send.err) {
-        trace.push({
+        traces.push({
           ...tracebase,
           response: send,
           result: send,
@@ -229,7 +229,7 @@ export class WasmModule {
       let response = contract.instantiate(sender, funds, instantiateMsg, logs);
 
       if (response.err) {
-        trace.push({
+        traces.push({
           ...tracebase,
           response,
           result: response,
@@ -250,15 +250,15 @@ export class WasmModule {
 
       let res = buildAppResponse(contractAddress, customEvent, response.val);
 
-      let subtrace: TraceLog[] = [];
+      let subtraces: TraceLog[] = [];
 
-      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtraces);
 
-      trace.push({
+      traces.push({
         ...tracebase,
         response,
         result,
-        trace: subtrace,
+        traces: subtraces,
         storeSnapshot: this.store.db.data,
       });
 
@@ -272,7 +272,7 @@ export class WasmModule {
     funds: Coin[],
     contractAddress: string,
     executeMsg: any,
-    trace: TraceLog[] = []
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       const contract = await this.getContract(contractAddress).init();
@@ -292,7 +292,7 @@ export class WasmModule {
       if (funds.length) {
         const send = this.chain.bank.send(sender, contractAddress, funds);
         if (send.err) {
-          trace.push({
+          traces.push({
             ...tracebase,
             response: send,
             result: send,
@@ -304,7 +304,7 @@ export class WasmModule {
       const response = contract.execute(sender, funds, executeMsg, logs);
 
       if (response.err) {
-        trace.push({
+        traces.push({
           ...tracebase,
           response,
           result: response,
@@ -327,14 +327,14 @@ export class WasmModule {
 
       let res = buildAppResponse(contractAddress, customEvent, response.val);
 
-      let subtrace: TraceLog[] = [];
-      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+      let subtraces: TraceLog[] = [];
+      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtraces);
 
-      trace.push({
+      traces.push({
         ...tracebase,
         response,
         result,
-        trace: subtrace,
+        traces: subtraces,
         storeSnapshot: this.store.db.data,
       });
 
@@ -346,10 +346,10 @@ export class WasmModule {
   public async handleIbcResponse(
     contractAddress: string,
     res: ContractResponse,
-    trace: any = []
+    traces: TraceLog[] = []
   ): Promise<ContractResponse> {
     if (res?.messages) {
-      await this.handleContractResponse(contractAddress, res.messages, res, trace);
+      await this.handleContractResponse(contractAddress, res.messages, res, traces);
     }
     return res;
   }
@@ -359,10 +359,10 @@ export class WasmModule {
     contractAddress: string,
     messages: ContractResponse['messages'],
     res: AppResponse,
-    trace: TraceLog[] = []
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     for (const message of messages) {
-      const subres = await this.handleSubmsg(contractAddress, message, trace);
+      const subres = await this.handleSubmsg(contractAddress, message, traces);
       if (subres.err) {
         return subres;
       }
@@ -384,11 +384,11 @@ export class WasmModule {
   protected async handleSubmsg(
     contractAddress: string,
     message: SubMsg,
-    trace: TraceLog[] = []
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return this.store.tx(async () => {
       let { id, msg, gas_limit, reply_on } = message;
-      let r = await this.chain.handleMsg(contractAddress, msg, trace);
+      let r = await this.chain.handleMsg(contractAddress, msg, traces);
 
       if (r.ok) {
         // submessage success
@@ -407,7 +407,7 @@ export class WasmModule {
             },
           };
 
-          let replyRes = await this.reply(contractAddress, replyMsg, trace);
+          let replyRes = await this.reply(contractAddress, replyMsg, traces);
           if (replyRes.err) {
             // submessage success, call reply, reply failed
             return replyRes;
@@ -445,7 +445,7 @@ export class WasmModule {
           },
         };
 
-        let replyRes = await this.reply(contractAddress, replyMsg, trace);
+        let replyRes = await this.reply(contractAddress, replyMsg, traces);
         if (replyRes.err) {
           // submessage failed, call reply, reply failed
           return replyRes;
@@ -462,7 +462,7 @@ export class WasmModule {
   protected async reply(
     contractAddress: string,
     replyMsg: ReplyMsg,
-    trace: TraceLog[] = []
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     const logs: DebugLog[] = [];
     const contract = this.getContract(contractAddress);
@@ -479,7 +479,7 @@ export class WasmModule {
     };
 
     if (response.err) {
-      trace.push({
+      traces.push({
         ...tracebase,
         response,
         result: response,
@@ -506,10 +506,10 @@ export class WasmModule {
 
     let res = buildAppResponse(contractAddress, customEvent, response.val);
 
-    let subtrace: TraceLog[] = [];
-    let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtrace);
+    let subtraces: TraceLog[] = [];
+    let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtraces);
 
-    trace.push({
+    traces.push({
       ...tracebase,
       response,
       result,
@@ -528,16 +528,16 @@ export class WasmModule {
     return this.getContract(contractAddress).query(queryMsg, storeSnapshot as Map<string, string>);
   }
 
-  async handleMsg(sender: string, msg: WasmMsg, trace: TraceLog[] = []): Promise<Result<AppResponse, string>> {
+  async handleMsg(sender: string, msg: WasmMsg, traces: TraceLog[] = []): Promise<Result<AppResponse, string>> {
     return this.store.tx(async () => {
       let wasm = msg;
       if ('execute' in wasm) {
         let { contract_addr, funds, msg } = wasm.execute;
-        return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), trace);
+        return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), traces);
       }
       if ('instantiate' in wasm) {
         let { code_id, funds, msg, label } = wasm.instantiate;
-        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, trace);
+        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, traces);
       }
       throw new Error('Unknown wasm message');
     });

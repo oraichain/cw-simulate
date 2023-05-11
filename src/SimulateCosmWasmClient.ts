@@ -19,6 +19,13 @@ import { Coin, StdFee } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
+import { PrintDebugLog, TraceLog } from './types';
+
+type PrintDebugFunction = (msg: PrintDebugLog) => void;
+
+const PrintDebugDefault = (msg: PrintDebugLog) => {
+  console.log(msg.message);
+};
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes
@@ -27,13 +34,16 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     return new SimulateCosmWasmClient(app);
   }
 
+  private readonly debug: PrintDebugFunction;
+
   public readonly app: CWSimulateApp;
-  public constructor(appOrOptions: CWSimulateApp | CWSimulateAppOptions) {
+  public constructor(appOrOptions: CWSimulateApp | (CWSimulateAppOptions & { debug?: PrintDebugFunction })) {
     super(null, null, {});
     if (appOrOptions instanceof CWSimulateApp) {
       this.app = appOrOptions;
     } else {
       this.app = new CWSimulateApp(appOrOptions);
+      this.debug = appOrOptions.debug ?? PrintDebugDefault;
     }
   }
 
@@ -226,10 +236,25 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     _memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult> {
-    const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
+    const traces: TraceLog[] = [];
+    const result = await this.app.wasm.executeContract(
+      senderAddress,
+      (funds as Coin[]) ?? [],
+      contractAddress,
+      msg,
+      traces
+    );
 
     if (result.err || typeof result.val === 'string') {
       throw new Error(result.val.toString());
+    }
+
+    for (const trace of traces) {
+      for (const log of trace.logs) {
+        if (log.type == 'print') {
+          this.debug(log);
+        }
+      }
     }
 
     return {
