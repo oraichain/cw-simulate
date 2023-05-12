@@ -2,6 +2,7 @@ import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
 import { ContractResponse, Event } from '@terran-one/cosmwasm-vm-js';
 import { AppResponse } from '../../types';
+import { toBase64 } from '@cosmjs/encoding';
 
 function numberToBigEndianUint64(n: number): Uint8Array {
   const buffer = new ArrayBuffer(8);
@@ -47,7 +48,7 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
   const message = MsgInstantiateContractResponse.create(payload); //;
   return {
     events: res.events,
-    data: Buffer.from(MsgInstantiateContractResponse.encode(message).finish()).toString('base64'),
+    data: toBase64(MsgInstantiateContractResponse.encode(message).finish()),
   };
 }
 

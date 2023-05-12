@@ -18,6 +18,7 @@ import {
   IbcPacketTimeoutMsg,
   IbcReceiveResponse,
 } from '../types';
+import { fromBase64, toHex } from '@cosmjs/encoding';
 
 const DEFAULT_IBC_TIMEOUT = 2000;
 type IbcMessageType =
@@ -205,7 +206,7 @@ export class IbcModule {
             {
               type: 'send_packet',
               attributes: [
-                { key: 'packet_data_hex', value: Buffer.from(msg.send_packet.data, 'base64').toString('hex') },
+                { key: 'packet_data_hex', value: toHex(fromBase64(msg.send_packet.data)) },
                 {
                   key: 'packet_timeout_height',
                   value: msg.send_packet.timeout.block?.height ?? 0,
