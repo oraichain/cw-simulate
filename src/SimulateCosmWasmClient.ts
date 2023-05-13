@@ -20,6 +20,35 @@ import { readFileSync } from 'fs';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
 
+// extend '@cosmjs/cosmwasm-stargate' so that we can call deploy in real SigningCosmWasmClient
+declare module '@cosmjs/cosmwasm-stargate' {
+  interface SigningCosmWasmClient {
+    deploy<T = JsonObject>(
+      senderAddress: string,
+      wasmPath: string,
+      msg: T,
+      label: string,
+      _fee?: StdFee | 'auto' | number,
+      options?: InstantiateOptions
+    ): Promise<UploadResult & InstantiateResult>;
+  }
+}
+
+SigningCosmWasmClient.prototype.deploy = async function deploy<T = JsonObject>(
+  senderAddress: string,
+  wasmPath: string,
+  msg: T,
+  label: string,
+  _fee?: StdFee | 'auto' | number,
+  options?: InstantiateOptions
+): Promise<UploadResult & InstantiateResult> {
+  // upload and instantiate the contract
+  const wasmBytecode = readFileSync(wasmPath);
+  const uploadRes = await this.upload(senderAddress, wasmBytecode, 'auto');
+  const initRes = await this.instantiate(senderAddress, uploadRes.codeId, msg, label, _fee, options);
+  return { ...uploadRes, ...initRes };
+};
+
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes
   public static async from(bytes: Uint8Array | Buffer): Promise<SimulateCosmWasmClient> {
@@ -142,21 +171,6 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       gasUsed: 0,
       gasWanted: 0,
     });
-  }
-
-  public async deploy<T = JsonObject>(
-    senderAddress: string,
-    wasmPath: string,
-    msg: T,
-    label: string,
-    _fee?: StdFee | 'auto' | number,
-    options?: InstantiateOptions
-  ): Promise<UploadResult & InstantiateResult> {
-    // upload and instantiate the contract
-    const wasmBytecode = readFileSync(wasmPath);
-    const uploadRes = await this.upload(senderAddress, wasmBytecode, 'auto');
-    const initRes = await this.instantiate(senderAddress, uploadRes.codeId, msg, label, _fee, options);
-    return { ...uploadRes, ...initRes };
   }
 
   public upload(
