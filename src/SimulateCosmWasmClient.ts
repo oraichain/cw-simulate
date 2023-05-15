@@ -214,7 +214,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       codeId,
       msg,
       label,
-      options.admin
+      options?.admin
     );
 
     if (result.err || typeof result.val === 'string') {
