@@ -252,7 +252,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       if (result.err || typeof result.val === 'string') {
         throw new Error(result.val.toString());
       }
-      Object.assign(events, result.val.events);
+      events.push(...result.val.events);
     }
 
     return {
