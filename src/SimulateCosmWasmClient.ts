@@ -10,6 +10,7 @@ import {
   Contract,
   CodeDetails,
   Code,
+  ExecuteInstruction,
 } from '@cosmjs/cosmwasm-stargate';
 import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
@@ -165,7 +166,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       txIndex: 0,
       code: res.ok ? 0 : 1,
-      transactionHash: getTransactionHash(this.app.height, res.val),
+      transactionHash: getTransactionHash(this.app.height, res),
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
       gasUsed: 0,
@@ -224,8 +225,41 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       contractAddress,
       logs: [],
       height: this.app.height,
-      transactionHash: getTransactionHash(this.app.height, result.val),
+      transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
+      gasWanted: 0,
+      gasUsed: 0,
+    };
+  }
+
+  /**
+   * Like `execute` but allows executing multiple messages in one transaction.
+   */
+  public async executeMultiple(
+    senderAddress: string,
+    instructions: readonly ExecuteInstruction[],
+    _fee: StdFee | 'auto' | number,
+    _memo?: string
+  ): Promise<ExecuteResult> {
+    const events = [];
+    const results = await Promise.all(
+      instructions.map(({ contractAddress, funds, msg }) =>
+        this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg)
+      )
+    );
+
+    for (const result of results) {
+      if (result.err || typeof result.val === 'string') {
+        throw new Error(result.val.toString());
+      }
+      Object.assign(events, result.val.events);
+    }
+
+    return {
+      logs: [],
+      height: this.app.height,
+      transactionHash: getTransactionHash(this.app.height, results),
+      events: [],
       gasWanted: 0,
       gasUsed: 0,
     };
@@ -236,24 +270,22 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     senderAddress: string,
     contractAddress: string,
     msg: JsonObject,
-    _fee: StdFee | 'auto' | number,
-    _memo?: string,
+    fee: StdFee | 'auto' | number,
+    memo?: string,
     funds?: readonly Coin[]
   ): Promise<ExecuteResult> {
-    const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
-
-    if (result.err || typeof result.val === 'string') {
-      throw new Error(result.val.toString());
-    }
-
-    return {
-      logs: [],
-      height: this.app.height,
-      transactionHash: getTransactionHash(this.app.height, result.val),
-      events: result.val.events,
-      gasWanted: 0,
-      gasUsed: 0,
-    };
+    return this.executeMultiple(
+      senderAddress,
+      [
+        {
+          contractAddress,
+          msg,
+          funds,
+        },
+      ],
+      fee,
+      memo
+    );
   }
 
   public async queryContractRaw(address: string, key: Uint8Array): Promise<Uint8Array | null> {
