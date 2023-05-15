@@ -196,11 +196,12 @@ export class WasmModule {
     codeId: number,
     instantiateMsg: any,
     label: string,
+    admin: string | null = null,
     traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
-      const contractAddress = this.registerContractInstance(sender, codeId, label).unwrap();
+      const contractAddress = this.registerContractInstance(sender, codeId, label, admin).unwrap();
       let logs = [] as DebugLog[];
 
       const contract = await this.getContract(contractAddress).init();
@@ -242,6 +243,74 @@ export class WasmModule {
           { key: '_contract_address', value: contractAddress },
           { key: 'code_id', value: codeId.toString() },
         ],
+      };
+
+      if (typeof response.val === 'string') {
+        throw new Error(response.val.toString());
+      }
+
+      let res = buildAppResponse(contractAddress, customEvent, response.val);
+
+      let subtraces: TraceLog[] = [];
+
+      let result = await this.handleContractResponse(contractAddress, response.val.messages, res, subtraces);
+
+      traces.push({
+        ...tracebase,
+        response,
+        result,
+        traces: subtraces,
+        storeSnapshot: this.store.db.data,
+      });
+
+      return result;
+    });
+  }
+
+  /** Call migrate on the CW SC */
+  async migrateContract(
+    sender: string,
+    newCodeId: number,
+    contractAddress: string,
+    migrateMsg: any,
+    traces: TraceLog[] = []
+  ): Promise<Result<AppResponse, string>> {
+    return await this.chain.pushBlock(async () => {
+      const contract = await this.getContract(contractAddress).init();
+      const info = this.getContractInfo(contractAddress);
+      if (info === undefined) {
+        throw new Error(`Contract ${contractAddress} not found`);
+      }
+      info.codeId = newCodeId;
+      // update contract info
+      this.setContractInfo(contractAddress, info);
+
+      const logs: DebugLog[] = [];
+      const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
+        [NEVER_IMMUTIFY]: true,
+        type: 'instantiate',
+        contractAddress,
+        msg: migrateMsg,
+        info: { sender, funds: [] },
+        logs,
+        env: contract.getExecutionEnv(),
+        storeSnapshot: this.store.db.data,
+      };
+
+      // then call instantiate
+      let response = contract.migrate(migrateMsg, logs);
+
+      if (response.err) {
+        traces.push({
+          ...tracebase,
+          response,
+          result: response,
+        });
+        return response;
+      }
+      let customEvent: Event = {
+        type: 'migrate',
+        attributes: [{ key: '_contract_address', value: contractAddress }],
       };
 
       if (typeof response.val === 'string') {
@@ -536,8 +605,12 @@ export class WasmModule {
         return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), traces);
       }
       if ('instantiate' in wasm) {
-        let { code_id, funds, msg, label } = wasm.instantiate;
-        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, traces);
+        let { code_id, funds, msg, label, admin } = wasm.instantiate;
+        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, admin, traces);
+      }
+      if ('migrate' in wasm) {
+        let { contract_addr, new_code_id, msg } = wasm.migrate;
+        return await this.migrateContract(sender, new_code_id, contract_addr, fromBinary(msg), traces);
       }
       throw new Error('Unknown wasm message');
     });

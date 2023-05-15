@@ -28,7 +28,7 @@ export const isTSResult = <T = unknown, E = string>(value: any): value is Result
   typeof value.ok === 'boolean' && typeof value.err === 'boolean' && 'val' in value;
 
 export const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
-  const buf = Buffer.from(height.toString() + (typeof data === 'string' ? data : JSON.stringify(data)), encoding);
+  const buf = Buffer.from(height.toString() + JSON.stringify(data), encoding);
   return toHex(sha256(buf));
 };
 

@@ -109,6 +109,25 @@ export default class Contract {
     }
   }
 
+  migrate(migrateMsg: any, logs: DebugLog[]): Result<ContractResponse, string> {
+    try {
+      if (!this._vm) {
+        return new ContractNotFoundError(this.address);
+      }
+      const vm = this._vm;
+      const env = this.getExecutionEnv();
+      const res = fromRustResult<ContractResponse>(vm.migrate(env, migrateMsg));
+
+      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+
+      logs.push(...vm.logs);
+
+      return res;
+    } catch (ex) {
+      return Err((ex as Error).message ?? ex.toString());
+    }
+  }
+
   reply(replyMsg: ReplyMsg, logs: DebugLog[]): Result<ContractResponse, string> {
     try {
       if (!this._vm) {

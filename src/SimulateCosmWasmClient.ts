@@ -11,6 +11,7 @@ import {
   CodeDetails,
   Code,
   ExecuteInstruction,
+  MigrateResult,
 } from '@cosmjs/cosmwasm-stargate';
 import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
@@ -212,7 +213,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       (options?.funds as Coin[]) ?? [],
       codeId,
       msg,
-      label
+      label,
+      options.admin
     );
 
     if (result.err || typeof result.val === 'string') {
@@ -286,6 +288,38 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       fee,
       memo
     );
+  }
+
+  public async migrate(
+    senderAddress: string,
+    contractAddress: string,
+    codeId: number,
+    migrateMsg: JsonObject,
+    _fee: StdFee | 'auto' | number,
+    _memo?: string
+  ): Promise<MigrateResult> {
+    // only admin can migrate the contract
+
+    const { admin } = this.app.wasm.getContractInfo(contractAddress);
+
+    if (admin !== senderAddress) {
+      throw new Error('unauthorized: can not migrate');
+    }
+
+    const result = await this.app.wasm.migrateContract(senderAddress, codeId, contractAddress, migrateMsg);
+
+    if (result.err || typeof result.val === 'string') {
+      throw new Error(result.val.toString());
+    }
+
+    return {
+      logs: [],
+      height: this.app.height,
+      transactionHash: getTransactionHash(this.app.height, result),
+      events: result.val.events,
+      gasWanted: 0,
+      gasUsed: 0,
+    };
   }
 
   public async queryContractRaw(address: string, key: Uint8Array): Promise<Uint8Array | null> {
