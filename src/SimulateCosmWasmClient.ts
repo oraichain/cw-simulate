@@ -259,7 +259,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       logs: [],
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, results),
-      events: [],
+      events,
       gasWanted: 0,
       gasUsed: 0,
     };
