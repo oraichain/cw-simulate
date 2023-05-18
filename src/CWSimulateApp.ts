@@ -1,5 +1,5 @@
 import { CosmosMsg, QuerierBase } from '@terran-one/cosmwasm-vm-js';
-import { Err, Result } from 'ts-results';
+import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
 import { Transactional, TransactionalLens } from './store/transactional';
@@ -10,6 +10,10 @@ import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
 import { printDebug } from './util';
 
 type CustomMsgFunction = (msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
+const DefaultAppResponse = Ok({
+  events: [],
+  data: null,
+});
 
 export interface CWSimulateAppOptions {
   chainId: string;
@@ -70,8 +74,9 @@ export class CWSimulateApp {
       return await this.ibc.handleMsg(sender, msg.ibc);
     }
     // not yet implemented, so use custom fallback assignment
-    if ('stagate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
-      return await this.custom?.(msg);
+    if ('stargate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
+      // make default response to keep app working
+      return this.custom?.(msg) ?? DefaultAppResponse;
     }
 
     return Err(`unknown message: ${JSON.stringify(msg)}`);
