@@ -9,11 +9,14 @@ import { IbcModule } from './modules/ibc';
 import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
 import { printDebug } from './util';
 
+type CustomMsgFunction = (msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
+
 export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
   zkFeatures?: boolean;
   debug?: DebugFunction;
+  custom?: CustomMsgFunction;
 }
 
 export type ChainData = {
@@ -26,7 +29,8 @@ export class CWSimulateApp {
   public chainId: string;
   public bech32Prefix: string;
   public zkFeatures: boolean;
-  public debug?: DebugFunction; // make sure can not re-assign it
+  public debug?: DebugFunction;
+  private readonly custom?: CustomMsgFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
 
   public wasm: WasmModule;
@@ -39,6 +43,7 @@ export class CWSimulateApp {
     this.bech32Prefix = options.bech32Prefix;
     this.zkFeatures = options.zkFeatures ?? false;
     this.debug = options.debug ?? printDebug;
+    this.custom = options.custom;
     this.store = new Transactional().lens<ChainData>().initialize({
       height: 1,
       time: Date.now() * 1e6,
@@ -64,6 +69,11 @@ export class CWSimulateApp {
     if ('ibc' in msg) {
       return await this.ibc.handleMsg(sender, msg.ibc);
     }
+    // not yet implemented, so use custom fallback assignment
+    if ('stagate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
+      return await this.custom?.(msg);
+    }
+
     return Err(`unknown message: ${JSON.stringify(msg)}`);
   }
 
