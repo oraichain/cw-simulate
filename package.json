@@ -1,9 +1,8 @@
 {
-  "name": "@terran-one/cw-simulate",
-  "version": "2.8.4",
+  "name": "@oraichain/cw-simulate",
+  "version": "2.8.5",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
-  "main": "src/index.ts",
-  "types": "src",
+  "main": "dist/index.js",
   "files": [
     "dist"
   ],
@@ -11,7 +10,7 @@
     "node": ">=18"
   },
   "repository": "https://github.com/terran-one/cw-simulate",
-  "author": "Terran One LLC",
+  "author": "Terran One LLC, Oraichain Labs",
   "license": "MIT",
   "private": false,
   "devDependencies": {
@@ -32,7 +31,8 @@
     "tsconfig-paths-webpack-plugin": "^4.0.0",
     "typescript": "^4.8.2",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.29.5",
@@ -40,7 +40,7 @@
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
     "@kiruse/serde": "^0.8.0-rc.6",
-    "@terran-one/cosmwasm-vm-js": "https://github.com/oraichain/cosmwasm-vm-js.git",
+    "@oraichain/cosmwasm-vm-js": "^0.2.18",
     "eventemitter3": "^5.0.0",
     "immutable": "^4.1.0",
     "lobyte": "^0.0.3",
@@ -51,6 +51,7 @@
     "tslib": "^2.4.0"
   },
   "scripts": {
+    "deploy": "yarn publish --access public --patch",
     "build": "tsc --module commonjs && webpack --mode production",
     "test": "jest",
     "bench": "ts-node bench/snapshot.ts",
