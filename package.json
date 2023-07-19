@@ -1,6 +1,6 @@
 {
   "name": "@oraichain/cw-simulate",
-  "version": "2.8.5",
+  "version": "2.8.6",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
   "main": "dist/index.js",
   "files": [
@@ -9,7 +9,7 @@
   "engines": {
     "node": ">=18"
   },
-  "repository": "https://github.com/terran-one/cw-simulate",
+  "repository": "https://github.com/oraichain/cw-simulate",
   "author": "Terran One LLC, Oraichain Labs",
   "license": "MIT",
   "private": false,
@@ -40,7 +40,7 @@
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
     "@kiruse/serde": "^0.8.0-rc.6",
-    "@oraichain/cosmwasm-vm-js": "^0.2.18",
+    "@oraichain/cosmwasm-vm-js": "^0.2.19",
     "eventemitter3": "^5.0.0",
     "immutable": "^4.1.0",
     "lobyte": "^0.0.3",
