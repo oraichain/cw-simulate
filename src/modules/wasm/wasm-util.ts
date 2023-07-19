@@ -1,6 +1,6 @@
 import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
-import { ContractResponse, Event } from '@terran-one/cosmwasm-vm-js';
+import { ContractResponse, Event } from '@oraichain/cosmwasm-vm-js';
 import { AppResponse } from '../../types';
 import { toBase64 } from '@cosmjs/encoding';
 

@@ -19,7 +19,7 @@ import {
 } from '../../types';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
-import { ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@terran-one/cosmwasm-vm-js';
+import { ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@oraichain/cosmwasm-vm-js';
 
 type WasmData = {
   lastCodeId: number;

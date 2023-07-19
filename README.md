@@ -40,7 +40,7 @@ $ yarn add "https://github.com/oraichain/cosmwasm-vm-js.git"
 The following example creates a chain, instantiates a contract on it, and performs an `execute` and `query`.
 
 ```javascript
-import { SimulateCosmWasmClient } from '@terran-one/cw-simulate';
+import { SimulateCosmWasmClient } from '@oraichain/cw-simulate';
 import { readFileSync } from 'fs';
 
 const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';

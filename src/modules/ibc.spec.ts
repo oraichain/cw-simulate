@@ -1,7 +1,7 @@
 import { coin, coins } from '@cosmjs/amino';
 import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
-import { CosmosMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js';
+import { CosmosMsg, IbcMsgTransfer } from '@oraichain/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';

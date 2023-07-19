@@ -6,7 +6,7 @@ import {
   BasicKVIterStorage,
   ContractResponse,
   IBackend,
-} from '@terran-one/cosmwasm-vm-js';
+} from '@oraichain/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';

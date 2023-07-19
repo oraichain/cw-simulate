@@ -40,3 +40,5 @@ dist/**/*
 # yarn artefacts
 yarn.lock
 .yarnrc.yml
+
+.npmrc

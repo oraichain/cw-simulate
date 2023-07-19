@@ -43,7 +43,7 @@ jobs:
             {
               "attachments": [
                 {
-                  "text": ":shipit: A new version of <https://www.npmjs.com/package/@terran-one/cw-simulate|cw-simulate> has been published",
+                  "text": ":shipit: A new version of <https://www.npmjs.com/package/@oraichain/cw-simulate|cw-simulate> has been published",
                   "color": "good"
                 }
               ]

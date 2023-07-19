@@ -1,4 +1,4 @@
-import { BankMsg } from '@terran-one/cosmwasm-vm-js';
+import { BankMsg } from '@oraichain/cosmwasm-vm-js';
 import { cmd, exec, TestContract } from '../../testing/wasm-util';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { BankQuery } from './bank';

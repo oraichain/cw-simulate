@@ -10,7 +10,7 @@ import {
   MessageInfo,
   SubMsg,
   Event,
-} from '@terran-one/cosmwasm-vm-js';
+} from '@oraichain/cosmwasm-vm-js';
 
 export interface AppResponse {
   events: any[];

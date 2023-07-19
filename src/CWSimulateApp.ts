@@ -1,4 +1,4 @@
-import { CosmosMsg, QuerierBase } from '@terran-one/cosmwasm-vm-js';
+import { CosmosMsg, QuerierBase } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';

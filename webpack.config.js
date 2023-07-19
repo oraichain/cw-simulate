@@ -22,9 +22,7 @@ const commonConfig = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-    plugins: [
-      new TsconfigPathsPlugin({ baseUrl: path.resolve(__dirname, '.') }),
-    ],
+    plugins: [new TsconfigPathsPlugin({ baseUrl: path.resolve(__dirname, '.') })],
   },
   plugins: [
     new webpack.IgnorePlugin({
@@ -72,10 +70,11 @@ const webConfig = {
 const nodeConfig = {
   ...commonConfig,
   target: 'node',
+  externals: [require('webpack-node-externals')()],
   output: {
     libraryTarget: 'commonjs',
     filename: 'bundle.node.js',
   },
 };
 
-module.exports = [webConfig, nodeConfig];
+module.exports = process.env.TARGET === 'web' ? webConfig : nodeConfig;

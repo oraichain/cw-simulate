@@ -1,5 +1,5 @@
 import { coin } from '@cosmjs/amino';
-import { IbcMsg, IbcMsgTransfer } from '@terran-one/cosmwasm-vm-js/src';
+import { IbcMsg, IbcMsgTransfer } from '@oraichain/cosmwasm-vm-js';
 import EventEmitter from 'eventemitter3';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateApp } from '../CWSimulateApp';

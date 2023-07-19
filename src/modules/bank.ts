@@ -1,6 +1,6 @@
 import { Coin } from '@cosmjs/amino';
 import { Err, Ok, Result } from 'ts-results';
-import { BankMsg } from '@terran-one/cosmwasm-vm-js';
+import { BankMsg } from '@oraichain/cosmwasm-vm-js';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { Transactional, TransactionalLens } from '../store/transactional';
 import { AppResponse, Snapshot } from '../types';

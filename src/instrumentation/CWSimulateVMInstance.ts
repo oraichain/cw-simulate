@@ -1,4 +1,4 @@
-import { VMInstance, Region, IBackend } from '@terran-one/cosmwasm-vm-js';
+import { VMInstance, Region, IBackend } from '@oraichain/cosmwasm-vm-js';
 import { DebugLog } from '../types';
 
 export type DebugFunction = (log: DebugLog) => void;

@@ -2,7 +2,7 @@ import { toBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
 import { readFileSync } from 'fs';
 import { CWSimulateApp } from '../src/CWSimulateApp';
-import { BankMsg, Event, ReplyOn } from '@terran-one/cosmwasm-vm-js';
+import { BankMsg, Event, ReplyOn } from '@oraichain/cosmwasm-vm-js';
 import { TraceLog } from '../src/types';
 
 export const DEFAULT_CREATOR = 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu';
