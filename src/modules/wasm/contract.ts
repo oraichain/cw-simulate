@@ -1,12 +1,6 @@
 import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
-import {
-  BasicBackendApi,
-  ZkBackendApi,
-  BasicKVIterStorage,
-  ContractResponse,
-  IBackend,
-} from '@oraichain/cosmwasm-vm-js';
+import { BasicBackendApi, BasicKVIterStorage, ContractResponse, IBackend } from '@oraichain/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
@@ -50,9 +44,7 @@ export default class Contract {
       const storage = new BasicKVIterStorage(contractState);
 
       let backend: IBackend = {
-        backend_api: wasm.chain.zkFeatures
-          ? new ZkBackendApi(wasm.chain.bech32Prefix)
-          : new BasicBackendApi(wasm.chain.bech32Prefix),
+        backend_api: wasm.chain.backendApi ?? new BasicBackendApi(wasm.chain.bech32Prefix),
         storage,
         querier: wasm.chain.querier,
       };

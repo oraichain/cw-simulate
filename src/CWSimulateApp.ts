@@ -1,4 +1,4 @@
-import { CosmosMsg, QuerierBase } from '@oraichain/cosmwasm-vm-js';
+import { CosmosMsg, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
@@ -18,7 +18,7 @@ const DefaultAppResponse = Ok({
 export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
-  zkFeatures?: boolean;
+  backendApi?: IBackendApi;
   debug?: DebugFunction;
   handleCustomMsg?: HandleCustomMsgFunction;
 }
@@ -32,7 +32,7 @@ export class CWSimulateApp {
   [SERDE] = 'cw-simulate-app' as const;
   public chainId: string;
   public bech32Prefix: string;
-  public zkFeatures: boolean;
+  public backendApi: IBackendApi;
   public debug?: DebugFunction;
   private readonly handleCustomMsg?: HandleCustomMsgFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
@@ -45,7 +45,7 @@ export class CWSimulateApp {
   constructor(options: CWSimulateAppOptions) {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
-    this.zkFeatures = options.zkFeatures ?? false;
+    this.backendApi = options.backendApi;
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
     this.store = new Transactional().lens<ChainData>().initialize({

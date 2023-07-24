@@ -18,38 +18,8 @@ import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
 import { fromBase64, toHex } from '@cosmjs/encoding';
 import { Coin, StdFee } from '@cosmjs/amino';
-import { readFileSync } from 'fs';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
-
-// extend '@cosmjs/cosmwasm-stargate' so that we can call deploy in real SigningCosmWasmClient
-declare module '@cosmjs/cosmwasm-stargate' {
-  interface SigningCosmWasmClient {
-    deploy<T = JsonObject>(
-      senderAddress: string,
-      wasmPath: string,
-      msg: T,
-      label: string,
-      _fee?: StdFee | 'auto' | number,
-      options?: InstantiateOptions
-    ): Promise<UploadResult & InstantiateResult>;
-  }
-}
-
-SigningCosmWasmClient.prototype.deploy = async function deploy<T = JsonObject>(
-  senderAddress: string,
-  wasmPath: string,
-  msg: T,
-  label: string,
-  _fee?: StdFee | 'auto' | number,
-  options?: InstantiateOptions
-): Promise<UploadResult & InstantiateResult> {
-  // upload and instantiate the contract
-  const wasmBytecode = readFileSync(wasmPath);
-  const uploadRes = await this.upload(senderAddress, wasmBytecode, 'auto');
-  const initRes = await this.instantiate(senderAddress, uploadRes.codeId, msg, label, _fee, options);
-  return { ...uploadRes, ...initRes };
-};
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // deserialize from bytes

@@ -32,42 +32,7 @@ const commonConfig = {
   ],
 };
 
-const webConfig = {
-  ...commonConfig,
-  target: 'web',
-  output: {
-    filename: 'bundle.js',
-    libraryTarget: 'umd',
-    library: 'cw-simulate',
-  },
-  resolve: {
-    ...commonConfig.resolve,
-    fallback: {
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer'),
-      assert: require.resolve('assert'),
-      'process/browser': require.resolve('process'),
-      util: require.resolve('util'),
-      crypto: require.resolve('crypto-browserify'),
-      path: require.resolve('path-browserify'),
-    },
-  },
-  plugins: [
-    ...commonConfig.plugins,
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-    }),
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-    }),
-    // new BundleAnalyzerPlugin(),
-  ],
-  optimization: {
-    minimize: true,
-  },
-};
-
-const nodeConfig = {
+module.exports = {
   ...commonConfig,
   target: 'node',
   externals: [require('webpack-node-externals')()],
@@ -76,5 +41,3 @@ const nodeConfig = {
     filename: 'bundle.node.js',
   },
 };
-
-module.exports = process.env.TARGET === 'web' ? webConfig : nodeConfig;
