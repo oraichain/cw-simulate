@@ -1,6 +1,6 @@
 {
   "name": "@oraichain/cw-simulate",
-  "version": "2.8.8",
+  "version": "2.8.9",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
   "main": "dist/index.js",
   "files": [
@@ -40,7 +40,7 @@
     "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
     "@kiruse/serde": "^0.8.0-rc.6",
-    "@oraichain/cosmwasm-vm-js": "^0.2.19",
+    "@oraichain/cosmwasm-vm-js": "^0.2.20",
     "eventemitter3": "^5.0.0",
     "immutable": "^4.1.0",
     "lobyte": "^0.0.3",
@@ -59,8 +59,7 @@
     "format:fix": "prettier --write ./src/**/*.ts",
     "lint": "eslint src --ext .js,.ts",
     "lint:fix": "eslint src --ext .js,.ts --fix",
-    "doc": "typedoc",
-    "prepublishOnly": "npm run build"
+    "doc": "typedoc"
   },
   "lint-staged": {
     "./src/**/*.ts": [
