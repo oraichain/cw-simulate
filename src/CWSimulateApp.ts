@@ -1,4 +1,4 @@
-import { CosmosMsg, Environment, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
+import { BasicBackendApi, CosmosMsg, Environment, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
@@ -48,7 +48,7 @@ export class CWSimulateApp {
   constructor(options: CWSimulateAppOptions) {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
-    this.backendApi = options.backendApi;
+    this.backendApi = options.backendApi ?? new BasicBackendApi(this.bech32Prefix);
     if (options.metering) {
       this.env = new Environment(this.backendApi, options.gasLimit);
     }

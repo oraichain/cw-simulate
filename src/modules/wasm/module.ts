@@ -216,14 +216,17 @@ export class WasmModule {
         storeSnapshot: this.store.db.data,
       };
 
-      const send = this.chain.bank.send(sender, contract.address, funds);
-      if (send.err) {
-        traces.push({
-          ...tracebase,
-          response: send,
-          result: send,
-        });
-        return send;
+      // create bank transfer
+      if (funds.length) {
+        const send = this.chain.bank.send(sender, contract.address, funds);
+        if (send.err) {
+          traces.push({
+            ...tracebase,
+            response: send,
+            result: send,
+          });
+          return send;
+        }
       }
 
       // then call instantiate

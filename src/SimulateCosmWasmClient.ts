@@ -179,6 +179,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<InstantiateResult> {
     // instantiate the contract
     const contractGasUsed = this.app.gasUsed;
+
     const result = await this.app.wasm.instantiateContract(
       senderAddress,
       (options?.funds as Coin[]) ?? [],

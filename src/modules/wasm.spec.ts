@@ -14,13 +14,12 @@ function event(ty: string, attrs: [string, string][]): Event {
 }
 
 const app = new CWSimulateApp({
-  chainId: 'phoenix-1',
-  bech32Prefix: 'terra',
-  metering: true,
+  chainId: 'Oraichain',
+  bech32Prefix: 'orai',
 });
 
 let info = {
-  sender: 'terra1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu',
+  sender: 'orai1hgm0p7khfk85zpz5v0j8wnej3a90w709vhkdfu',
   funds: [] as Coin[],
 };
 
@@ -57,9 +56,6 @@ describe('Instantiate', () => {
       funds: info.funds,
     });
 
-    let vm = app.wasm.getContract(testContract.address).vm;
-
-    let gasUsed = vm!.gasUsed;
     const traces: TraceLog[] = [];
     let result = await testContract.execute(
       info.sender,
@@ -72,8 +68,6 @@ describe('Instantiate', () => {
       info.funds,
       traces
     );
-
-    console.log('gasUsed', vm!.gasUsed - gasUsed);
 
     expect(result.ok).toBeTruthy();
 
@@ -89,7 +83,7 @@ describe('Instantiate', () => {
     result = await app.wasm.executeContract(info.sender, info.funds, addr!, exec.push('foobar'));
     expect(result.ok).toBeTruthy();
 
-    const queryResult = await app.wasm.query(addr!, { get_buffer: {} });
+    const queryResult = app.wasm.query(addr!, { get_buffer: {} });
     expect(queryResult.ok);
     expect(queryResult.val).toMatchObject({
       buffer: ['foobar'],
@@ -247,7 +241,7 @@ describe('Rollback', function () {
 
     await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, {
+    let queryRes = app.wasm.query(testContract.address, {
       get_buffer: {},
     });
     expect(queryRes.val).toEqual({
@@ -260,7 +254,7 @@ describe('Rollback', function () {
 
     await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, {
+    let queryRes = app.wasm.query(testContract.address, {
       get_buffer: {},
     });
     expect(queryRes.val).toEqual({
@@ -277,7 +271,7 @@ describe('Rollback', function () {
 
     await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, {
+    let queryRes = app.wasm.query(testContract.address, {
       get_buffer: {},
     });
     expect(queryRes.val).toEqual({
@@ -302,7 +296,7 @@ describe('Rollback', function () {
 
     await testContract.execute(info.sender, executeMsg, info.funds);
 
-    let queryRes = await app.wasm.query(testContract.address, {
+    let queryRes = app.wasm.query(testContract.address, {
       get_buffer: {},
     });
     expect(queryRes.val).toEqual({
