@@ -1,11 +1,16 @@
-import { VMInstance, Region, IBackend } from '@oraichain/cosmwasm-vm-js';
+import { VMInstance, Region, IBackend, Environment } from '@oraichain/cosmwasm-vm-js';
 import { DebugLog } from '../types';
 
 export type DebugFunction = (log: DebugLog) => void;
 
 export class CWSimulateVMInstance extends VMInstance {
-  constructor(public logs: Array<DebugLog>, private readonly debugFn: DebugFunction, backend: IBackend) {
-    super(backend);
+  constructor(
+    public logs: Array<DebugLog>,
+    private readonly debugFn: DebugFunction,
+    backend: IBackend,
+    env?: Environment
+  ) {
+    super(backend, env);
   }
 
   private processLog(log: DebugLog) {

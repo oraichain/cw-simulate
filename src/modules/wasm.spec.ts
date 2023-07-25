@@ -16,6 +16,7 @@ function event(ty: string, attrs: [string, string][]): Event {
 const app = new CWSimulateApp({
   chainId: 'phoenix-1',
   bech32Prefix: 'terra',
+  metering: true,
 });
 
 let info = {
@@ -50,11 +51,15 @@ describe('Instantiate', () => {
 
   it('contract instantiates contract', async () => {
     // Phase 1: Test instantiation of contract by contract
+
     const testContract = await testCode.instantiate({
       codeId,
       funds: info.funds,
     });
 
+    let vm = app.wasm.getContract(testContract.address).vm;
+
+    let gasUsed = vm!.gasUsed;
     const traces: TraceLog[] = [];
     let result = await testContract.execute(
       info.sender,
@@ -67,6 +72,8 @@ describe('Instantiate', () => {
       info.funds,
       traces
     );
+
+    console.log('gasUsed', vm!.gasUsed - gasUsed);
 
     expect(result.ok).toBeTruthy();
 

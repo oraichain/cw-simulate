@@ -2,7 +2,6 @@ import { sha256 } from '@cosmjs/crypto';
 import { toHex } from '@cosmjs/encoding';
 import fs from 'fs';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
-import { save, load } from './persist';
 
 const bytecode = fs.readFileSync('./testing/cw_simulate_tests-aarch64.wasm');
 
@@ -12,6 +11,7 @@ describe('SimulateCosmWasmClient', () => {
       const client = new SimulateCosmWasmClient({
         chainId: 'Oraichain',
         bech32Prefix: 'orai',
+        metering: true,
       });
 
       const { codeId } = await client.upload('alice', bytecode, 'auto');
@@ -26,6 +26,9 @@ describe('SimulateCosmWasmClient', () => {
         },
         'auto'
       );
+
+      console.log(result);
+
       expect(result.events[0].attributes[0].value).toEqual(contractAddress);
 
       expect(await client.queryContractSmart(contractAddress, { get_buffer: {} })).toEqual({ buffer: ['foobar'] });

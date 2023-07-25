@@ -140,7 +140,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, res),
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
-      gasUsed: 0,
+      gasUsed: 60_000,
       gasWanted: 0,
     });
   }
@@ -165,7 +165,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, originalChecksum),
       events: [],
       gasWanted: 0,
-      gasUsed: 0,
+      gasUsed: wasmCode.length * 10,
     });
   }
 
@@ -178,6 +178,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
+    const contractGasUsed = this.app.gasUsed;
     const result = await this.app.wasm.instantiateContract(
       senderAddress,
       (options?.funds as Coin[]) ?? [],
@@ -200,7 +201,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
       gasWanted: 0,
-      gasUsed: 0,
+      gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
 
@@ -214,6 +215,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     _memo?: string
   ): Promise<ExecuteResult> {
     const events = [];
+    const contractGasUsed = this.app.gasUsed;
     const results = await Promise.all(
       instructions.map(({ contractAddress, funds, msg }) =>
         this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg)
@@ -233,7 +235,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, results),
       events,
       gasWanted: 0,
-      gasUsed: 0,
+      gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
 
@@ -276,6 +278,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       throw new Error('unauthorized: can not migrate');
     }
 
+    const contractGasUsed = this.app.gasUsed;
+
     const result = await this.app.wasm.migrateContract(senderAddress, codeId, contractAddress, migrateMsg);
 
     if (result.err || typeof result.val === 'string') {
@@ -288,7 +292,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
       gasWanted: 0,
-      gasUsed: 0,
+      gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
 

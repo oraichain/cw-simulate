@@ -1,4 +1,4 @@
-import { CosmosMsg, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
+import { CosmosMsg, Environment, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
@@ -19,6 +19,8 @@ export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
   backendApi?: IBackendApi;
+  metering?: boolean;
+  gasLimit?: number;
   debug?: DebugFunction;
   handleCustomMsg?: HandleCustomMsgFunction;
 }
@@ -34,6 +36,7 @@ export class CWSimulateApp {
   public bech32Prefix: string;
   public backendApi: IBackendApi;
   public debug?: DebugFunction;
+  public readonly env?: Environment;
   private readonly handleCustomMsg?: HandleCustomMsgFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
 
@@ -46,6 +49,10 @@ export class CWSimulateApp {
     this.chainId = options.chainId;
     this.bech32Prefix = options.bech32Prefix;
     this.backendApi = options.backendApi;
+    if (options.metering) {
+      this.env = new Environment(this.backendApi, options.gasLimit);
+    }
+
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
     this.store = new Transactional().lens<ChainData>().initialize({
@@ -57,6 +64,14 @@ export class CWSimulateApp {
     this.bank = new BankModule(this);
     this.ibc = new IbcModule(this);
     this.querier = new Querier(this);
+  }
+
+  public get gasUsed() {
+    return this.env?.gasUsed ?? 0;
+  }
+
+  public get gasLimit() {
+    return this.env?.gasLimit ?? 0;
   }
 
   public async handleMsg(
