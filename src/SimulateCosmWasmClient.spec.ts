@@ -11,7 +11,7 @@ describe('SimulateCosmWasmClient', () => {
       const client = new SimulateCosmWasmClient({
         chainId: 'Oraichain',
         bech32Prefix: 'orai',
-        metering: true,
+        // metering: true,
       });
 
       const { codeId } = await client.upload('alice', bytecode, 'auto');
