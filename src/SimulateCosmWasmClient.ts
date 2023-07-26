@@ -141,7 +141,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
       gasUsed: 60_000,
-      gasWanted: 0,
+      gasWanted: this.app.gasLimit,
     });
   }
 
@@ -164,7 +164,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, originalChecksum),
       events: [],
-      gasWanted: 0,
+      gasWanted: this.app.gasLimit,
       gasUsed: wasmCode.length * 10,
     });
   }
@@ -201,7 +201,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
-      gasWanted: 0,
+      gasWanted: this.app.gasLimit,
       gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
@@ -235,7 +235,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, results),
       events,
-      gasWanted: 0,
+      gasWanted: this.app.gasLimit,
       gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
@@ -292,7 +292,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
-      gasWanted: 0,
+      gasWanted: this.app.gasLimit,
       gasUsed: this.app.gasUsed - contractGasUsed,
     };
   }
