@@ -635,12 +635,13 @@ export class WasmModule {
         return '0';
       }
 
-      if (errMsg.startsWith('VmError:')) {
-        return Err(errMsg);
-      }
+      // TODO: differentiate error between js and contract
 
-      // normal error
-      throw new Error(errMsg);
+      // contract error
+      return Err(errMsg);
+
+      // // normal error
+      // throw new Error(errMsg);
     }
     if ('raw' in query) {
       const { contract_addr, key } = query.raw;
