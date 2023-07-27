@@ -140,7 +140,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, res),
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
-      gasUsed: 60_000,
+      gasUsed: 66_000,
       gasWanted: this.app.gasLimit,
     });
   }
