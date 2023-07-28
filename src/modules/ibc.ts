@@ -53,7 +53,7 @@ type MiddleWareCallback = (msg: IbcMessage, appRes: AppResponse) => Promise<void
 const emitter = new EventEmitter();
 const callbacks = new Map<string, [Function, Function, NodeJS.Timeout]>();
 const relayMap = new Map<string, ChannelInfo>();
-const middlWares = new Map<string, MiddleWareCallback[]>();
+const middleWares = new Map<string, MiddleWareCallback[]>();
 
 function getKey(...args: string[]): string {
   return args.join(':');
@@ -67,11 +67,11 @@ export class IbcModule {
   }
 
   public addMiddleWare(callback: MiddleWareCallback) {
-    middlWares.get(this.chain.chainId).push(callback);
+    middleWares.get(this.chain.chainId).push(callback);
   }
 
   public removeMiddelWare(callback: MiddleWareCallback) {
-    const chainMiddleWares = middlWares.get(this.chain.chainId);
+    const chainMiddleWares = middleWares.get(this.chain.chainId);
     const findInd = chainMiddleWares.findIndex(c => c === callback);
     if (findInd !== -1) chainMiddleWares.splice(findInd, 1);
   }
@@ -143,7 +143,7 @@ export class IbcModule {
           // process Ibc response
           if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
         } else {
-          const chainMiddleWares = middlWares.get(destChain.chainId);
+          const chainMiddleWares = middleWares.get(destChain.chainId);
           if (!chainMiddleWares.length) {
             // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
             throw new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`);
@@ -414,7 +414,7 @@ export class IbcModule {
       chain: destChain,
     });
     // reset all
-    middlWares.set(this.chain.chainId, []);
+    middleWares.set(this.chain.chainId, []);
     emitter.removeAllListeners(eventKey);
     emitter.addListener(eventKey, this.handleRelayMsg);
   }

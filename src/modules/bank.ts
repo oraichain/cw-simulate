@@ -162,7 +162,7 @@ export class BankModule {
     }
   }
 
-  public handleQuery(query: BankQuery): any {
+  public handleQuery(query: BankQuery): BalanceResponse | AllBalancesResponse {
     let bankQuery = query;
     if ('balance' in bankQuery) {
       let { address, denom } = bankQuery.balance;
@@ -178,6 +178,7 @@ export class BankModule {
     }
     throw new Error('Unknown bank query');
   }
+
   private lens(storage?: Snapshot) {
     return storage ? lensFromSnapshot(storage) : this.store;
   }

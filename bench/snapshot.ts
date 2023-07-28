@@ -29,9 +29,10 @@ async function main() {
   console.time('calls');
   for (let i = 0; i < 25; i++) {
     let res = await app.wasm.instantiateContract(info.sender, info.funds, codeId, {}, '');
-    if (res.err) {
-      throw new Error(res.val);
+    if (res.err || typeof res.val === 'string') {
+      throw new Error(res.val.toString());
     }
+
     let contractAddress = getContractAddress(res.val);
     for (let j = 0; j < 1000; j++) {
       res = await app.wasm.executeContract(info.sender, info.funds, contractAddress, {
