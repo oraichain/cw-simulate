@@ -81,13 +81,12 @@ export class WasmModule {
 
   forEachCodeInfo(callback: (codeInfo: CodeInfo, codeId: number) => void, storage?: Snapshot) {
     const { data } = this.lens(storage).lens('codes');
-    const codeInfos: CodeInfo[] = [];
     data.forEach((lens, codeId) => {
       const codeInfo: CodeInfo = {
         creator: lens.get('creator') as string,
         wasmCode: new Uint8Array(lens.get('wasmCode') as Buffer),
       };
-      callback(codeInfo, codeId);
+      callback(codeInfo, Number(codeId));
     });
   }
 
@@ -197,14 +196,15 @@ export class WasmModule {
     instantiateMsg: any,
     label: string,
     admin: string | null = null,
-    traces: TraceLog[] = []
+    traces: TraceLog[] = [],
+    checksum?: string
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
       const contractAddress = this.registerContractInstance(sender, codeId, label, admin).unwrap();
       let logs = [] as DebugLog[];
 
-      const contract = await this.getContract(contractAddress).init();
+      const contract = await this.getContract(contractAddress).init(checksum);
       const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
         [NEVER_IMMUTIFY]: true,
         type: 'instantiate',

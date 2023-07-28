@@ -22,6 +22,8 @@ import { load, save } from './persist';
 import { getTransactionHash } from './util';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
+  private static checksumCache = new Map();
+
   // deserialize from bytes
   public static async from(bytes: Uint8Array | Buffer): Promise<SimulateCosmWasmClient> {
     const app = await load(Uint8Array.from(bytes));
@@ -92,9 +94,9 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     const codes: Code[] = [];
     this.app.wasm.forEachCodeInfo((codeInfo, codeId) => {
       codes.push({
-        id: Number(codeId),
+        id: codeId,
         creator: codeInfo.creator,
-        checksum: toHex(sha256(codeInfo.wasmCode)),
+        checksum: SimulateCosmWasmClient.checksumCache.get(codeId),
       });
     });
 
@@ -106,7 +108,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     const codeDetails = {
       id: codeId,
       creator: codeInfo.creator,
-      checksum: toHex(sha256(codeInfo.wasmCode)),
+      checksum: SimulateCosmWasmClient.checksumCache.get(codeId),
       data: codeInfo.wasmCode,
     };
     return Promise.resolve(codeDetails);
@@ -154,6 +156,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     // import the wasm bytecode
     const originalChecksum = toHex(sha256(wasmCode));
     const codeId = this.app.wasm.create(senderAddress, wasmCode);
+    SimulateCosmWasmClient.checksumCache.set(codeId, originalChecksum);
     return Promise.resolve({
       originalSize: wasmCode.length,
       originalChecksum,
@@ -179,14 +182,16 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<InstantiateResult> {
     // instantiate the contract
     const contractGasUsed = this.app.gasUsed;
-
+    // pass checksum to cache build
     const result = await this.app.wasm.instantiateContract(
       senderAddress,
       (options?.funds as Coin[]) ?? [],
       codeId,
       msg,
       label,
-      options?.admin
+      options?.admin,
+      undefined,
+      SimulateCosmWasmClient.checksumCache.get(codeId)
     );
 
     if (result.err || typeof result.val === 'string') {

@@ -28,7 +28,7 @@ export default class Contract {
 
   constructor(private _wasm: WasmModule, public readonly address: string) {}
 
-  async init() {
+  async init(checksum?: string) {
     if (!this._vm) {
       const { _wasm: wasm, address } = this;
       const contractInfo = wasm.getContractInfo(address);
@@ -54,7 +54,7 @@ export default class Contract {
 
       const vm = new CWSimulateVMInstance(logs, msg => wasm.chain.debug?.(msg), backend, wasm.chain.env);
 
-      await vm.build(wasmCode);
+      await vm.build(wasmCode, checksum);
 
       this._vm = vm;
     }
