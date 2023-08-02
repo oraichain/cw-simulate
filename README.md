@@ -16,13 +16,13 @@ they are hosted.
 Import the `cw-simulate` library from NPM in your `package.json`.
 
 ```bash
-$ npm install -S "https://github.com/oraichain/cosmwasm-vm-js.git"
+$ npm install "@oraichain/cw-simulate" --save-dev
 ```
 
 If you're using Yarn:
 
 ```bash
-$ yarn add "https://github.com/oraichain/cosmwasm-vm-js.git"
+$ yarn add "@oraichain/cw-simulate" -D
 ```
 
 ## Usage
@@ -49,6 +49,7 @@ const funds = [];
 const client = new SimulateCosmWasmClient({
   chainId: 'Oraichain',
   bech32Prefix: 'orai',
+  metering: true,
 });
 
 // import the wasm bytecode

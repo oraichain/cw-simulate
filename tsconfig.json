@@ -13,11 +13,10 @@
     "declaration": true,
     "esModuleInterop": true,
     "lib": [
-      "es2015",
-      "es2016",
-      "es2017",
+      "ESNext",
       "dom"
     ],
+    "skipLibCheck": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": false,
@@ -34,6 +33,6 @@
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "downlevelIteration": true,
-    "target": "es6",
+    "target": "ESNext",
   }
 }
