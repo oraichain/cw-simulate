@@ -17,9 +17,11 @@ import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
 import { fromBase64, toHex } from '@cosmjs/encoding';
+import { Map as ImmutableMap } from 'immutable';
 import { Coin, StdFee } from '@cosmjs/amino';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
+import { ContractInfo } from './types';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   private static checksumCache = new Map();
@@ -43,6 +45,12 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   // serialize to bytes
   public toBytes(): Uint8Array {
     return save(this.app);
+  }
+
+  public async loadContract(address: string, info: ContractInfo, data: any) {
+    this.app.wasm.setContractInfo(address, info);
+    this.app.wasm.setContractStorage(address, ImmutableMap(data));
+    await this.app.wasm.getContract(address).init();
   }
 
   public getChainId(): Promise<string> {
