@@ -28,9 +28,7 @@ export const serde = Serde<Protocols>()
       if (!data.length) return List();
       const list = List().asMutable();
       Reference.all(deref, data, values => {
-        for (const value of values) {
-          list.push(value);
-        }
+        list.push(...values);
         !mutable && list.asImmutable();
       });
       return list;

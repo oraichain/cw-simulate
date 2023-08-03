@@ -1,16 +1,9 @@
 import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
 import { ContractResponse, Event } from '@oraichain/cosmwasm-vm-js';
-import { AppResponse } from '../../types';
+import { toByteArray } from '@oraichain/cosmwasm-vm-js/dist/helpers/byte-array';
 import { toBase64 } from '@cosmjs/encoding';
-
-function numberToBigEndianUint64(n: number): Uint8Array {
-  const buffer = new ArrayBuffer(8);
-  const view = new DataView(buffer);
-  view.setUint32(0, n, false);
-  view.setUint32(4, 0, false);
-  return new Uint8Array(buffer);
-}
+import { AppResponse } from '../../types';
 
 const protobufRoot = protobuf.Root.fromJSON({
   nested: {
@@ -53,7 +46,7 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
 }
 
 export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
-  let contractId = new Uint8Array([...numberToBigEndianUint64(codeId), ...numberToBigEndianUint64(instanceId)]);
+  let contractId = new Uint8Array([...toByteArray(codeId), ...toByteArray(instanceId)]);
 
   // append module name
   let mKey = new Uint8Array([...Uint8Array.from(Buffer.from('wasm', 'utf-8')), 0]);
