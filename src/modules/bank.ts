@@ -38,8 +38,8 @@ export class BankModule {
     return this.store.tx(() => {
       let senderBalance = this.getBalance(sender)
         .map(ParsedCoin.fromCoin)
-        .filter(c => c.amount > BigInt(0));
-      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > BigInt(0));
+        .filter(c => c.amount > 0);
+      const parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > 0);
 
       // Deduct coins from sender
       for (const coin of parsedCoins) {
@@ -48,10 +48,10 @@ export class BankModule {
         if (hasCoin && hasCoin.amount >= coin.amount) {
           hasCoin.amount -= coin.amount;
         } else {
-          return Err(`Sender ${sender} has ${hasCoin?.amount ?? BigInt(0)} ${coin.denom}, needs ${coin.amount}`);
+          return Err(`Sender ${sender} has ${hasCoin?.amount ?? 0} ${coin.denom}, needs ${coin.amount}`);
         }
       }
-      senderBalance = senderBalance.filter(c => c.amount > BigInt(0));
+      senderBalance = senderBalance.filter(c => c.amount > 0);
 
       // Add amount to recipient
       const recipientBalance = this.getBalance(recipient).map(ParsedCoin.fromCoin);

@@ -73,7 +73,7 @@ export default class Contract {
 
       const res = fromRustResult<ContractResponse>(vm.instantiate(env, info, instantiateMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -94,7 +94,7 @@ export default class Contract {
       const info = { sender, funds };
       const res = fromRustResult<ContractResponse>(vm.execute(env, info, executeMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -113,7 +113,7 @@ export default class Contract {
       const env = this.getExecutionEnv();
       const res = fromRustResult<ContractResponse>(vm.migrate(env, migrateMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -131,7 +131,7 @@ export default class Contract {
       const vm = this._vm;
       const res = fromRustResult<ContractResponse>(vm.reply(this.getExecutionEnv(), replyMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -151,7 +151,7 @@ export default class Contract {
         vm.ibc_channel_open(this.getExecutionEnv(), ibcChannelOpenMsg)
       );
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -171,7 +171,7 @@ export default class Contract {
         vm.ibc_channel_connect(this.getExecutionEnv(), ibcChannelConnectMsg)
       );
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -189,7 +189,7 @@ export default class Contract {
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_channel_close(this.getExecutionEnv(), ibcChannelCloseMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -209,7 +209,7 @@ export default class Contract {
         vm.ibc_packet_receive(this.getExecutionEnv(), ibcPacketReceiveMsg)
       );
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -227,7 +227,7 @@ export default class Contract {
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_ack(this.getExecutionEnv(), ibcPacketAckMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 
@@ -245,7 +245,7 @@ export default class Contract {
       const vm = this._vm;
       const res = fromRustResult<IbcBasicResponse>(vm.ibc_packet_timeout(this.getExecutionEnv(), ibcPacketTimeoutMsg));
 
-      this.setStorage((vm.backend.storage as BasicKVIterStorage).dict);
+      this.setStorage(vm.backend.storage.dict);
 
       logs.push(...vm.logs);
 

@@ -1,5 +1,4 @@
-import { Map } from 'immutable';
-import { fromBase64, toBase64 } from '@cosmjs/encoding';
+import AbstractSortedSet from '../SortedSet/AbstractSortedSet';
 
 function memcmp(a: Uint8Array, b: Uint8Array): number {
   const length = Math.min(a.length, b.length);
@@ -17,71 +16,62 @@ export interface IKVStore {
   has(key: Uint8Array): boolean;
   set(key: Uint8Array, value: Uint8Array): void;
   delete(key: Uint8Array): void;
-  iterator(
-    start: Uint8Array,
-    end: Uint8Array
-  ): Iterable<[Uint8Array, Uint8Array]>;
-  reverseIterator(
-    start: Uint8Array,
-    end: Uint8Array
-  ): Iterable<[Uint8Array, Uint8Array]>;
+  iterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
+  reverseIterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
 }
 
 export class KVStore implements IKVStore {
-  private _table: Map<string, string> = Map();
-
-  static _enc(key: Uint8Array): string {
-    return toBase64(key);
-  }
-
-  static _dec(key: string): Uint8Array {
-    return fromBase64(key);
-  }
+  static count = false;
+  private _set = new AbstractSortedSet({
+    onInsertConflict: () => {
+      throw new Error('Value already in set');
+    },
+    comparator: ([a], [b]) => {
+      return memcmp(a, b);
+    },
+  });
 
   get(key: Uint8Array): Uint8Array {
-    let keyBz = KVStore._enc(key);
-    let result = this._table.get(keyBz);
+    const result = this._set.findIterator([key]).value();
     if (result === undefined) {
       throw new Error('Key not found');
     }
-    return KVStore._dec(result);
+    return result[1];
   }
 
   has(key: Uint8Array): boolean {
-    let keyBz = KVStore._enc(key);
-    return this._table.has(keyBz);
+    return this._set.contains([key]);
   }
 
   set(key: Uint8Array, value: Uint8Array): void {
-    let keyBz = KVStore._enc(key);
-    let valueBz = KVStore._enc(value);
-    this._table = this._table.set(keyBz, valueBz);
+    this._set.insert([key, value]);
   }
 
   delete(key: Uint8Array): void {
-    let keyBz = KVStore._enc(key);
-    this._table = this._table.remove(keyBz);
+    this._set.remove([key]);
   }
 
-  iterator(
-    start: Uint8Array,
-    end: Uint8Array
-  ): Iterable<[Uint8Array, Uint8Array]> {
-    return this._table
-      .entrySeq()
-      .map(([key, value]) => [KVStore._dec(key), KVStore._dec(value)] as [Uint8Array, Uint8Array])
-      .filter(([key, _]) => memcmp(key, start) >= 0 && memcmp(key, end) < 0)
+  iterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
+    let iter = this._set.findIterator([start]);
+    const ret = [];
+    while (true) {
+      const item = iter.value();
+      if (!item || memcmp(item[0], end) >= 0) break;
+      ret.push(item);
+      iter = iter.next();
+    }
+    return ret;
   }
 
-  reverseIterator(
-    start: Uint8Array,
-    end: Uint8Array
-  ): Iterable<[Uint8Array, Uint8Array]> {
-    return this._table
-      .entrySeq()
-      .map(([key, value]) => [KVStore._dec(key), KVStore._dec(value)] as [Uint8Array, Uint8Array])
-      .filter(([key, _]) => memcmp(key, start) >= 0 && memcmp(key, end) < 0)
-      .reverse()
+  reverseIterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
+    let iter = this._set.findIterator([end]).previous();
+    const ret = [];
+    while (true) {
+      const item = iter.value();
+      if (!item || memcmp(item[0], start) < 0) break;
+      ret.push(item);
+      iter = iter.previous();
+    }
+    return ret;
   }
 }
-
