@@ -1,4 +1,4 @@
-import AbstractBinaryTreeStrategy from './AbstractBinaryTreeStrategy';
+import { AbstractBinaryTreeStrategy } from './AbstractBinaryTreeStrategy';
 import { AbstractNode, Options } from './AbstractSortedSet';
 
 const nodeAllTheWay = (node, leftOrRight) => {
@@ -34,7 +34,7 @@ const binaryTreeDelete = (node, value, comparator) => {
   return node;
 };
 
-class BinaryTreeStrategy extends AbstractBinaryTreeStrategy {
+export class BinaryTreeStrategy extends AbstractBinaryTreeStrategy {
   constructor(options: Options) {
     super(options);
     this.comparator = this.options.comparator;
@@ -70,5 +70,3 @@ class BinaryTreeStrategy extends AbstractBinaryTreeStrategy {
     return (this.root = binaryTreeDelete(this.root, value, this.comparator));
   }
 }
-
-export default BinaryTreeStrategy;

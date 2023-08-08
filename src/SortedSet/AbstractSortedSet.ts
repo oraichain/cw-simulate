@@ -1,4 +1,4 @@
-import RedBlackTreeStrategy from './RedBlackTreeStrategy';
+import { RedBlackTreeStrategy } from './RedBlackTreeStrategy';
 
 export interface Options {
   onInsertConflict: Function;
@@ -25,7 +25,7 @@ export class Node extends AbstractNode {
   }
 }
 
-class AbstractSortedSet {
+export class AbstractSortedSet {
   public length: number;
   private priv: RedBlackTreeStrategy;
   constructor(options: Options) {
@@ -39,13 +39,13 @@ class AbstractSortedSet {
     this.length = 0;
   }
 
-  insert(value) {
+  insert(value: any) {
     this.priv.insert(value);
     this.length += 1;
     return this;
   }
 
-  remove(value) {
+  remove(value: any) {
     this.priv.remove(value);
     this.length -= 1;
     return this;
@@ -57,7 +57,7 @@ class AbstractSortedSet {
     return this;
   }
 
-  contains(value) {
+  contains(value: any) {
     return this.priv.contains(value);
   }
 
@@ -146,5 +146,3 @@ class AbstractSortedSet {
     return this.priv.endIterator();
   }
 }
-
-export default AbstractSortedSet;

@@ -1,5 +1,5 @@
 import { AbstractNode, Options } from './AbstractSortedSet';
-import BinaryTreeIterator from './BinaryTreeIterator';
+import { BinaryTreeIterator } from './BinaryTreeIterator';
 
 const binaryTreeTraverse = (node, callback) => {
   if (node !== null) {
@@ -11,7 +11,7 @@ const binaryTreeTraverse = (node, callback) => {
 
 // An AbstractBinaryTreeStrategy has a @root. @root is null or an object with
 // `.left`, `.right` and `.value` properties.
-class AbstractBinaryTreeStrategy {
+export class AbstractBinaryTreeStrategy {
   public root: AbstractNode;
   public comparator: (a: any, b: any) => number;
   public onInsertConflict: Function;
@@ -65,5 +65,3 @@ class AbstractBinaryTreeStrategy {
     return BinaryTreeIterator.right(this);
   }
 }
-
-export default AbstractBinaryTreeStrategy;

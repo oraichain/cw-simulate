@@ -1,5 +1,4 @@
-import AbstractBinaryTree from './AbstractBinaryTreeStrategy';
-import AbstractBinaryTreeStrategy from './AbstractBinaryTreeStrategy';
+import { AbstractBinaryTreeStrategy } from './AbstractBinaryTreeStrategy';
 import { AbstractNode } from './AbstractSortedSet';
 
 const descendAllTheWay = (leftOrRight, node) => {
@@ -31,7 +30,7 @@ const moveCursor = (leftOrRight, node) => {
 
 // The BinaryTreeIterator actually writes to the tree: it maintains a
 // "_iteratorParentNode" variable on each node. Please ignore this.
-class BinaryTreeIterator {
+export class BinaryTreeIterator {
   constructor(public readonly tree: AbstractBinaryTreeStrategy, public readonly node: AbstractNode) {}
 
   next() {
@@ -88,7 +87,7 @@ class BinaryTreeIterator {
     return (this.node.value = value);
   }
 
-  static find(tree: AbstractBinaryTree, value: any, comparator) {
+  static find(tree: AbstractBinaryTreeStrategy, value: any, comparator) {
     const root = tree.root;
     if (root != null) {
       root._iteratorParentNode = null;
@@ -121,7 +120,7 @@ class BinaryTreeIterator {
     return new BinaryTreeIterator(tree, node);
   }
 
-  static left(tree: AbstractBinaryTree) {
+  static left(tree: AbstractBinaryTreeStrategy) {
     if (tree.root === null) {
       return new BinaryTreeIterator(tree, null);
     } else {
@@ -131,9 +130,7 @@ class BinaryTreeIterator {
     }
   }
 
-  static right(tree) {
+  static right(tree: AbstractBinaryTreeStrategy) {
     return new BinaryTreeIterator(tree, null);
   }
 }
-
-export default BinaryTreeIterator;

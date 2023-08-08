@@ -1,4 +1,4 @@
-import AbstractSortedSet from '../SortedSet/AbstractSortedSet';
+import { AbstractSortedSet } from '../sortedset';
 
 function memcmp(a: Uint8Array, b: Uint8Array): number {
   const length = Math.min(a.length, b.length);
@@ -52,11 +52,11 @@ export class KVStore implements IKVStore {
   }
 
   iterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
-    let iter = this._set.findIterator([start]);
+    let iter = start ? this._set.findIterator([start]) : this._set.beginIterator();
     const ret = [];
     while (true) {
       const item = iter.value();
-      if (!item || memcmp(item[0], end) >= 0) break;
+      if (!item || (end && memcmp(item[0], end) >= 0)) break;
       ret.push(item);
       iter = iter.next();
     }
@@ -64,7 +64,7 @@ export class KVStore implements IKVStore {
   }
 
   reverseIterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
-    let iter = this._set.findIterator([end]).previous();
+    let iter = end ? this._set.findIterator([end]).previous() : this._set.endIterator();
     const ret = [];
     while (true) {
       const item = iter.value();

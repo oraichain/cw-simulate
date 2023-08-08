@@ -1,4 +1,4 @@
-import AbstractBinaryTreeStrategy from './AbstractBinaryTreeStrategy';
+import { AbstractBinaryTreeStrategy } from './AbstractBinaryTreeStrategy';
 import { Options, Node } from './AbstractSortedSet';
 
 // An implementation of Left-Leaning Red-Black trees.
@@ -158,7 +158,7 @@ const removeFromNode = (h, value, compare) => {
   return h;
 };
 
-class RedBlackTreeStrategy extends AbstractBinaryTreeStrategy {
+export class RedBlackTreeStrategy extends AbstractBinaryTreeStrategy {
   constructor(options: Options) {
     super(options);
     this.comparator = this.options.comparator;
@@ -178,5 +178,3 @@ class RedBlackTreeStrategy extends AbstractBinaryTreeStrategy {
     }
   }
 }
-
-export default RedBlackTreeStrategy;
