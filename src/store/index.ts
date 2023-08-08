@@ -1,2 +1,1 @@
-export * from './KVStore';
-export * from './PrefixStore';
+export * from './transactional';
