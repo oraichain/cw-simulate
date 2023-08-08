@@ -16,8 +16,8 @@ export interface IKVStore {
   has(key: Uint8Array): boolean;
   set(key: Uint8Array, value: Uint8Array): void;
   delete(key: Uint8Array): void;
-  iterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
-  reverseIterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
+  iterator(start?: Uint8Array, end?: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
+  reverseIterator(start?: Uint8Array, end?: Uint8Array): Iterable<[Uint8Array, Uint8Array]>;
 }
 
 export class KVStore implements IKVStore {
@@ -51,26 +51,31 @@ export class KVStore implements IKVStore {
     this._set.remove([key]);
   }
 
-  iterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
-    let iter = start ? this._set.findIterator([start]) : this._set.beginIterator();
+  iterator(start: Uint8Array | null, end: Uint8Array | null): Iterable<[Uint8Array, Uint8Array]> {
+    let beginIter = start ? this._set.findIterator([start]) : this._set.beginIterator();
+    let endIter = end ? this._set.findIterator([end]).previous() : this._set.endIterator();
     const ret = [];
     while (true) {
-      const item = iter.value();
-      if (!item || (end && memcmp(item[0], end) >= 0)) break;
-      ret.push(item);
-      iter = iter.next();
+      // const val = beginIter.value();
+      // if (val !== null)
+      ret.push(beginIter.value());
+      if (beginIter.node === endIter.node) break;
+      beginIter = beginIter.next();
     }
     return ret;
   }
 
-  reverseIterator(start: Uint8Array, end: Uint8Array): Iterable<[Uint8Array, Uint8Array]> {
-    let iter = end ? this._set.findIterator([end]).previous() : this._set.endIterator();
+  reverseIterator(start: Uint8Array | null, end: Uint8Array | null): Iterable<[Uint8Array, Uint8Array]> {
+    let beginIter = end ? this._set.findIterator([end]).previous() : this._set.endIterator();
+    let endIter = start ? this._set.findIterator([start]) : this._set.beginIterator();
+
     const ret = [];
     while (true) {
-      const item = iter.value();
-      if (!item || memcmp(item[0], start) < 0) break;
-      ret.push(item);
-      iter = iter.previous();
+      // const val = beginIter.value();
+      // if (val !== null)
+      ret.push(beginIter.value());
+      if (beginIter.node === endIter.node) break;
+      beginIter = beginIter.previous();
     }
     return ret;
   }

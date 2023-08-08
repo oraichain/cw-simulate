@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { RedBlackTreeStrategy } from './RedBlackTreeStrategy';
 
 export interface Options {

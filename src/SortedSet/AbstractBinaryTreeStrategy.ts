@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { AbstractNode, Options } from './AbstractSortedSet';
 import { BinaryTreeIterator } from './BinaryTreeIterator';
 

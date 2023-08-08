@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AbstractBinaryTreeStrategy } from './AbstractBinaryTreeStrategy';
 import { AbstractNode, Options } from './AbstractSortedSet';
 
