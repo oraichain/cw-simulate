@@ -1,4 +1,13 @@
-import { BasicBackendApi, CosmosMsg, Environment, IBackendApi, QuerierBase } from '@oraichain/cosmwasm-vm-js';
+import {
+  BasicBackendApi,
+  CosmosMsg,
+  Environment,
+  IBackendApi,
+  QuerierBase,
+  BasicKVIterStorage,
+  SortedKVIterStorage,
+  BinaryKVIterStorage,
+} from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
@@ -15,6 +24,8 @@ const DefaultAppResponse = Ok({
   data: null,
 });
 
+export type KVIterStorageRegistry = typeof BasicKVIterStorage | typeof SortedKVIterStorage | typeof BinaryKVIterStorage;
+
 export interface CWSimulateAppOptions {
   chainId: string;
   bech32Prefix: string;
@@ -23,6 +34,7 @@ export interface CWSimulateAppOptions {
   gasLimit?: number;
   debug?: DebugFunction;
   handleCustomMsg?: HandleCustomMsgFunction;
+  kvIterStorageRegistry?: KVIterStorageRegistry;
 }
 
 export type ChainData = {
@@ -39,6 +51,7 @@ export class CWSimulateApp {
   public readonly env?: Environment;
   private readonly handleCustomMsg?: HandleCustomMsgFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
+  public readonly kvIterStorageRegistry: KVIterStorageRegistry;
 
   public wasm: WasmModule;
   public bank: BankModule;
@@ -52,6 +65,8 @@ export class CWSimulateApp {
     if (options.metering) {
       this.env = new Environment(this.backendApi, options.gasLimit);
     }
+
+    this.kvIterStorageRegistry = options.kvIterStorageRegistry ?? BasicKVIterStorage;
 
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
