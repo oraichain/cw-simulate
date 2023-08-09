@@ -1,6 +1,6 @@
 import { Coin } from '@cosmjs/amino';
 import { fromBinary } from '@cosmjs/cosmwasm-stargate';
-import { BasicKVIterStorage, ContractResponse, IBackend } from '@oraichain/cosmwasm-vm-js';
+import { SortedKVIterStorage, ContractResponse, IBackend } from '@oraichain/cosmwasm-vm-js';
 import { Map } from 'immutable';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
@@ -41,7 +41,7 @@ export default class Contract {
       const { wasmCode } = codeInfo;
       const contractState = this.getStorage();
 
-      const storage = new BasicKVIterStorage(contractState);
+      const storage = new SortedKVIterStorage(contractState);
 
       const backend: IBackend = {
         backend_api: wasm.chain.backendApi,
@@ -264,7 +264,7 @@ export default class Contract {
 
     // time travel
     const currBackend = vm.backend;
-    const storage = new BasicKVIterStorage(this.getStorage(store));
+    const storage = new SortedKVIterStorage(this.getStorage(store));
     vm.backend = {
       ...vm.backend,
       storage,
