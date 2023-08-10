@@ -5,7 +5,6 @@ import {
   IBackendApi,
   QuerierBase,
   BasicKVIterStorage,
-  SortedKVIterStorage,
   BinaryKVIterStorage,
   compare,
 } from '@oraichain/cosmwasm-vm-js';
