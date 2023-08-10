@@ -7,6 +7,7 @@ import {
   BasicKVIterStorage,
   SortedKVIterStorage,
   BinaryKVIterStorage,
+  compare,
 } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
@@ -71,7 +72,7 @@ export class CWSimulateApp {
 
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
-    this.store = new Transactional(this.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap() : Map())
+    this.store = new Transactional(this.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(compare) : Map())
       .lens<ChainData>()
       .initialize({
         height: 1,

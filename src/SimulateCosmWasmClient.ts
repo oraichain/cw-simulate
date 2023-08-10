@@ -22,7 +22,7 @@ import { Coin, StdFee } from '@cosmjs/amino';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
 import { ContractInfo } from './types';
-import { BinaryKVIterStorage } from '@oraichain/cosmwasm-vm-js';
+import { BinaryKVIterStorage, compare } from '@oraichain/cosmwasm-vm-js';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   private static checksumCache = new Map();
@@ -52,7 +52,11 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     this.app.wasm.setContractInfo(address, info);
     this.app.wasm.setContractStorage(
       address,
-      isMap(data) ? data : this.app.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(data) : ImmutableMap(data)
+      isMap(data)
+        ? data
+        : this.app.kvIterStorageRegistry === BinaryKVIterStorage
+        ? SortedMap(data, compare)
+        : ImmutableMap(data)
     );
     await this.app.wasm.getContract(address).init();
   }

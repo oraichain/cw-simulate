@@ -19,7 +19,16 @@ import {
 } from '../../types';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
-import { BinaryKVIterStorage, ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@oraichain/cosmwasm-vm-js';
+import {
+  BinaryKVIterStorage,
+  ContractResponse,
+  Env,
+  Event,
+  ReplyOn,
+  SubMsg,
+  WasmMsg,
+  compare,
+} from '@oraichain/cosmwasm-vm-js';
 
 type WasmData = {
   lastCodeId: number;
@@ -184,7 +193,7 @@ export class WasmModule {
       this.setContractInfo(contractAddress, contractInfo);
       this.setContractStorage(
         contractAddress,
-        this.chain.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap() : Map()
+        this.chain.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(compare) : Map()
       );
 
       setter('lastInstanceId')(this.lastInstanceId + 1);
