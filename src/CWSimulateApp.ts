@@ -17,6 +17,7 @@ import { SERDE } from '@kiruse/serde';
 import { IbcModule } from './modules/ibc';
 import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
 import { printDebug } from './util';
+import { Map, SortedMap } from '@oraichain/immutable';
 
 type HandleCustomMsgFunction = (msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
 const DefaultAppResponse = Ok({
@@ -66,14 +67,16 @@ export class CWSimulateApp {
       this.env = new Environment(this.backendApi, options.gasLimit);
     }
 
-    this.kvIterStorageRegistry = options.kvIterStorageRegistry ?? BasicKVIterStorage;
+    this.kvIterStorageRegistry = options.kvIterStorageRegistry ?? BinaryKVIterStorage;
 
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
-    this.store = new Transactional().lens<ChainData>().initialize({
-      height: 1,
-      time: Date.now() * 1e6,
-    });
+    this.store = new Transactional(this.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap() : Map())
+      .lens<ChainData>()
+      .initialize({
+        height: 1,
+        time: Date.now() * 1e6,
+      });
 
     this.wasm = new WasmModule(this);
     this.bank = new BankModule(this);

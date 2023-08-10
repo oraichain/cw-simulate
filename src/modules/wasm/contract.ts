@@ -1,7 +1,7 @@
 import { Coin } from '@cosmjs/amino';
 import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { ContractResponse, IBackend } from '@oraichain/cosmwasm-vm-js';
-import { Map } from 'immutable';
+import { Map } from '@oraichain/immutable';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateVMInstance } from '../../instrumentation/CWSimulateVMInstance';
 import {
@@ -41,6 +41,7 @@ export default class Contract {
       const { wasmCode } = codeInfo;
       const contractState = this.getStorage();
 
+      // @ts-ignore
       const storage = new wasm.chain.kvIterStorageRegistry(contractState);
 
       const backend: IBackend = {
@@ -264,6 +265,7 @@ export default class Contract {
 
     // time travel
     const currBackend = vm.backend;
+    // @ts-ignore
     const storage = new this._wasm.chain.kvIterStorageRegistry(this.getStorage(store));
     vm.backend = {
       ...vm.backend,
@@ -281,11 +283,11 @@ export default class Contract {
     }
   }
 
-  setStorage(value: Map<string, string>) {
+  setStorage(value: Map<unknown, unknown>) {
     this._wasm.setContractStorage(this.address, value);
   }
 
-  getStorage(storage?: Snapshot): Map<string, string> {
+  getStorage(storage?: Snapshot): Map<unknown, unknown> {
     return this._wasm.getContractStorage(this.address, storage);
   }
 

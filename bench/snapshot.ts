@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { AppResponse, CWSimulateApp } from '../src';
-import { List } from 'immutable';
+import { List } from '@oraichain/immutable';
 import _ from 'lodash';
 import bytes from 'bytes';
 

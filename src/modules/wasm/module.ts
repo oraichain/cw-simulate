@@ -1,7 +1,7 @@
 import { fromBinary } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
-import { toBech32 } from '@cosmjs/encoding';
-import { Map } from 'immutable';
+import { fromBase64, toBase64, toBech32 } from '@cosmjs/encoding';
+import Immutable, { Map, SortedMap } from '@oraichain/immutable';
 import { Err, Ok, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
 import { NEVER_IMMUTIFY, Transactional, TransactionalLens } from '../../store/transactional';
@@ -19,14 +19,14 @@ import {
 } from '../../types';
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
-import { ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@oraichain/cosmwasm-vm-js';
+import { BinaryKVIterStorage, ContractResponse, Env, Event, ReplyOn, SubMsg, WasmMsg } from '@oraichain/cosmwasm-vm-js';
 
 type WasmData = {
   lastCodeId: number;
   lastInstanceId: number;
   codes: Record<number, CodeInfo>;
   contracts: Record<string, ContractInfo>;
-  contractStorage: Record<string, Record<string, string>>;
+  contractStorage: Record<string, Immutable.Map<unknown, unknown>>;
 };
 
 export interface SmartQuery {
@@ -61,7 +61,7 @@ export class WasmModule {
     });
   }
 
-  setContractStorage(contractAddress: string, value: Map<string, string>) {
+  setContractStorage(contractAddress: string, value: Map<unknown, unknown>) {
     this.store.tx(setter => {
       setter('contractStorage', contractAddress)(value);
       return Ok(undefined);
@@ -69,7 +69,7 @@ export class WasmModule {
   }
 
   getContractStorage(contractAddress: string, storage?: Snapshot) {
-    return this.lens(storage).get('contractStorage', contractAddress) ?? Map();
+    return this.lens(storage).get('contractStorage', contractAddress);
   }
 
   setCodeInfo(codeId: number, codeInfo: CodeInfo) {
@@ -182,7 +182,10 @@ export class WasmModule {
       };
 
       this.setContractInfo(contractAddress, contractInfo);
-      this.setContractStorage(contractAddress, Map<string, string>());
+      this.setContractStorage(
+        contractAddress,
+        this.chain.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap() : Map()
+      );
 
       setter('lastInstanceId')(this.lastInstanceId + 1);
       return Ok(contractAddress);
@@ -651,7 +654,15 @@ export class WasmModule {
         throw new Error(`Contract ${contract_addr} not found`);
       }
 
-      const value = storage.get(key);
+      // check if storage is BinaryKVIterStorage then key must be Uint8Array
+
+      const value =
+        this.chain.kvIterStorageRegistry === BinaryKVIterStorage
+          ? // @ts-ignore
+            toBase64(storage.get(fromBase64(key)))
+          : // @ts-ignore
+            storage.get(key);
+
       if (value === undefined) {
         throw new Error(`Key ${key} not found`);
       } else {

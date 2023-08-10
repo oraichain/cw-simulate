@@ -1,4 +1,4 @@
-import Immutable from 'immutable';
+import Immutable from '@oraichain/immutable';
 import { Result } from 'ts-results';
 import type { NEVER_IMMUTIFY } from './store/transactional';
 import {

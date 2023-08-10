@@ -1,6 +1,6 @@
 import Serde, { SERDE, StandardProtocolMap } from '@kiruse/serde';
 import { Reference } from '@kiruse/serde/dist/types';
-import { List, Map } from 'immutable';
+import { List, Map, SortedMap } from '@oraichain/immutable';
 import { Ok } from 'ts-results';
 import { CWSimulateApp } from './CWSimulateApp';
 
@@ -69,6 +69,7 @@ export const serde = Serde<Protocols>()
       store: app.store.db.data,
     }),
     ({ chainId, bech32Prefix, store }, deref): CWSimulateApp => {
+      // for sorted type, metering, need to update when restored succesfully
       const app = new CWSimulateApp({
         chainId,
         bech32Prefix,
