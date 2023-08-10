@@ -1,7 +1,6 @@
 import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
-import { ContractResponse, Event } from '@oraichain/cosmwasm-vm-js';
-import { toByteArray } from '@oraichain/cosmwasm-vm-js/dist/helpers/byte-array';
+import { ContractResponse, Event, writeUInt32BE } from '@oraichain/cosmwasm-vm-js';
 import { toBase64 } from '@cosmjs/encoding';
 import { AppResponse } from '../../types';
 
@@ -46,7 +45,9 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
 }
 
 export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
-  let contractId = new Uint8Array([...toByteArray(codeId), ...toByteArray(instanceId)]);
+  const contractId = new Uint8Array(16);
+  writeUInt32BE(contractId, codeId, 4);
+  writeUInt32BE(contractId, instanceId, 12);
 
   // append module name
   let mKey = new Uint8Array([...Uint8Array.from(Buffer.from('wasm', 'utf-8')), 0]);
