@@ -17,7 +17,7 @@ import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';
 import { sha256 } from '@cosmjs/crypto';
 import { fromBase64, toHex } from '@cosmjs/encoding';
-import { Map as ImmutableMap, SortedMap } from '@oraichain/immutable';
+import { Map as ImmutableMap, SortedMap, isMap } from '@oraichain/immutable';
 import { Coin, StdFee } from '@cosmjs/amino';
 import { load, save } from './persist';
 import { getTransactionHash } from './util';
@@ -52,7 +52,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     this.app.wasm.setContractInfo(address, info);
     this.app.wasm.setContractStorage(
       address,
-      this.app.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(data) : ImmutableMap(data)
+      isMap(data) ? data : this.app.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(data) : ImmutableMap(data)
     );
     await this.app.wasm.getContract(address).init();
   }
