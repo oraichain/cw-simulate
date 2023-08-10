@@ -26,7 +26,7 @@ const DefaultAppResponse = Ok({
   data: null,
 });
 
-export type KVIterStorageRegistry = typeof BasicKVIterStorage | typeof SortedKVIterStorage | typeof BinaryKVIterStorage;
+export type KVIterStorageRegistry = typeof BasicKVIterStorage | typeof BinaryKVIterStorage;
 
 export interface CWSimulateAppOptions {
   chainId: string;
