@@ -45,7 +45,7 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
 }
 
 export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
-  const payload = Buffer.allocUnsafe(21); // wasm0 + contractId = 5 + 16
+  const payload = Buffer.alloc(21); // wasm0 + contractId = 5 + 16, and initialized to 0 by default
   payload.write('wasm');
   // append code id
   writeUInt32BE(payload, codeId, 9);
