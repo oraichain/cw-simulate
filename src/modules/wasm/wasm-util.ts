@@ -45,13 +45,11 @@ export function wrapReplyResponse(res: AppResponse): AppResponse {
 }
 
 export function buildContractAddress(codeId: number, instanceId: number): Uint8Array {
-  const contractId = new Uint8Array(16);
-  writeUInt32BE(contractId, codeId, 4);
-  writeUInt32BE(contractId, instanceId, 12);
-
-  // append module name
-  let mKey = new Uint8Array([...Uint8Array.from(Buffer.from('wasm', 'utf-8')), 0]);
-  let payload = new Uint8Array([...mKey, ...contractId]);
+  const payload = Buffer.allocUnsafe(21); // wasm0 + contractId = 5 + 16
+  payload.write('wasm');
+  // append code id
+  writeUInt32BE(payload, codeId, 9);
+  writeUInt32BE(payload, instanceId, 17);
 
   let hasher = new Sha256();
   hasher.update(Buffer.from('module', 'utf-8'));

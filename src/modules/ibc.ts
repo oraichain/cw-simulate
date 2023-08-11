@@ -209,11 +209,11 @@ export class IbcModule {
                 { key: 'packet_data_hex', value: toHex(fromBase64(msg.send_packet.data)) },
                 {
                   key: 'packet_timeout_height',
-                  value: msg.send_packet.timeout.block?.height ?? 0,
+                  value: (msg.send_packet.timeout.block?.height ?? 0).toString(),
                 },
                 {
                   key: 'packet_sequence',
-                  value: this.sequence,
+                  value: this.sequence.toString(),
                 },
                 {
                   key: 'packet_timeout_timestamp',

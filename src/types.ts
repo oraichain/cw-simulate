@@ -13,7 +13,7 @@ import {
 } from '@oraichain/cosmwasm-vm-js';
 
 export interface AppResponse {
-  events: any[];
+  events: Event[];
   data: string | null;
 }
 
