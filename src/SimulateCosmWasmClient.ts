@@ -156,6 +156,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       rawLog: typeof res.val === 'string' ? res.val : undefined,
       gasUsed: 66_000,
       gasWanted: this.app.gasLimit,
+      msgResponses: [], // for cosmos sdk < 0.46
     });
   }
 
@@ -166,18 +167,17 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     _memo?: string
   ): Promise<UploadResult> {
     // import the wasm bytecode
-    const originalChecksum = toHex(sha256(wasmCode));
+    const checksum = toHex(sha256(wasmCode));
     const codeId = this.app.wasm.create(senderAddress, wasmCode);
-    SimulateCosmWasmClient.checksumCache[codeId] = originalChecksum;
+    SimulateCosmWasmClient.checksumCache[codeId] = checksum;
     return Promise.resolve({
       originalSize: wasmCode.length,
-      originalChecksum,
       compressedSize: wasmCode.length,
-      compressedChecksum: originalChecksum,
+      checksum,
       codeId,
       logs: [],
       height: this.app.height,
-      transactionHash: getTransactionHash(this.app.height, originalChecksum),
+      transactionHash: getTransactionHash(this.app.height, checksum),
       events: [],
       gasWanted: this.app.gasLimit,
       gasUsed: wasmCode.length * 10,
