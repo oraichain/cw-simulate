@@ -86,7 +86,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
           app: 'simulate',
           block: 'simulate',
         },
-        height: height,
+        height,
         chainId: this.app.chainId,
         time: new Date().toString(),
       },
