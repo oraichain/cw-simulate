@@ -779,24 +779,24 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.3.0.tgz#085fd70f6d7d9d109671090ccae1d3bec62554a1"
   integrity sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==
 
-"@oraichain/cosmwasm-vm-js@^0.2.66":
-  version "0.2.67"
-  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.67.tgz#d7c6174999a7adf3e9ae2fe16a1fa56957a0b9e7"
-  integrity sha512-8pm/ts7aTCu4YJAG0YZ0k1GNVMN1yRAwYK/UJVGVuh8/POzgo/FDOKxPqVt2sHUusbOV5kC0yvfTVidyxvLtfg==
+"@oraichain/cosmwasm-vm-js@^0.2.68":
+  version "0.2.68"
+  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.68.tgz#c9301bfedfc6a87770d7c781487020fc6e33dcc3"
+  integrity sha512-eAMyTwKC9tUngURUzpOjOsa2ZMieX069NPLk6DGLRYnEMpS5iEB3z5P4H5zjo1/sq/CVvat1ket7vR+Wh7or/Q==
   dependencies:
     "@cosmjs/amino" "^0.31.0"
     "@cosmjs/crypto" "^0.31.0"
     "@cosmjs/encoding" "^0.31.0"
-    "@oraichain/immutable" "^4.3.5"
+    "@oraichain/immutable" "^4.3.6"
     "@oraichain/wasm-json-toolkit" "^1.0.24"
     bech32 "1.1.4"
     elliptic "^6.5.4"
     secp256k1 "^4.0.3"
 
-"@oraichain/immutable@^4.3.5":
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/@oraichain/immutable/-/immutable-4.3.5.tgz#8dc09cdfa3e48ffba5c7cf92abf49d69ab87cff9"
-  integrity sha512-/ezTfhI/kd6YpNCRu2lbpQJafNBNvKrMalMMAvKQ+C7trmvte+NrbNttXymgCfk6oJREVLFC/qgMLF0rh3FTAQ==
+"@oraichain/immutable@^4.3.6":
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/@oraichain/immutable/-/immutable-4.3.6.tgz#4f8f8627865cd2121255a1d34f49b25d54e11182"
+  integrity sha512-BE0Yb6UZqqDf6g8CRlLhuocWsElC05l0gLa23eXgF6KGnB5vLxGYrcwJcuLKLIE5YIllDtlHpRbOjc11mx387g==
 
 "@oraichain/wasm-json-toolkit@^1.0.24":
   version "1.0.24"
