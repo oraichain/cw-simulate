@@ -779,10 +779,10 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.3.0.tgz#085fd70f6d7d9d109671090ccae1d3bec62554a1"
   integrity sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==
 
-"@oraichain/cosmwasm-vm-js@^0.2.71":
-  version "0.2.71"
-  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.71.tgz#976f1d376d412e2da0e09338819cd3b73e591162"
-  integrity sha512-kG0gNYZSZb9MCgNegCiDVNcxf9jpwp2MVgegMyMQzaYyUbT2HaGvyJyww/8qh2hlbmi6wSvFTlMAv5xjqXZJNQ==
+"@oraichain/cosmwasm-vm-js@^0.2.72":
+  version "0.2.72"
+  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.72.tgz#1a6f78739ac2f8ffd1fcbdf6237b08c922845aa0"
+  integrity sha512-2/b+fEPo6xDI5Lt39EkO6Tv3ifWhaBQp+41wZlAPqVLxM83LRek2Jnw2bj/woyOU5mAARq48KPd4b1Mz6oOayw==
   dependencies:
     "@cosmjs/amino" "^0.31.0"
     "@cosmjs/crypto" "^0.31.0"

@@ -23,10 +23,9 @@ import { load, save } from './persist';
 import { getTransactionHash } from './util';
 import { ContractInfo } from './types';
 import { BinaryKVIterStorage, compare } from '@oraichain/cosmwasm-vm-js';
+import { WasmModule } from './modules/wasm';
 
 export class SimulateCosmWasmClient extends SigningCosmWasmClient {
-  private static checksumCache: Record<number, string> = {};
-
   // deserialize from bytes
   public static async from(bytes: Uint8Array | Buffer): Promise<SimulateCosmWasmClient> {
     const app = await load(Uint8Array.from(bytes));
@@ -108,7 +107,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       codes.push({
         id: codeId,
         creator: codeInfo.creator,
-        checksum: SimulateCosmWasmClient.checksumCache[codeId],
+        checksum: WasmModule.checksumCache[codeId],
       });
     });
 
@@ -120,7 +119,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     const codeDetails = {
       id: codeId,
       creator: codeInfo.creator,
-      checksum: SimulateCosmWasmClient.checksumCache[codeId],
+      checksum: WasmModule.checksumCache[codeId],
       data: codeInfo.wasmCode,
     };
     return Promise.resolve(codeDetails);
@@ -169,7 +168,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     // import the wasm bytecode
     const checksum = toHex(sha256(wasmCode));
     const codeId = this.app.wasm.create(senderAddress, wasmCode);
-    SimulateCosmWasmClient.checksumCache[codeId] = checksum;
+    WasmModule.checksumCache[codeId] = checksum;
     return Promise.resolve({
       originalSize: wasmCode.length,
       compressedSize: wasmCode.length,
@@ -202,8 +201,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       msg,
       label,
       options?.admin,
-      undefined,
-      SimulateCosmWasmClient.checksumCache[codeId]
+      undefined
     );
 
     if (result.err || typeof result.val === 'string') {

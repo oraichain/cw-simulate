@@ -20,7 +20,7 @@ import {
 } from '../../types';
 import { fromRustResult } from '../../util';
 import { ContractNotFoundError } from './error';
-import type { WasmModule } from './module';
+import { WasmModule } from './module';
 
 /** An interface to interact with CW SCs */
 export default class Contract {
@@ -28,7 +28,7 @@ export default class Contract {
 
   constructor(private _wasm: WasmModule, public readonly address: string) {}
 
-  async init(checksum?: string) {
+  async init() {
     if (!this._vm) {
       const { _wasm: wasm, address } = this;
       const contractInfo = wasm.getContractInfo(address);
@@ -55,7 +55,7 @@ export default class Contract {
 
       const vm = new CWSimulateVMInstance(logs, msg => wasm.chain.debug?.(msg), backend, wasm.chain.env);
 
-      await vm.build(wasmCode, checksum);
+      await vm.build(wasmCode, WasmModule.checksumCache[codeId]);
 
       this._vm = vm;
     }

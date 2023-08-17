@@ -55,6 +55,7 @@ export interface ContractInfoQuery {
 export type WasmQuery = { smart: SmartQuery } | { raw: RawQuery } | { contract_info: ContractInfoQuery };
 
 export class WasmModule {
+  public static checksumCache: Record<number, string> = {};
   public readonly store: TransactionalLens<WasmData>;
 
   // TODO: benchmark w/ many coexisting VMs
@@ -93,7 +94,7 @@ export class WasmModule {
     data.forEach((lens, codeId) => {
       const codeInfo: CodeInfo = {
         creator: lens.get('creator') as string,
-        wasmCode: new Uint8Array(lens.get('wasmCode') as Buffer),
+        wasmCode: lens.get('wasmCode') as Uint8Array,
       };
       callback(codeInfo, Number(codeId));
     });
@@ -105,7 +106,7 @@ export class WasmModule {
 
     const codeInfo: CodeInfo = {
       creator: lens.get('creator'),
-      wasmCode: new Uint8Array(lens.get('wasmCode')),
+      wasmCode: lens.get('wasmCode'),
     };
     return codeInfo;
   }
@@ -208,15 +209,14 @@ export class WasmModule {
     instantiateMsg: any,
     label: string,
     admin: string | null = null,
-    traces: TraceLog[] = [],
-    checksum?: string
+    traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
       const contractAddress = this.registerContractInstance(sender, codeId, label, admin).unwrap();
       let logs = [] as DebugLog[];
 
-      const contract = await this.getContract(contractAddress).init(checksum);
+      const contract = await this.getContract(contractAddress).init();
       const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
         [NEVER_IMMUTIFY]: true,
         type: 'instantiate',
