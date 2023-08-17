@@ -38,7 +38,7 @@
     "@cosmjs/crypto": "^0.31.0",
     "@cosmjs/encoding": "^0.31.0",
     "@kiruse/serde": "^0.8.0-rc.6",
-    "@oraichain/cosmwasm-vm-js": "^0.2.70",
+    "@oraichain/cosmwasm-vm-js": "^0.2.71",
     "@oraichain/immutable": "^4.3.8",
     "eventemitter3": "^5.0.0",
     "protobufjs": "^7.2.3",
