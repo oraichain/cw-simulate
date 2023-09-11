@@ -111,7 +111,7 @@ BufferCollection.prototype['@@__IMMUTABLE_KEYED__@@'] = true;
 
 // helper function
 const downloadState = async (
-  rpc: string,
+  lcd: string,
   contractAddress: string,
   writeCallback: Function,
   endCallback: Function,
@@ -121,7 +121,7 @@ const downloadState = async (
   let nextKey = startAfter;
 
   while (true) {
-    const url = new URL(`${rpc}/cosmwasm/wasm/v1/contract/${contractAddress}/state`);
+    const url = new URL(`${lcd}/cosmwasm/wasm/v1/contract/${contractAddress}/state`);
     url.searchParams.append('pagination.limit', limit.toString());
     if (nextKey) {
       url.searchParams.append('pagination.key', nextKey);
@@ -142,14 +142,14 @@ const downloadState = async (
 };
 
 export class DownloadState {
-  constructor(public readonly rpc: string, public readonly downloadPath: string) {}
+  constructor(public readonly lcd: string, public readonly downloadPath: string) {}
 
   // if there is nextKey then append, otherwise insert
   async saveState(contractAddress: string, nextKey?: string) {
     const bufStream = new BufferStream(path.join(this.downloadPath, `${contractAddress}.state`), !!nextKey);
     await new Promise(resolve => {
       downloadState(
-        this.rpc,
+        this.lcd,
         contractAddress,
         (chunks: any) => {
           const entries = chunks.map(({ key, value }) => [Buffer.from(key, 'hex'), Buffer.from(value, 'base64')]);
@@ -166,8 +166,8 @@ export class DownloadState {
     if (!fs.existsSync(contractFile)) {
       const {
         contract_info: { code_id },
-      } = await fetch(`${this.rpc}/cosmwasm/wasm/v1/contract/${contractAddress}`).then(res => res.json());
-      const { data } = await fetch(`${this.rpc}/cosmwasm/wasm/v1/code/${code_id}`).then(res => res.json());
+      } = await fetch(`${this.lcd}/cosmwasm/wasm/v1/contract/${contractAddress}`).then(res => res.json());
+      const { data } = await fetch(`${this.lcd}/cosmwasm/wasm/v1/code/${code_id}`).then(res => res.json());
       fs.writeFileSync(contractFile, Buffer.from(data, 'base64'));
     }
 
