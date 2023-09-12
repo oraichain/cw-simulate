@@ -186,7 +186,7 @@ export class DownloadState {
     senderAddress: string,
     contractAddress: string,
     label: string,
-    data: any
+    data?: any
   ) {
     const { codeId } = await client.upload(
       senderAddress,
@@ -203,7 +203,7 @@ export class DownloadState {
         creator: senderAddress,
         created: 1,
       },
-      data
+      data ?? this.loadStateData(contractAddress)
     );
   }
 }
