@@ -10,6 +10,7 @@ they are hosted.
 - multiple simultaneous contract instances can exist per chain
 - chain modules can be simulated through custom user code
 - extensible for further instrumentation via custom middlewares
+- load fork state from running blockhain
 
 ## Getting Started
 
