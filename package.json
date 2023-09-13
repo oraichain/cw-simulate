@@ -53,7 +53,7 @@
     "format:fix": "prettier --write ./src/**/*.ts",
     "lint": "eslint src --ext .js,.ts",
     "lint:fix": "eslint src --ext .js,.ts --fix",
-    "doc": "typedoc --entryPointStrategy expand --name 'Cosmwasm Simulate SDK' src"
+    "docs": "typedoc --entryPointStrategy expand --readme README.md --name 'Cosmwasm Simulate SDK' src"
   },
   "lint-staged": {
     "./src/**/*.ts": [

@@ -21,7 +21,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">WasmModule</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L48">Projects/cw-simulate/src/modules/wasm/module.ts:48</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L57">Projects/cw-simulate/src/modules/wasm/module.ts:57</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -36,6 +36,7 @@
 <div class="tsd-index-list"><a href="modules_wasm_module.WasmModule.html#chain" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-1024"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)"></path></g></svg><span>chain</span></a>
 <a href="modules_wasm_module.WasmModule.html#contracts" class="tsd-index-link tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>contracts</span></a>
 <a href="modules_wasm_module.WasmModule.html#store" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>store</span></a>
+<a href="modules_wasm_module.WasmModule.html#checksumCache" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>checksum<wbr/>Cache</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Accessors</h3>
@@ -85,24 +86,29 @@
 <h5><span class="tsd-kind-parameter">chain</span>: <a href="CWSimulateApp.CWSimulateApp.html" class="tsd-signature-type tsd-kind-class">CWSimulateApp</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="modules_wasm_module.WasmModule.html" class="tsd-signature-type tsd-kind-class">WasmModule</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L54">Projects/cw-simulate/src/modules/wasm/module.ts:54</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L64">Projects/cw-simulate/src/modules/wasm/module.ts:64</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="chain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>chain</span><a href="#chain" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">chain</span><span class="tsd-signature-symbol">:</span> <a href="CWSimulateApp.CWSimulateApp.html" class="tsd-signature-type tsd-kind-class">CWSimulateApp</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L54">Projects/cw-simulate/src/modules/wasm/module.ts:54</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L64">Projects/cw-simulate/src/modules/wasm/module.ts:64</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="contracts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>contracts</span><a href="#contracts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">contracts</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="modules_wasm_contract.default.html" class="tsd-signature-type tsd-kind-class">default</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = {}</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L52">Projects/cw-simulate/src/modules/wasm/module.ts:52</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L62">Projects/cw-simulate/src/modules/wasm/module.ts:62</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="store" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>store</span><a href="#store" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">store</span><span class="tsd-signature-symbol">:</span> <a href="store_transactional.TransactionalLens.html" class="tsd-signature-type tsd-kind-class">TransactionalLens</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">WasmData</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L49">Projects/cw-simulate/src/modules/wasm/module.ts:49</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L59">Projects/cw-simulate/src/modules/wasm/module.ts:59</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="checksumCache" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>checksum<wbr/>Cache</span><a href="#checksumCache" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">checksum<wbr/>Cache</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = {}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L58">Projects/cw-simulate/src/modules/wasm/module.ts:58</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member"><a id="lastCodeId" class="tsd-anchor"></a>
@@ -112,7 +118,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L696">Projects/cw-simulate/src/modules/wasm/module.ts:696</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L716">Projects/cw-simulate/src/modules/wasm/module.ts:716</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="lastInstanceId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>last<wbr/>Instance<wbr/>Id</span><a href="#lastInstanceId" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -120,7 +126,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L699">Projects/cw-simulate/src/modules/wasm/module.ts:699</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L719">Projects/cw-simulate/src/modules/wasm/module.ts:719</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="create" class="tsd-anchor"></a>
@@ -140,7 +146,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L135">Projects/cw-simulate/src/modules/wasm/module.ts:135</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L145">Projects/cw-simulate/src/modules/wasm/module.ts:145</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="executeContract" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>execute<wbr/>Contract</span><a href="#executeContract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -164,7 +170,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L342">Projects/cw-simulate/src/modules/wasm/module.ts:342</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L354">Projects/cw-simulate/src/modules/wasm/module.ts:354</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="forEachCodeInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>for<wbr/>Each<wbr/>Code<wbr/>Info</span><a href="#forEachCodeInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -192,7 +198,7 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">storage</span>: <a href="../types/types.Snapshot.html" class="tsd-signature-type tsd-kind-type-alias">Snapshot</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L82">Projects/cw-simulate/src/modules/wasm/module.ts:82</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L92">Projects/cw-simulate/src/modules/wasm/module.ts:92</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getCodeInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Code<wbr/>Info</span><a href="#getCodeInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -207,7 +213,7 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">storage</span>: <a href="../types/types.Snapshot.html" class="tsd-signature-type tsd-kind-type-alias">Snapshot</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/types.CodeInfo.html" class="tsd-signature-type tsd-kind-interface">CodeInfo</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L93">Projects/cw-simulate/src/modules/wasm/module.ts:93</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L103">Projects/cw-simulate/src/modules/wasm/module.ts:103</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getContract" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Contract</span><a href="#getContract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -220,7 +226,7 @@
 <h5><span class="tsd-kind-parameter">address</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="modules_wasm_contract.default.html" class="tsd-signature-type tsd-kind-class">default</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L153">Projects/cw-simulate/src/modules/wasm/module.ts:153</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L163">Projects/cw-simulate/src/modules/wasm/module.ts:163</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getContractInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Contract<wbr/>Info</span><a href="#getContractInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -235,11 +241,11 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">storage</span>: <a href="../types/types.Snapshot.html" class="tsd-signature-type tsd-kind-type-alias">Snapshot</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/types.ContractInfo.html" class="tsd-signature-type tsd-kind-interface">ContractInfo</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L111">Projects/cw-simulate/src/modules/wasm/module.ts:111</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L121">Projects/cw-simulate/src/modules/wasm/module.ts:121</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getContractStorage" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Contract<wbr/>Storage</span><a href="#getContractStorage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="getContractStorage.getContractStorage-1"><span class="tsd-kind-call-signature">get<wbr/>Contract<wbr/>Storage</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">contractAddress</span>, <span class="tsd-kind-parameter">storage</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><a href="#getContractStorage.getContractStorage-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getContractStorage.getContractStorage-1"><span class="tsd-kind-call-signature">get<wbr/>Contract<wbr/>Storage</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">contractAddress</span>, <span class="tsd-kind-parameter">storage</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><a href="#getContractStorage.getContractStorage-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -248,9 +254,9 @@
 <h5><span class="tsd-kind-parameter">contractAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
 <li>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">storage</span>: <a href="../types/types.Snapshot.html" class="tsd-signature-type tsd-kind-type-alias">Snapshot</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L71">Projects/cw-simulate/src/modules/wasm/module.ts:71</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L81">Projects/cw-simulate/src/modules/wasm/module.ts:81</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getContracts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Contracts</span><a href="#getContracts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -258,7 +264,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="modules_wasm_contract.default.html" class="tsd-signature-type tsd-kind-class">default</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L160">Projects/cw-simulate/src/modules/wasm/module.ts:160</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L170">Projects/cw-simulate/src/modules/wasm/module.ts:170</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getExecutionEnv" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Execution<wbr/>Env</span><a href="#getExecutionEnv" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -274,7 +280,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Env</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L140">Projects/cw-simulate/src/modules/wasm/module.ts:140</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L150">Projects/cw-simulate/src/modules/wasm/module.ts:150</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="handleContractResponse" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>handle<wbr/>Contract<wbr/>Response</span><a href="#handleContractResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -296,7 +302,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L430">Projects/cw-simulate/src/modules/wasm/module.ts:430</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L442">Projects/cw-simulate/src/modules/wasm/module.ts:442</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="handleIbcResponse" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>handle<wbr/>Ibc<wbr/>Response</span><a href="#handleIbcResponse" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -313,7 +319,7 @@
 <h5><span class="tsd-kind-parameter">traces</span>: <a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractResponse</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L418">Projects/cw-simulate/src/modules/wasm/module.ts:418</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L430">Projects/cw-simulate/src/modules/wasm/module.ts:430</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="handleMsg" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>handle<wbr/>Msg</span><a href="#handleMsg" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -330,7 +336,7 @@
 <h5><span class="tsd-kind-parameter">traces</span>: <a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L603">Projects/cw-simulate/src/modules/wasm/module.ts:603</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L615">Projects/cw-simulate/src/modules/wasm/module.ts:615</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="handleQuery" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>handle<wbr/>Query</span><a href="#handleQuery" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -343,7 +349,7 @@
 <h5><span class="tsd-kind-parameter">query</span>: <a href="../types/modules_wasm_module.WasmQuery.html" class="tsd-signature-type tsd-kind-type-alias">WasmQuery</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L622">Projects/cw-simulate/src/modules/wasm/module.ts:622</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L634">Projects/cw-simulate/src/modules/wasm/module.ts:634</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="handleSubmsg" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>handle<wbr/>Submsg</span><a href="#handleSubmsg" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -363,11 +369,11 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L456">Projects/cw-simulate/src/modules/wasm/module.ts:456</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L468">Projects/cw-simulate/src/modules/wasm/module.ts:468</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="instantiateContract" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>instantiate<wbr/>Contract</span><a href="#instantiateContract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="instantiateContract.instantiateContract-1"><span class="tsd-kind-call-signature">instantiate<wbr/>Contract</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sender</span>, <span class="tsd-kind-parameter">funds</span>, <span class="tsd-kind-parameter">codeId</span>, <span class="tsd-kind-parameter">instantiateMsg</span>, <span class="tsd-kind-parameter">label</span>, <span class="tsd-kind-parameter">admin</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">traces</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">checksum</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><a href="#instantiateContract.instantiateContract-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="instantiateContract.instantiateContract-1"><span class="tsd-kind-call-signature">instantiate<wbr/>Contract</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">sender</span>, <span class="tsd-kind-parameter">funds</span>, <span class="tsd-kind-parameter">codeId</span>, <span class="tsd-kind-parameter">instantiateMsg</span>, <span class="tsd-kind-parameter">label</span>, <span class="tsd-kind-parameter">admin</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">traces</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><a href="#instantiateContract.instantiateContract-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -385,12 +391,10 @@
 <li>
 <h5><span class="tsd-kind-parameter">admin</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = null</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">traces</span>: <a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li>
-<li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">checksum</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
+<h5><span class="tsd-kind-parameter">traces</span>: <a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L192">Projects/cw-simulate/src/modules/wasm/module.ts:192</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L205">Projects/cw-simulate/src/modules/wasm/module.ts:205</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="lens" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>lens</span><a href="#lens" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-private">
@@ -403,7 +407,7 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">storage</span>: <a href="../types/types.Snapshot.html" class="tsd-signature-type tsd-kind-type-alias">Snapshot</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="store_transactional.TransactionalLens.html" class="tsd-signature-type tsd-kind-class">TransactionalLens</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">WasmData</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L683">Projects/cw-simulate/src/modules/wasm/module.ts:683</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L703">Projects/cw-simulate/src/modules/wasm/module.ts:703</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="migrateContract" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>migrate<wbr/>Contract</span><a href="#migrateContract" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -427,7 +431,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L274">Projects/cw-simulate/src/modules/wasm/module.ts:274</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L286">Projects/cw-simulate/src/modules/wasm/module.ts:286</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="pushTrace" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>push<wbr/>Trace</span><a href="#pushTrace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -442,7 +446,7 @@
 <h5><span class="tsd-kind-parameter">details</span>: <span class="tsd-signature-type ">Omit</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;__NEVER_IMMUTIFY__&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;env&quot;</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L687">Projects/cw-simulate/src/modules/wasm/module.ts:687</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L707">Projects/cw-simulate/src/modules/wasm/module.ts:707</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="query" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>query</span><a href="#query" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -457,7 +461,7 @@
 <h5><span class="tsd-kind-parameter">queryMsg</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L594">Projects/cw-simulate/src/modules/wasm/module.ts:594</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L606">Projects/cw-simulate/src/modules/wasm/module.ts:606</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="queryTrace" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>query<wbr/>Trace</span><a href="#queryTrace" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -472,7 +476,7 @@
 <h5><span class="tsd-kind-parameter">queryMsg</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L598">Projects/cw-simulate/src/modules/wasm/module.ts:598</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L610">Projects/cw-simulate/src/modules/wasm/module.ts:610</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="registerContractInstance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>register<wbr/>Contract<wbr/>Instance</span><a href="#registerContractInstance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -494,7 +498,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L165">Projects/cw-simulate/src/modules/wasm/module.ts:165</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L175">Projects/cw-simulate/src/modules/wasm/module.ts:175</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="reply" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>reply</span><a href="#reply" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -511,7 +515,7 @@
 <h5><span class="tsd-kind-parameter">traces</span>: <a href="../types/types.TraceLog.html" class="tsd-signature-type tsd-kind-type-alias">TraceLog</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/types.AppResponse.html" class="tsd-signature-type tsd-kind-interface">AppResponse</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L534">Projects/cw-simulate/src/modules/wasm/module.ts:534</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L546">Projects/cw-simulate/src/modules/wasm/module.ts:546</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setCodeInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Code<wbr/>Info</span><a href="#setCodeInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -526,7 +530,7 @@
 <h5><span class="tsd-kind-parameter">codeInfo</span>: <a href="../interfaces/types.CodeInfo.html" class="tsd-signature-type tsd-kind-interface">CodeInfo</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L75">Projects/cw-simulate/src/modules/wasm/module.ts:75</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L85">Projects/cw-simulate/src/modules/wasm/module.ts:85</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setContractInfo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Contract<wbr/>Info</span><a href="#setContractInfo" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -541,7 +545,7 @@
 <h5><span class="tsd-kind-parameter">contractInfo</span>: <a href="../interfaces/types.ContractInfo.html" class="tsd-signature-type tsd-kind-interface">ContractInfo</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L104">Projects/cw-simulate/src/modules/wasm/module.ts:104</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L114">Projects/cw-simulate/src/modules/wasm/module.ts:114</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="setContractStorage" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Contract<wbr/>Storage</span><a href="#setContractStorage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -553,10 +557,10 @@
 <li>
 <h5><span class="tsd-kind-parameter">contractAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">value</span>: <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
+<h5><span class="tsd-kind-parameter">value</span>: <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L64">Projects/cw-simulate/src/modules/wasm/module.ts:64</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L74">Projects/cw-simulate/src/modules/wasm/module.ts:74</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="storeCode" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>store<wbr/>Code</span><a href="#storeCode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -574,7 +578,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c555755/src/modules/wasm/module.ts#L118">Projects/cw-simulate/src/modules/wasm/module.ts:118</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/oraichain/cw-simulate/blob/c28906b/src/modules/wasm/module.ts#L128">Projects/cw-simulate/src/modules/wasm/module.ts:128</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -598,6 +602,7 @@
 <li><a href="#chain" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>chain</span></a></li>
 <li><a href="#contracts" class="tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>contracts</span></a></li>
 <li><a href="#store" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>store</span></a></li>
+<li><a href="#checksumCache" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>checksum<wbr/>Cache</span></a></li>
 <li><a href="#lastCodeId" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>last<wbr/>Code<wbr/>Id</span></a></li>
 <li><a href="#lastInstanceId" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>last<wbr/>Instance<wbr/>Id</span></a></li>
 <li><a href="#create" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>create</span></a></li>
@@ -631,6 +636,7 @@
 <ul class="tsd-small-nested-navigation">
 <li><a href="../modules/CWSimulateApp.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>CWSimulate<wbr/>App</span></a></li>
 <li><a href="../modules/SimulateCosmWasmClient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>Simulate<wbr/>Cosm<wbr/>Wasm<wbr/>Client</span></a></li>
+<li><a href="../modules/fork.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>fork</span></a></li>
 <li><a href="../modules/index.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>index</span></a></li>
 <li><a href="../modules/instrumentation_CWSimulateVMInstance.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>instrumentation/CWSimulateVMInstance</span></a></li>
 <li><a href="../modules/modules_bank.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>modules/bank</span></a></li>
@@ -651,8 +657,6 @@
 <li><a href="../modules/modules_wasm_wasm_util.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>modules/wasm/wasm-<wbr/>util</span></a></li>
 <li><a href="../modules/persist.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>persist</span></a></li>
 <li><a href="../modules/store.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>store</span></a></li>
-<li><a href="../modules/store_KVStore.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>store/KVStore</span></a></li>
-<li><a href="../modules/store_PrefixStore.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>store/<wbr/>Prefix<wbr/>Store</span></a></li>
 <li><a href="../modules/store_transactional.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>store/transactional</span></a></li>
 <li><a href="../modules/types.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>types</span></a></li>
 <li><a href="../modules/util.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>util</span></a></li></ul></nav></div></div></div>
