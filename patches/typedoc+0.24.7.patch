@@ -1,0 +1,14 @@
+diff --git a/node_modules/typedoc/dist/lib/output/themes/default/partials/footer.js b/node_modules/typedoc/dist/lib/output/themes/default/partials/footer.js
+index d78f8a2..173bdfd 100644
+--- a/node_modules/typedoc/dist/lib/output/themes/default/partials/footer.js
++++ b/node_modules/typedoc/dist/lib/output/themes/default/partials/footer.js
+@@ -7,7 +7,7 @@ function footer(context) {
+     if (!hideGenerator)
+         return (utils_1.JSX.createElement("div", { class: "tsd-generator" },
+             utils_1.JSX.createElement("p", null,
+-                "Generated using ",
+-                utils_1.JSX.createElement("a", { href: "https://typedoc.org/", target: "_blank" }, "TypeDoc"))));
++                `©2020 - ${new Date().getFullYear()} `,
++                utils_1.JSX.createElement("a", { href: "https://orai.io/", target: "_blank" }, "Oraichain Foundation"))));
+ }
+ exports.footer = footer;

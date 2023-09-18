@@ -30,7 +30,9 @@
     "typescript": "^5.1.6",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "patch-package": "^8.0.0",
+    "typedoc": "0.24.7"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.31.0",
@@ -53,7 +55,8 @@
     "format:fix": "prettier --write ./src/**/*.ts",
     "lint": "eslint src --ext .js,.ts",
     "lint:fix": "eslint src --ext .js,.ts --fix",
-    "docs": "typedoc --entryPointStrategy expand --readme README.md --name 'Cosmwasm Simulate SDK' src"
+    "docs": "typedoc --entryPointStrategy expand --readme README.md --name 'Cosmwasm Simulate SDK' src",
+    "postinstall": "patch-package"
   },
   "lint-staged": {
     "./src/**/*.ts": [
