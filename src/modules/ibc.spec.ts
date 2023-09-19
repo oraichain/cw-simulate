@@ -1,11 +1,12 @@
 import { coin, coins } from '@cosmjs/amino';
 import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { fromBech32, toBech32, toHex, toUtf8 } from '@cosmjs/encoding';
 import { CosmosMsg, IbcMsgTransfer } from '@oraichain/cosmwasm-vm-js';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { CWSimulateApp } from '../CWSimulateApp';
 import { AppResponse, IbcOrder } from '../types';
+import { sha256 } from '@cosmjs/crypto';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
@@ -216,6 +217,8 @@ describe.only('IBCModule', () => {
     const ret = await terraChain.ibc.handleMsg(terraSenderAddress, msg);
     console.log(JSON.stringify(ret.val));
 
-    expect(oraiChain.bank.getBalance(oraiSenderAddress)).toEqual(coins('100000000', 'ust'));
+    expect(oraiChain.bank.getBalance(oraiSenderAddress)).toEqual(
+      coins('100000000', 'ibc/' + toHex(sha256(toUtf8(`transfer/channel-0/ust`))))
+    );
   });
 });

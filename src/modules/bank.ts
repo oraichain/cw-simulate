@@ -80,7 +80,7 @@ export class BankModule {
   public burn(sender: string, amount: Coin[]): Result<void, string> {
     return this.store.tx(() => {
       let balance = this.getBalance(sender).map(ParsedCoin.fromCoin);
-      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > BigInt(0));
+      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > 0);
 
       for (const coin of parsedCoins) {
         const hasCoin = balance.find(c => c.denom === coin.denom);
@@ -91,7 +91,31 @@ export class BankModule {
           return Err(`Sender ${sender} has ${hasCoin?.amount ?? 0} ${coin.denom}, needs ${coin.amount}`);
         }
       }
-      balance = balance.filter(c => c.amount > BigInt(0));
+      balance = balance.filter(c => c.amount > 0);
+
+      this.setBalance(
+        sender,
+        balance.map(c => c.toCoin())
+      );
+      return Ok(undefined);
+    });
+  }
+
+  public mint(sender: string, amount: Coin[]): Result<void, string> {
+    return this.store.tx(() => {
+      let balance = this.getBalance(sender).map(ParsedCoin.fromCoin);
+      let parsedCoins = amount.map(ParsedCoin.fromCoin).filter(c => c.amount > 0);
+
+      for (const coin of parsedCoins) {
+        const hasCoin = balance.find(c => c.denom === coin.denom);
+
+        if (hasCoin) {
+          hasCoin.amount += coin.amount;
+        } else {
+          balance.push(coin);
+        }
+      }
+      balance = balance.filter(c => c.amount > 0);
 
       this.setBalance(
         sender,

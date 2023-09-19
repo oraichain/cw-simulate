@@ -1,5 +1,5 @@
-import { coin } from '@cosmjs/amino';
-import { IbcMsg, IbcMsgTransfer } from '@oraichain/cosmwasm-vm-js';
+import { Coin } from '@cosmjs/amino';
+import { IbcMsg, IbcTimeout } from '@oraichain/cosmwasm-vm-js';
 import EventEmitter from 'eventemitter3';
 import { Err, Ok, Result } from 'ts-results';
 import { CWSimulateApp } from '../CWSimulateApp';
@@ -18,7 +18,8 @@ import {
   IbcPacketTimeoutMsg,
   IbcReceiveResponse,
 } from '../types';
-import { fromBase64, toHex } from '@cosmjs/encoding';
+import { fromBase64, toHex, toUtf8 } from '@cosmjs/encoding';
+import { sha256 } from '@cosmjs/crypto';
 
 const DEFAULT_IBC_TIMEOUT = 2000;
 type IbcMessageType =
@@ -54,10 +55,20 @@ const emitter = new EventEmitter();
 const callbacks = new Map<string, [Function, Function, NodeJS.Timeout]>();
 const relayMap = new Map<string, ChannelInfo>();
 const middleWares = new Map<string, MiddleWareCallback[]>();
+const denomMap = new Map<string, string>();
 
 function getKey(...args: string[]): string {
   return args.join(':');
 }
+
+export type IbcTransferData = {
+  channelId: string;
+  token: Coin;
+  sender: string;
+  receiver: string;
+  timeout: IbcTimeout;
+  memo?: string;
+};
 
 export class IbcModule {
   public sequence: number = 0;
@@ -106,23 +117,25 @@ export class IbcModule {
 
       const { chain: destChain } = relayMap.get(getKey(this.chain.chainId, msg.endpoint.channel_id));
 
+      // transfer token via IBC dest denom will be calculated as sha256(channel/port), and check reverse as well
       if (msg.type === 'transfer') {
-        const ibcMsg = msg.data as IbcMsgTransfer;
-
-        const currentBalance = destChain.bank.getBalance(ibcMsg.transfer.to_address);
-
-        const hasCoinInd = currentBalance.findIndex(c => c.denom === ibcMsg.transfer.amount.denom);
-
-        if (hasCoinInd !== -1) {
-          currentBalance[hasCoinInd] = coin(
-            ibcMsg.transfer.amount.amount + currentBalance[hasCoinInd].amount,
-            currentBalance[hasCoinInd].denom
-          );
+        // ibc_denom := 'ibc/' + sha256('transfer/dest/denom')
+        const ibcMsg = msg.data as IbcTransferData;
+        // burn on source chain, may throw error if not enough balance
+        this.chain.bank.burn(ibcMsg.sender, [ibcMsg.token]);
+        let destDenom: string;
+        if (ibcMsg.token.denom.startsWith('ibc/')) {
+          // need map back, surely if denomMap is not set, the balance is zero as well
+          destDenom = denomMap.get(ibcMsg.token.denom);
         } else {
-          currentBalance.push(ibcMsg.transfer.amount);
+          // calculate dest denom
+          destDenom =
+            'ibc/' + toHex(sha256(toUtf8(`transfer/${msg.counterparty_endpoint.channel_id}/${ibcMsg.token.denom}`)));
+          // create denom map
+          denomMap.set(destDenom, ibcMsg.token.denom);
         }
-
-        destChain.bank.setBalance(ibcMsg.transfer.to_address, currentBalance);
+        // mint on dest chain and burn on source chain
+        destChain.bank.mint(ibcMsg.receiver, [{ denom: destDenom, amount: ibcMsg.token.amount }]);
         if (resolve) resolve(<AppResponse>{ events: [], data: null });
       } else {
         if (msg.counterparty_endpoint.port_id.startsWith('wasm.')) {
@@ -262,7 +275,14 @@ export class IbcModule {
       const result = await this.chain.store.tx(async () => {
         try {
           // channel_id is source channel
-          const result = await this.sendTransfer(msg);
+          const msgData: IbcTransferData = {
+            sender,
+            channelId: msg.transfer.channel_id,
+            timeout: msg.transfer.timeout,
+            token: msg.transfer.amount,
+            receiver: msg.transfer.to_address,
+          };
+          const result = await this.sendTransfer(msgData);
           return Ok(result);
         } catch (ex) {
           return Err((ex as Error).message);
@@ -459,16 +479,16 @@ export class IbcModule {
     return this.sendMsg('ibc_packet_timeout', data.packet.src, data.packet.dest, data);
   }
 
-  public sendTransfer(data: IbcMsgTransfer): Promise<IbcBasicResponse> {
+  public sendTransfer(data: IbcTransferData): Promise<IbcBasicResponse> {
     // from source channel => get dest channel
-    const destInfo = relayMap.get(getKey(this.chain.chainId, data.transfer.channel_id));
+    const destInfo = relayMap.get(getKey(this.chain.chainId, data.channelId));
     if (!destInfo) {
       throw new Error('Chain is not relayed yet');
     }
 
     const endpoint: IbcEndpoint = {
       port_id: destInfo.source_port_id,
-      channel_id: data.transfer.channel_id,
+      channel_id: data.channelId,
     };
 
     const destEndpoint: IbcEndpoint = {
