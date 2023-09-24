@@ -4,4 +4,4 @@ export * from './types';
 export * from './store';
 export * from './modules/wasm/error';
 export * from './persist';
-export * from './fork';
+// export * from './fork';
