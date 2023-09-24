@@ -1,6 +1,6 @@
 import Serde, { SERDE, StandardProtocolMap } from '@kiruse/serde';
 import { Reference } from '@kiruse/serde/dist/types';
-import { List, Map, SortedMap } from '@oraichain/immutable';
+import { List, Map } from '@oraichain/immutable';
 import { Ok } from 'ts-results';
 import { CWSimulateApp } from './CWSimulateApp';
 
