@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { compare } from '@oraichain/cosmwasm-vm-js';
+import { compare, toNumber } from '@oraichain/cosmwasm-vm-js';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
 import { SortedMap } from '@oraichain/immutable';
 
@@ -67,7 +67,7 @@ export class BufferStream {
 export class BufferIter {
   private ind: number = 0;
   private bufInd: number = 0;
-  constructor(private readonly buf: Buffer, public readonly size: number) {}
+  constructor(private readonly buf: Uint8Array, public readonly size: number) {}
 
   reset() {
     this.ind = 0;
@@ -96,9 +96,10 @@ export class BufferIter {
 
 export class BufferCollection {
   public readonly size: number;
-  private readonly buf: Buffer;
-  constructor(buf: Buffer) {
-    this.size = buf.readUInt32BE();
+  private readonly buf: Uint8Array;
+  constructor(buf: Uint8Array) {
+    // first 4 bytes is for uint32 be
+    this.size = toNumber(buf.subarray(0, 4));
     this.buf = buf.subarray(4);
   }
 
