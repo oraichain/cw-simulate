@@ -70,6 +70,10 @@ export type IbcTransferData = {
   memo?: string;
 };
 
+export const ibcDenom = (port: string, channel: string, denom: string) => {
+  return 'ibc/' + toHex(sha256(toUtf8(`${port}/${channel}/${denom}`))).toUpperCase();
+};
+
 export class IbcModule {
   public sequence: number = 0;
 
@@ -129,8 +133,7 @@ export class IbcModule {
           destDenom = denomMap.get(ibcMsg.token.denom);
         } else {
           // calculate dest denom
-          destDenom =
-            'ibc/' + toHex(sha256(toUtf8(`transfer/${msg.counterparty_endpoint.channel_id}/${ibcMsg.token.denom}`)));
+          destDenom = ibcDenom('transfer', msg.counterparty_endpoint.channel_id, ibcMsg.token.denom);
           // create denom map
           denomMap.set(destDenom, ibcMsg.token.denom);
         }
