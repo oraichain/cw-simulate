@@ -119,8 +119,10 @@ export class IbcModule {
     try {
       let logs: DebugLog[] = [];
 
-      const { chain: destChain } = relayMap.get(getKey(this.chain.chainId, msg.endpoint.channel_id));
+      let appRes: AppResponse = null;
 
+      const { chain: destChain } = relayMap.get(getKey(this.chain.chainId, msg.endpoint.channel_id));
+      const chainMiddleWares = middleWares.get(destChain.chainId);
       // transfer token via IBC dest denom will be calculated as sha256(channel/port), and check reverse as well
       if (msg.type === 'transfer') {
         // ibc_denom := 'ibc/' + sha256('transfer/dest/denom')
@@ -139,40 +141,34 @@ export class IbcModule {
         }
         // mint on dest chain and burn on source chain
         destChain.bank.mint(ibcMsg.receiver, [{ denom: destDenom, amount: ibcMsg.token.amount }]);
-        if (resolve) resolve(<AppResponse>{ events: [], data: null });
-      } else {
-        if (msg.counterparty_endpoint.port_id.startsWith('wasm.')) {
-          const destContractAddress = msg.counterparty_endpoint.port_id.substring(5); // remove wasm. prefix
+        appRes = { events: [], data: null };
+      } else if (msg.counterparty_endpoint.port_id.startsWith('wasm.')) {
+        const destContractAddress = msg.counterparty_endpoint.port_id.substring(5); // remove wasm. prefix
 
-          const contract = destChain.wasm.getContract(destContractAddress);
+        const contract = destChain.wasm.getContract(destContractAddress);
 
-          if (!(msg.type in contract)) {
-            throw new Error(`Contract ${destContractAddress} does not have entrypoint ${msg.type}`);
-          }
-
-          const ret = contract[msg.type](msg.data, logs) as any;
-
-          if (ret.err) {
-            throw new Error(ret.val);
-          }
-
-          // process Ibc response
-          if (resolve) resolve(await destChain.wasm.handleIbcResponse(contract.address, ret.val));
-        } else {
-          const chainMiddleWares = middleWares.get(destChain.chainId);
-          if (!chainMiddleWares.length) {
-            // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
-            throw new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`);
-          }
-
-          // run through callback following the order
-          const appRes: AppResponse = { events: [], data: null };
-          for (const middleware of chainMiddleWares) {
-            await middleware(msg, appRes);
-          }
-          if (resolve) resolve(appRes);
+        if (!(msg.type in contract)) {
+          throw new Error(`Contract ${destContractAddress} does not have entrypoint ${msg.type}`);
         }
+
+        const ret = contract[msg.type](msg.data, logs) as any;
+
+        if (ret.err) {
+          throw new Error(ret.val);
+        }
+
+        // process Ibc response
+        appRes = await destChain.wasm.handleIbcResponse(contract.address, ret.val);
+      } else if (!chainMiddleWares.length) {
+        // we are not focus on IBC implementation at application modules, currently we only focus on IBC contract implementation
+        throw new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`);
       }
+
+      // run through callback following the order
+      for (const middleware of chainMiddleWares) {
+        await middleware(msg, appRes);
+      }
+      if (resolve) resolve(appRes);
     } catch (ex) {
       if (reject) reject(ex);
     } finally {
