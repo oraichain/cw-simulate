@@ -164,6 +164,9 @@ export class IbcModule {
         throw new Error(`Method ${msg.type} has not been implemented on chain ${destChain.chainId}`);
       }
 
+      // default appRes, so we do not have to merge responses
+      if (!appRes) appRes = { events: [], data: null };
+
       // run through callback following the order
       for (const middleware of chainMiddleWares) {
         await middleware(msg, appRes);
