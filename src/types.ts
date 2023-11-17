@@ -110,7 +110,7 @@ interface TraceLogCommon {
 }
 
 export type ExecuteTraceLog = TraceLogCommon & {
-  type: 'execute' | 'instantiate';
+  type: 'execute' | 'instantiate' | 'migrate';
   info: MessageInfo;
 };
 

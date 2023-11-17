@@ -291,7 +291,7 @@ export class WasmModule {
     traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
-      const contract = await this.getContract(contractAddress).init();
+      const contract = this.getContract(contractAddress);
       const info = this.getContractInfo(contractAddress);
       if (info === undefined) {
         throw new Error(`Contract ${contractAddress} not found`);
@@ -300,10 +300,14 @@ export class WasmModule {
       // update contract info
       this.setContractInfo(contractAddress, info);
 
+      // rebuild wasmCode
+      const { wasmCode } = this.getCodeInfo(info.codeId);
+      await contract.vm.build(wasmCode, WasmModule.checksumCache[info.codeId]);
+
       const logs: DebugLog[] = [];
       const tracebase: Omit<ExecuteTraceLog, 'response' | 'result'> = {
         [NEVER_IMMUTIFY]: true,
-        type: 'instantiate',
+        type: 'migrate',
         contractAddress,
         msg: migrateMsg,
         info: { sender, funds: [] },
