@@ -267,6 +267,7 @@ export default class Contract {
     const currBackend = vm.backend;
     // @ts-ignore
     const storage = new this._wasm.chain.kvIterStorageRegistry(this.getStorage(store));
+
     vm.backend = {
       ...vm.backend,
       storage,
