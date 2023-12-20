@@ -10,7 +10,7 @@ export * from './fork';
 export * from '@oraichain/cosmwasm-vm-js';
 
 // re-export from ts-results
-export * from 'ts-results';
+export { Ok, Option, Err, Some, None } from 'ts-results';
 
 // export some extended Immutable structures
 export { SortedMap, SortedSet } from '@oraichain/immutable';

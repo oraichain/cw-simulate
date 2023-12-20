@@ -138,6 +138,12 @@ export class CWSimulateApp {
   get time() {
     return this.store.get('time');
   }
+  set time(nanoSeconds: number) {
+    this.store.tx(setter => Ok(setter('time')(nanoSeconds)));
+  }
+  set height(blockHeight: number) {
+    this.store.tx(setter => Ok(setter('height')(blockHeight)));
+  }
 }
 
 export type QueryMessage = { bank: BankQuery } | { wasm: WasmQuery };
