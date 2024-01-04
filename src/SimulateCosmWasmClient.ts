@@ -232,17 +232,17 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
   ): Promise<ExecuteResult> {
     const events = [];
     const contractGasUsed = this.app.gasUsed;
-    const results = await Promise.all(
-      instructions.map(({ contractAddress, funds, msg }) =>
-        this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg)
-      )
-    );
+    const results = [];
 
-    for (const result of results) {
+    for (const { contractAddress, funds, msg } of instructions) {
+      // run in sequential
+      const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
+
       if (result.err || typeof result.val === 'string') {
         throw new Error(result.val.toString());
       }
       events.push(...result.val.events);
+      results.push(result);
     }
 
     return {
