@@ -54,9 +54,10 @@ const client = new SimulateCosmWasmClient({
 });
 
 // import the wasm bytecode
-const { codeId, contractAddress } = client.deploy(sender, 'cw-template.wasm', {
-  count: 0,
-});
+const bytecode = fs.readFileSync('cw-template.wasm');
+// deploy
+const { codeId } = await client.upload(sender, bytecode, 'auto');
+const { contractAddress } = await client.instantiate(sender, codeId, { count: 0 }, 'counter', 'auto');
 
 // execute the contract
 result = await client.app.wasm.executeContract(sender, funds, contractAddress, {
