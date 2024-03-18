@@ -11,10 +11,3 @@ export class ContractNotFoundError extends VmError {
     super(`contract ${contractAddress} not found`);
   }
 }
-
-// general error like javascript error
-export class GenericError extends Error {
-  constructor(msg: string) {
-    super(`Generic error: ${msg}`);
-  }
-}
