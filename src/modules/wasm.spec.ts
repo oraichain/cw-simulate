@@ -514,6 +514,20 @@ describe('Query', () => {
     });
   });
 
+  it('code info', async () => {
+    let res = await app.wasm.handleQuery({
+      code_info: {
+        code_id: codeId,
+      },
+    });
+
+    expect(res).toMatchObject({
+      code_id: codeId,
+      creator: info.sender,
+      checksum: undefined,
+    });
+  });
+
   it('time travel', async () => {
     const queryMsg = {
       get_buffer: {},

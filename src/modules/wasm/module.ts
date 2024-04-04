@@ -8,6 +8,7 @@ import { NEVER_IMMUTIFY, Transactional, TransactionalLens } from '../../store/tr
 import {
   AppResponse,
   CodeInfo,
+  CodeInfoResponse,
   ContractInfo,
   ContractInfoResponse,
   DebugLog,
@@ -20,6 +21,7 @@ import {
 import Contract from './contract';
 import { buildAppResponse, buildContractAddress, wrapReplyResponse } from './wasm-util';
 import {
+  Binary,
   BinaryKVIterStorage,
   ContractResponse,
   Env,
@@ -38,21 +40,29 @@ type WasmData = {
   contractStorage: Record<string, Immutable.Map<unknown, unknown>>;
 };
 
-export interface SmartQuery {
-  contract_addr: string;
-  msg: string; // Binary
-}
-
-export interface RawQuery {
-  contract_addr: string;
-  key: string; // Binary
-}
-
-export interface ContractInfoQuery {
-  contract_addr: string;
-}
-
-export type WasmQuery = { smart: SmartQuery } | { raw: RawQuery } | { contract_info: ContractInfoQuery };
+export type WasmQuery =
+  | {
+      smart: {
+        contract_addr: string;
+        msg: Binary;
+      };
+    }
+  | {
+      raw: {
+        contract_addr: string;
+        key: Binary;
+      };
+    }
+  | {
+      contract_info: {
+        contract_addr: string;
+      };
+    }
+  | {
+      code_info: {
+        code_id: number;
+      };
+    };
 
 export class WasmModule {
   public static checksumCache: Record<number, string> = {};
@@ -635,7 +645,9 @@ export class WasmModule {
     });
   }
 
+  // should wrap into Querier system error:
   handleQuery(query: WasmQuery): any {
+    // query smart
     if ('smart' in query) {
       const { contract_addr, msg } = query.smart;
       const result = this.query(contract_addr, fromBinary(msg));
@@ -659,6 +671,8 @@ export class WasmModule {
       // // normal error
       // throw new Error(errMsg);
     }
+
+    // query raw
     if ('raw' in query) {
       const { contract_addr, key } = query.raw;
 
@@ -682,11 +696,13 @@ export class WasmModule {
         return value;
       }
     }
+
+    // query contract info
     if ('contract_info' in query) {
       const { contract_addr } = query.contract_info;
       const info = this.getContractInfo(contract_addr);
       if (info === undefined) {
-        throw new Error(`Contract ${contract_addr} not found`);
+        throw new Error(`No such contract: ${contract_addr}`);
       }
       const { codeId: code_id, creator, admin } = info;
       const resp: ContractInfoResponse = {
@@ -701,6 +717,25 @@ export class WasmModule {
 
       return resp;
     }
+
+    // query code info
+    if ('code_info' in query) {
+      const { code_id } = query.code_info;
+      const info = this.getCodeInfo(code_id);
+      if (info === undefined) {
+        throw new Error(`No such code: ${code_id}`);
+      }
+
+      const { creator } = info;
+
+      const resp: CodeInfoResponse = {
+        code_id,
+        creator,
+        checksum: WasmModule.checksumCache[code_id],
+      };
+      return resp;
+    }
+
     throw new Error('Unknown wasm query');
   }
 

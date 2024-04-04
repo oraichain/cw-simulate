@@ -48,6 +48,14 @@ export interface ContractInfoResponse {
   ibc_port: string | null;
 }
 
+export interface CodeInfoResponse {
+  code_id: number;
+  /// The address that initially stored the code
+  creator: string;
+  /// The hash of the Wasm blob
+  checksum: string;
+}
+
 export type DebugLog = PrintDebugLog | CallDebugLog;
 
 export interface PrintDebugLog {
