@@ -40,28 +40,36 @@ type WasmData = {
   contractStorage: Record<string, Immutable.Map<unknown, unknown>>;
 };
 
+export interface SmartQuery {
+  contract_addr: string;
+  msg: Binary;
+}
+
+export interface RawQuery {
+  contract_addr: string;
+  key: Binary;
+}
+
+export interface ContractInfoQuery {
+  contract_addr: string;
+}
+
+export interface CodeInfoQuery {
+  code_id: number;
+}
+
 export type WasmQuery =
   | {
-      smart: {
-        contract_addr: string;
-        msg: Binary;
-      };
+      smart: SmartQuery;
     }
   | {
-      raw: {
-        contract_addr: string;
-        key: Binary;
-      };
+      raw: RawQuery;
     }
   | {
-      contract_info: {
-        contract_addr: string;
-      };
+      contract_info: ContractInfoQuery;
     }
   | {
-      code_info: {
-        code_id: number;
-      };
+      code_info: CodeInfoQuery;
     };
 
 export class WasmModule {
@@ -645,95 +653,104 @@ export class WasmModule {
     });
   }
 
+  querySmart(smart: SmartQuery) {
+    const { contract_addr, msg } = smart;
+    const result = this.query(contract_addr, fromBinary(msg));
+    // call query from other contract
+    if (result.ok) {
+      return result.val;
+    }
+    // wrap Err message for contract query result
+    const errMsg: string = result.val.toString();
+
+    // panic divide by zero should not process in query but return original value
+    if (errMsg.startsWith('Divide by zero:')) {
+      return '0';
+    }
+
+    // TODO: differentiate error between js and contract
+
+    // contract error
+    return Err(errMsg);
+  }
+
+  queryRaw(raw: RawQuery) {
+    const { contract_addr, key } = raw;
+
+    const storage = this.getContractStorage(contract_addr);
+    if (!storage) {
+      throw new Error(`Contract ${contract_addr} not found`);
+    }
+
+    // check if storage is BinaryKVIterStorage then key must be Uint8Array
+
+    const value =
+      this.chain.kvIterStorageRegistry === BinaryKVIterStorage
+        ? // @ts-ignore
+          toBase64(storage.get(fromBase64(key)))
+        : // @ts-ignore
+          storage.get(key);
+
+    if (value === undefined) {
+      throw new Error(`Key ${key} not found`);
+    } else {
+      return value;
+    }
+  }
+
+  queryContractInfo(contractInfo: ContractInfoQuery) {
+    const { contract_addr } = contractInfo;
+    const info = this.getContractInfo(contract_addr);
+    if (info === undefined) {
+      throw new Error(`No such contract: ${contract_addr}`);
+    }
+    const { codeId: code_id, creator, admin } = info;
+    const resp: ContractInfoResponse = {
+      code_id,
+      creator,
+      admin,
+      ibc_port: this.chain.ibc.getContractIbcPort(contract_addr),
+      // TODO: VM lifetime mgmt
+      // currently all VMs are always loaded ie pinned
+      pinned: true,
+    };
+
+    return resp;
+  }
+
+  queryCodeInfo(codeInfo: CodeInfoQuery) {
+    const { code_id } = codeInfo;
+    const info = this.getCodeInfo(code_id);
+    if (info === undefined) {
+      throw new Error(`No such code: ${code_id}`);
+    }
+
+    const { creator } = info;
+
+    const resp: CodeInfoResponse = {
+      code_id,
+      creator,
+      checksum: WasmModule.checksumCache[code_id],
+    };
+    return resp;
+  }
+
   // should wrap into Querier system error:
-  handleQuery(query: WasmQuery): any {
-    // query smart
+  handleQuery(query: WasmQuery) {
     if ('smart' in query) {
-      const { contract_addr, msg } = query.smart;
-      const result = this.query(contract_addr, fromBinary(msg));
-      // call query from other contract
-      if (result.ok) {
-        return result.val;
-      }
-      // wrap Err message for contract query result
-      const errMsg: string = result.val.toString();
-
-      // panic divide by zero should not process in query but return original value
-      if (errMsg.startsWith('Divide by zero:')) {
-        return '0';
-      }
-
-      // TODO: differentiate error between js and contract
-
-      // contract error
-      return Err(errMsg);
-
-      // // normal error
-      // throw new Error(errMsg);
+      return this.querySmart(query.smart);
     }
 
-    // query raw
     if ('raw' in query) {
-      const { contract_addr, key } = query.raw;
-
-      const storage = this.getContractStorage(contract_addr);
-      if (!storage) {
-        throw new Error(`Contract ${contract_addr} not found`);
-      }
-
-      // check if storage is BinaryKVIterStorage then key must be Uint8Array
-
-      const value =
-        this.chain.kvIterStorageRegistry === BinaryKVIterStorage
-          ? // @ts-ignore
-            toBase64(storage.get(fromBase64(key)))
-          : // @ts-ignore
-            storage.get(key);
-
-      if (value === undefined) {
-        throw new Error(`Key ${key} not found`);
-      } else {
-        return value;
-      }
+      return this.queryRaw(query.raw);
     }
 
-    // query contract info
     if ('contract_info' in query) {
-      const { contract_addr } = query.contract_info;
-      const info = this.getContractInfo(contract_addr);
-      if (info === undefined) {
-        throw new Error(`No such contract: ${contract_addr}`);
-      }
-      const { codeId: code_id, creator, admin } = info;
-      const resp: ContractInfoResponse = {
-        code_id,
-        creator,
-        admin,
-        ibc_port: this.chain.ibc.getContractIbcPort(contract_addr),
-        // TODO: VM lifetime mgmt
-        // currently all VMs are always loaded ie pinned
-        pinned: true,
-      };
-
-      return resp;
+      return this.queryContractInfo(query.contract_info);
     }
 
-    // query code info
     if ('code_info' in query) {
-      const { code_id } = query.code_info;
-      const info = this.getCodeInfo(code_id);
-      if (info === undefined) {
-        throw new Error(`No such code: ${code_id}`);
-      }
-
-      const { creator } = info;
-
-      const resp: CodeInfoResponse = {
-        code_id,
-        creator,
-        checksum: WasmModule.checksumCache[code_id],
-      };
-      return resp;
+      return this.queryCodeInfo(query.code_info);
     }
 
     throw new Error('Unknown wasm query');
