@@ -183,12 +183,12 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     });
   }
 
-  public async instantiate(
+  public async _instantiate(
     senderAddress: string,
     codeId: number,
     msg: JsonObject,
     label: string,
-    _fee?: StdFee | 'auto' | number,
+    salt: Uint8Array | null = null,
     options?: InstantiateOptions
   ): Promise<InstantiateResult> {
     // instantiate the contract
@@ -201,7 +201,7 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       msg,
       label,
       options?.admin,
-      undefined
+      salt
     );
 
     if (result.err || typeof result.val === 'string') {
@@ -219,6 +219,29 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       gasWanted: this.app.gasLimit,
       gasUsed: this.app.gasUsed - contractGasUsed,
     };
+  }
+
+  public async instantiate(
+    senderAddress: string,
+    codeId: number,
+    msg: JsonObject,
+    label: string,
+    _fee?: StdFee | 'auto' | number,
+    options?: InstantiateOptions
+  ): Promise<InstantiateResult> {
+    return this._instantiate(senderAddress, codeId, msg, label, null, options);
+  }
+
+  public async instantiate2(
+    senderAddress: string,
+    codeId: number,
+    salt: Uint8Array,
+    msg: JsonObject,
+    label: string,
+    _fee: StdFee | 'auto' | number,
+    options?: InstantiateOptions
+  ): Promise<InstantiateResult> {
+    return this._instantiate(senderAddress, codeId, msg, label, salt, options);
   }
 
   /**

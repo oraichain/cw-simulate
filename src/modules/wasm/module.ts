@@ -1,6 +1,6 @@
-import { fromBinary } from '@cosmjs/cosmwasm-stargate';
+import { fromBinary, instantiate2Address } from '@cosmjs/cosmwasm-stargate';
 import { Coin } from '@cosmjs/amino';
-import { fromBase64, toBase64, toBech32 } from '@cosmjs/encoding';
+import { fromBase64, fromHex, toBase64, toBech32 } from '@cosmjs/encoding';
 import Immutable, { Map, SortedMap } from '@oraichain/immutable';
 import { Err, Ok, Result } from 'ts-results';
 import type { CWSimulateApp } from '../../CWSimulateApp';
@@ -194,12 +194,15 @@ export class WasmModule {
     sender: string,
     codeId: number,
     label = '',
-    admin: string | null = null
+    admin: string | null = null,
+    salt: Uint8Array | null = null
   ): Result<string, string> {
     return this.store.tx(setter => {
-      const contractAddressHash = buildContractAddress(codeId, this.lastInstanceId + 1);
-
-      const contractAddress = toBech32(this.chain.bech32Prefix, contractAddressHash);
+      // if there is salt, using instantiate2Address which does not fixMsg (msg = new Uint8Array())
+      const contractAddress =
+        salt === null
+          ? toBech32(this.chain.bech32Prefix, buildContractAddress(codeId, this.lastInstanceId + 1))
+          : instantiate2Address(fromHex(WasmModule.checksumCache[codeId]), sender, salt, this.chain.bech32Prefix);
 
       const contractInfo = {
         codeId,
@@ -227,11 +230,12 @@ export class WasmModule {
     instantiateMsg: any,
     label: string,
     admin: string | null = null,
+    salt: Uint8Array | null = null,
     traces: TraceLog[] = []
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
-      const contractAddress = this.registerContractInstance(sender, codeId, label, admin).unwrap();
+      const contractAddress = this.registerContractInstance(sender, codeId, label, admin, salt).unwrap();
       let logs = [] as DebugLog[];
 
       const contract = await this.getContract(contractAddress).init();
@@ -634,19 +638,31 @@ export class WasmModule {
     return this.getContract(contractAddress).query(queryMsg, storeSnapshot as Map<string, string>);
   }
 
-  async handleMsg(sender: string, msg: WasmMsg, traces: TraceLog[] = []): Promise<Result<AppResponse, string>> {
+  async handleMsg(sender: string, wasmMsg: WasmMsg, traces: TraceLog[] = []): Promise<Result<AppResponse, string>> {
     return this.store.tx(async () => {
-      let wasm = msg;
-      if ('execute' in wasm) {
-        let { contract_addr, funds, msg } = wasm.execute;
+      if ('execute' in wasmMsg) {
+        const { contract_addr, funds, msg } = wasmMsg.execute;
         return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), traces);
       }
-      if ('instantiate' in wasm) {
-        let { code_id, funds, msg, label, admin } = wasm.instantiate;
-        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, admin, traces);
+      if ('instantiate' in wasmMsg) {
+        const { code_id, funds, msg, label, admin } = wasmMsg.instantiate;
+        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, admin, null, traces);
       }
-      if ('migrate' in wasm) {
-        let { contract_addr, new_code_id, msg } = wasm.migrate;
+      if ('instantiate2' in wasmMsg) {
+        const { code_id, funds, msg, label, admin, salt } = wasmMsg.instantiate2;
+        return await this.instantiateContract(
+          sender,
+          funds,
+          code_id,
+          fromBinary(msg),
+          label,
+          admin,
+          fromBinary(salt),
+          traces
+        );
+      }
+      if ('migrate' in wasmMsg) {
+        const { contract_addr, new_code_id, msg } = wasmMsg.migrate;
         return await this.migrateContract(sender, new_code_id, contract_addr, fromBinary(msg), traces);
       }
       throw new Error('Unknown wasm message');
