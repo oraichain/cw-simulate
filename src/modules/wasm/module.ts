@@ -698,14 +698,17 @@ export class WasmModule {
       throw new Error(`Contract ${contract_addr} not found`);
     }
 
+    let value: string | undefined;
     // check if storage is BinaryKVIterStorage then key must be Uint8Array
-
-    const value =
-      this.chain.kvIterStorageRegistry === BinaryKVIterStorage
-        ? // @ts-ignore
-          toBase64(storage.get(fromBase64(key)))
-        : // @ts-ignore
-          storage.get(key);
+    if (this.chain.kvIterStorageRegistry === BinaryKVIterStorage) {
+      // @ts-ignore
+      const binaryValue = storage.get(fromBase64(key)) as Uint8Array;
+      // if empty than just ignore
+      if (binaryValue) value = toBase64(binaryValue);
+    } else {
+      // @ts-ignore
+      value = storage.get(key);
+    }
 
     if (value === undefined) {
       throw new Error(`Key ${key} not found`);
