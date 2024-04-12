@@ -710,11 +710,13 @@ export class WasmModule {
       value = storage.get(key);
     }
 
+    // return default value instead of empty to prevent throw error
     if (value === undefined) {
-      throw new Error(`Key ${key} not found`);
-    } else {
-      return value;
+      // throw new Error(`Key ${key} not found`);
+      value = '';
     }
+
+    return value;
   }
 
   queryContractInfo(contractInfo: ContractInfoQuery) {
