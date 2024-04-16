@@ -115,18 +115,22 @@ export class CWSimulateApp {
     return Err(`unknown message: ${JSON.stringify(msg)}`);
   }
 
-  public pushBlock<T>(callback: () => Result<T, string>): Result<T, string>;
-  public pushBlock<T>(callback: () => Promise<Result<T, string>>): Promise<Result<T, string>>;
+  public pushBlock<T>(callback: () => Result<T, string>, sameBlock: boolean): Result<T, string>;
+  public pushBlock<T>(callback: () => Promise<Result<T, string>>, sameBlock: boolean): Promise<Result<T, string>>;
   public pushBlock<T>(
-    callback: () => Result<T, string> | Promise<Result<T, string>>
+    callback: () => Result<T, string> | Promise<Result<T, string>>,
+    sameBlock: boolean
   ): Result<T, string> | Promise<Result<T, string>> {
     //@ts-ignore
     return this.store.tx(setter => {
-      setter('height')(this.height + 1);
-      // if height or time are alredy increased, we will wait for it, this will help simulating future moment
-      const current = Date.now() * 1e6;
-      if (this.time < current) {
-        setter('time')(current); // 1 millisecond = 1e6 nano seconds
+      // increase block height and time if new block
+      if (!sameBlock) {
+        setter('height')(this.height + 1);
+        // if height or time are alredy increased, we will wait for it, this will help simulating future moment
+        const current = Date.now() * 1e6;
+        if (this.time < current) {
+          setter('time')(current); // 1 millisecond = 1e6 nano seconds
+        }
       }
       return callback();
     });

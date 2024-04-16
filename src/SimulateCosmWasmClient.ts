@@ -256,10 +256,17 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
     const events = [];
     const contractGasUsed = this.app.gasUsed;
     const results = [];
-
+    let ind = 0;
     for (const { contractAddress, funds, msg } of instructions) {
-      // run in sequential
-      const result = await this.app.wasm.executeContract(senderAddress, (funds as Coin[]) ?? [], contractAddress, msg);
+      // run in sequential, only last block will push new height
+      const result = await this.app.wasm.executeContract(
+        senderAddress,
+        (funds as Coin[]) ?? [],
+        contractAddress,
+        msg,
+        undefined,
+        ++ind !== instructions.length
+      );
 
       if (result.err || typeof result.val === 'string') {
         throw new Error(result.val.toString());

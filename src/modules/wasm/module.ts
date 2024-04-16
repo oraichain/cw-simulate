@@ -156,7 +156,7 @@ export class WasmModule {
         setter('lastCodeId')(codeId);
         return Ok(codeId);
       });
-    });
+    }, false);
   }
 
   /** Alias for `storeCode`, except it `.unwrap`s the result - kept for backwards compatibility */
@@ -231,7 +231,8 @@ export class WasmModule {
     label: string,
     admin: string | null = null,
     salt: Uint8Array | null = null,
-    traces: TraceLog[] = []
+    traces: TraceLog[] = [],
+    sameBlock: boolean = false
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       // first register the contract instance
@@ -301,7 +302,7 @@ export class WasmModule {
       });
 
       return result;
-    });
+    }, sameBlock);
   }
 
   /** Call migrate on the CW SC */
@@ -310,7 +311,8 @@ export class WasmModule {
     newCodeId: number,
     contractAddress: string,
     migrateMsg: any,
-    traces: TraceLog[] = []
+    traces: TraceLog[] = [],
+    sameBlock: boolean = false
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       const contract = this.getContract(contractAddress);
@@ -373,7 +375,7 @@ export class WasmModule {
       });
 
       return result;
-    });
+    }, sameBlock);
   }
 
   /** Call execute on the CW SC */
@@ -382,7 +384,8 @@ export class WasmModule {
     funds: Coin[],
     contractAddress: string,
     executeMsg: any,
-    traces: TraceLog[] = []
+    traces: TraceLog[] = [],
+    sameBlock: boolean = false
   ): Promise<Result<AppResponse, string>> {
     return await this.chain.pushBlock(async () => {
       const contract = await this.getContract(contractAddress).init();
@@ -449,7 +452,7 @@ export class WasmModule {
       });
 
       return result;
-    });
+    }, sameBlock);
   }
 
   // like AppResponse, just extend attribute and process subMsg instead of return Result
@@ -642,11 +645,22 @@ export class WasmModule {
     return this.store.tx(async () => {
       if ('execute' in wasmMsg) {
         const { contract_addr, funds, msg } = wasmMsg.execute;
-        return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), traces);
+        // execute contract from handling Response should not increase block height
+        return await this.executeContract(sender, funds, contract_addr, fromBinary(msg), traces, true);
       }
       if ('instantiate' in wasmMsg) {
         const { code_id, funds, msg, label, admin } = wasmMsg.instantiate;
-        return await this.instantiateContract(sender, funds, code_id, fromBinary(msg), label, admin, null, traces);
+        return await this.instantiateContract(
+          sender,
+          funds,
+          code_id,
+          fromBinary(msg),
+          label,
+          admin,
+          null,
+          traces,
+          true
+        );
       }
       if ('instantiate2' in wasmMsg) {
         const { code_id, funds, msg, label, admin, salt } = wasmMsg.instantiate2;
@@ -658,12 +672,13 @@ export class WasmModule {
           label,
           admin,
           fromBinary(salt),
-          traces
+          traces,
+          true
         );
       }
       if ('migrate' in wasmMsg) {
         const { contract_addr, new_code_id, msg } = wasmMsg.migrate;
-        return await this.migrateContract(sender, new_code_id, contract_addr, fromBinary(msg), traces);
+        return await this.migrateContract(sender, new_code_id, contract_addr, fromBinary(msg), traces, true);
       }
       throw new Error('Unknown wasm message');
     });
