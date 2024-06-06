@@ -117,9 +117,13 @@ const downloadState = async (
   writeCallback: Function,
   endCallback: Function,
   startAfter?: string,
-  limit = 5000
+  limit = 5000,
+  height?: number
 ) => {
   let nextKey = startAfter;
+
+  let headers = new Headers();
+  if (height) headers.append('x-cosmos-block-height', height.toFixed());
 
   while (true) {
     const url = new URL(`${lcd}/cosmwasm/wasm/v1/contract/${contractAddress}/state`);
@@ -129,9 +133,10 @@ const downloadState = async (
       console.log('nextKey', nextKey);
     }
     try {
-      const { models, pagination } = await fetch(url.toString(), { signal: AbortSignal.timeout(30000) }).then(res =>
-        res.json()
-      );
+      const { models, pagination } = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(30000),
+        headers,
+      }).then(res => res.json());
       writeCallback(models);
       if (!(nextKey = pagination.next_key)) {
         return endCallback();
