@@ -7,19 +7,22 @@ import {
   BasicKVIterStorage,
   BinaryKVIterStorage,
   compare,
+  Binary,
 } from '@oraichain/cosmwasm-vm-js';
 import { Err, Ok, Result } from 'ts-results';
 import { WasmModule, WasmQuery } from './modules/wasm';
 import { BankModule, BankQuery } from './modules/bank';
 import { Transactional, TransactionalLens } from './store/transactional';
-import { AppResponse, TraceLog } from './types';
+import { AppResponse, DistributionQuery, IbcQuery, StakingQuery, TraceLog } from './types';
 import { SERDE } from '@kiruse/serde';
 import { IbcModule } from './modules/ibc';
 import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
 import { printDebug } from './util';
 import { Map, SortedMap } from '@oraichain/immutable';
 
-type HandleCustomMsgFunction = (msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
+type HandleCustomMsgFunction = (sender: string, msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
+type QueryCustomMsgFunction = (query: QueryMessage) => Promise<Result<any, string>>;
+
 const DefaultAppResponse = Ok({
   events: [],
   data: null,
@@ -35,6 +38,7 @@ export interface CWSimulateAppOptions {
   gasLimit?: number;
   debug?: DebugFunction;
   handleCustomMsg?: HandleCustomMsgFunction;
+  queryCustomMsg?: QueryCustomMsgFunction;
   kvIterStorageRegistry?: KVIterStorageRegistry;
 }
 
@@ -51,6 +55,7 @@ export class CWSimulateApp {
   public debug?: DebugFunction;
   public readonly env?: Environment;
   private readonly handleCustomMsg?: HandleCustomMsgFunction; // make sure can not re-assign it
+  public readonly queryCustomMsg?: QueryCustomMsgFunction; // make sure can not re-assign it
   public store: TransactionalLens<ChainData>;
   public readonly kvIterStorageRegistry: KVIterStorageRegistry;
 
@@ -71,6 +76,7 @@ export class CWSimulateApp {
 
     this.debug = options.debug ?? printDebug;
     this.handleCustomMsg = options.handleCustomMsg;
+    this.queryCustomMsg = options.queryCustomMsg;
     this.store = new Transactional(this.kvIterStorageRegistry === BinaryKVIterStorage ? SortedMap(compare) : Map())
       .lens<ChainData>()
       .initialize({
@@ -109,7 +115,7 @@ export class CWSimulateApp {
     // not yet implemented, so use custom fallback assignment
     if ('stargate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
       // make default response to keep app working
-      return this.handleCustomMsg?.(msg) ?? DefaultAppResponse;
+      return this.handleCustomMsg?.(sender, msg) ?? DefaultAppResponse;
     }
 
     return Err(`unknown message: ${JSON.stringify(msg)}`);
@@ -150,7 +156,27 @@ export class CWSimulateApp {
   }
 }
 
-export type QueryMessage = { bank: BankQuery } | { wasm: WasmQuery };
+export type QueryMessage<T = any> =
+  | { bank: BankQuery }
+  | { wasm: WasmQuery }
+  | { custom: T }
+  | { staking: StakingQuery }
+  | { distribution: DistributionQuery }
+  | {
+      stargate: {
+        path: string;
+        /// this is the expected protobuf message type (not any), binary encoded
+        data: Binary;
+      };
+    }
+  | { ibc: IbcQuery }
+  | {
+      grpc: {
+        path: string;
+        /// The expected protobuf message type (not [Any](https://protobuf.dev/programming-guides/proto3/#any)), binary encoded
+        data: Binary;
+      };
+    };
 
 export class Querier extends QuerierBase {
   constructor(public readonly app: CWSimulateApp) {
@@ -160,10 +186,23 @@ export class Querier extends QuerierBase {
   handleQuery(query: QueryMessage): any {
     if ('bank' in query) {
       return this.app.bank.handleQuery(query.bank);
-    } else if ('wasm' in query) {
-      return this.app.wasm.handleQuery(query.wasm);
-    } else {
-      throw new Error('Unknown query message');
     }
+    if ('wasm' in query) {
+      return this.app.wasm.handleQuery(query.wasm);
+    }
+    if (
+      'stargate' in query ||
+      'custom' in query ||
+      'staking' in query ||
+      'ibc' in query ||
+      'distribution' in query ||
+      'grpc' in query
+    ) {
+      // make default response to keep app working
+      return this.app.queryCustomMsg?.(query);
+    }
+
+    // not yet implemented, so use custom fallback assignment
+    throw new Error('Unknown query message');
   }
 }
