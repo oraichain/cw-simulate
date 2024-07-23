@@ -21,7 +21,7 @@ import { printDebug } from './util';
 import { Map, SortedMap } from '@oraichain/immutable';
 
 export type HandleCustomMsgFunction = (sender: string, msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
-export type QueryCustomMsgFunction = (query: QueryMessage) => Promise<Result<any, string>>;
+export type QueryCustomMsgFunction = (query: QueryMessage) => any;
 
 export type KVIterStorageRegistry = typeof BasicKVIterStorage | typeof BinaryKVIterStorage;
 
@@ -111,7 +111,7 @@ export class CWSimulateApp {
     if ('stargate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
       // make default response to keep app working
       if (!this.handleCustomMsg) return Err(`no custom handle found for: ${Object.keys(msg)[0]}`);
-      return this.handleCustomMsg(sender, msg);
+      return await this.handleCustomMsg(sender, msg);
     }
 
     return Err(`unknown message: ${JSON.stringify(msg)}`);
