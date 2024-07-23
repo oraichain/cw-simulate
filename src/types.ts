@@ -305,3 +305,99 @@ export type IbcQuery =
       };
       // TODO: Add more
     };
+
+export type Uint128 = string;
+
+export interface DenomUnit {
+  /// denom represents the string name of the given denom unit (e.g uatom).
+  denom: string;
+  /// exponent represents power of 10 exponent that one must
+  /// raise the base_denom to in order to equal the given DenomUnit's denom
+  /// 1 denom = 1^exponent base_denom
+  /// (e.g. with a base_denom of uatom, one can create a DenomUnit of 'atom' with
+  /// exponent = 6, thus: 1 atom = 10^6 uatom).
+  exponent: number;
+  /// aliases is a list of string aliases for the given denom
+  aliases: string[];
+}
+
+export interface Metadata {
+  description?: string;
+  /// denom_units represents the list of DenomUnit's for a given coin
+  denom_units: DenomUnit[];
+  /// base represents the base denom (should be the DenomUnit with exponent = 0).
+  base?: string;
+  /// display indicates the suggested denom that should be displayed in clients.
+  display?: string;
+  /// name defines the name of the token (eg: Cosmos Atom)
+  name?: string;
+  /// symbol is the token symbol usually shown on exchanges (eg: ATOM). This can
+  /// be the same as the display.
+  symbol?: string;
+}
+
+export type TokenFactoryMsgOptions =
+  | {
+      /// CreateDenom creates a new factory denom, of denomination:
+      /// factory/{creating contract bech32 address}/{Subdenom}
+      /// Subdenom can be of length at most 44 characters, in [0-9a-zA-Z./]
+      /// Empty subdenoms are valid.
+      /// The (creating contract address, subdenom) pair must be unique.
+      /// The created denom's admin is the creating contract address,
+      /// but this admin can be changed using the UpdateAdmin binding.
+      ///
+      /// If you set an initial metadata here, this is equivalent
+      /// to calling SetMetadata directly on the returned denom.
+      create_denom: {
+        subdenom: String;
+        // TODO investigate if this is interoperable with Osmosis
+        metadata?: Metadata;
+      };
+    }
+  | {
+      /// ChangeAdmin changes the admin for a factory denom.
+      /// Can only be called by the current contract admin.
+      /// If the NewAdminAddress is empty, the denom will have no admin.
+      change_admin: {
+        denom: String;
+        new_admin_address: String;
+      };
+    }
+  | {
+      /// Contracts can mint native tokens for an existing factory denom
+      /// that they are the admin of.
+      mint_tokens: {
+        denom: String;
+        amount: Uint128;
+        mint_to_address: String;
+      };
+    }
+  | {
+      /// Contracts can burn native tokens for an existing factory denom
+      /// tshat they are the admin of.
+      burn_tokens: {
+        denom: String;
+        amount: Uint128;
+        burn_from_address: String;
+      };
+    }
+  | {
+      /// Contracts can force transfer tokens for an existing factory denom
+      /// that they are the admin of.
+      force_transfer: {
+        denom: String;
+        amount: Uint128;
+        from_address: String;
+        to_address: String;
+      };
+    }
+  | {
+      set_metadata: {
+        denom: String;
+        metadata: Metadata;
+      };
+    };
+
+export type TokenFactoryMsg = {
+  token: TokenFactoryMsgOptions;
+};
