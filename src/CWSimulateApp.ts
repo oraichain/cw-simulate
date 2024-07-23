@@ -20,8 +20,8 @@ import { DebugFunction } from './instrumentation/CWSimulateVMInstance';
 import { printDebug } from './util';
 import { Map, SortedMap } from '@oraichain/immutable';
 
-type HandleCustomMsgFunction = (sender: string, msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
-type QueryCustomMsgFunction = (query: QueryMessage) => Promise<Result<any, string>>;
+export type HandleCustomMsgFunction = (sender: string, msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
+export type QueryCustomMsgFunction = (query: QueryMessage) => Promise<Result<any, string>>;
 
 const DefaultAppResponse = Ok({
   events: [],
