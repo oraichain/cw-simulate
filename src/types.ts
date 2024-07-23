@@ -261,22 +261,22 @@ export type StakingQuery =
 export type DistributionQuery =
   | {
       /// See <https://github.com/cosmos/cosmos-sdk/blob/c74e2887b0b73e81d48c2f33e6b1020090089ee0/proto/cosmos/distribution/v1beta1/query.proto#L222-L230>
-      delegator_withdraw_address: { delegator_address: String };
+      delegator_withdraw_address: { delegator_address: string };
     }
   | {
       /// See <https://github.com/cosmos/cosmos-sdk/blob/c74e2887b0b73e81d48c2f33e6b1020090089ee0/proto/cosmos/distribution/v1beta1/query.proto#L157-L167>
       delegation_rewards: {
-        delegator_address: String;
-        validator_address: String;
+        delegator_address: string;
+        validator_address: string;
       };
     }
   | {
       /// See <https://github.com/cosmos/cosmos-sdk/blob/c74e2887b0b73e81d48c2f33e6b1020090089ee0/proto/cosmos/distribution/v1beta1/query.proto#L180-L187>
-      delegation_total_rewards: { delegator_address: String };
+      delegation_total_rewards: { delegator_address: string };
     }
   | {
       /// See <https://github.com/cosmos/cosmos-sdk/blob/b0acf60e6c39f7ab023841841fc0b751a12c13ff/proto/cosmos/distribution/v1beta1/query.proto#L202-L210>
-      delegator_validators: { delegator_address: String };
+      delegator_validators: { delegator_address: string };
     };
 
 export type IbcQuery =
@@ -349,7 +349,7 @@ export type TokenFactoryMsgOptions =
       /// If you set an initial metadata here, this is equivalent
       /// to calling SetMetadata directly on the returned denom.
       create_denom: {
-        subdenom: String;
+        subdenom: string;
         // TODO investigate if this is interoperable with Osmosis
         metadata?: Metadata;
       };
@@ -359,41 +359,41 @@ export type TokenFactoryMsgOptions =
       /// Can only be called by the current contract admin.
       /// If the NewAdminAddress is empty, the denom will have no admin.
       change_admin: {
-        denom: String;
-        new_admin_address: String;
+        denom: string;
+        new_admin_address: string;
       };
     }
   | {
       /// Contracts can mint native tokens for an existing factory denom
       /// that they are the admin of.
       mint_tokens: {
-        denom: String;
+        denom: string;
         amount: Uint128;
-        mint_to_address: String;
+        mint_to_address: string;
       };
     }
   | {
       /// Contracts can burn native tokens for an existing factory denom
       /// tshat they are the admin of.
       burn_tokens: {
-        denom: String;
+        denom: string;
         amount: Uint128;
-        burn_from_address: String;
+        burn_from_address: string;
       };
     }
   | {
       /// Contracts can force transfer tokens for an existing factory denom
       /// that they are the admin of.
       force_transfer: {
-        denom: String;
+        denom: string;
         amount: Uint128;
-        from_address: String;
-        to_address: String;
+        from_address: string;
+        to_address: string;
       };
     }
   | {
       set_metadata: {
-        denom: String;
+        denom: string;
         metadata: Metadata;
       };
     };
