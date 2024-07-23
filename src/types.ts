@@ -401,3 +401,40 @@ export type TokenFactoryMsgOptions =
 export type TokenFactoryMsg = {
   token: TokenFactoryMsgOptions;
 };
+
+export type TokenFactoryQueryEnum =
+  | {
+      /// Given a subdenom created by the address `creator_addr` via `OsmosisMsg::CreateDenom`,
+      /// returns the full denom as used by `BankMsg::Send`.
+      /// You may call `FullDenom { creator_addr: env.contract.address, subdenom }` to find the denom issued
+      /// by the current contract.
+      full_denom: {
+        creator_addr: string;
+        subdenom: string;
+      };
+    }
+  | {
+      /// Returns the metadata set for this denom, if present. May return None.
+      /// This will also return metadata for native tokens created outside
+      /// of the token factory (like staking tokens)
+      metadata: { denom: string };
+    }
+  | {
+      /// Returns info on admin of the denom, only if created/managed via token factory.
+      /// Errors if denom doesn't exist or was created by another module.
+      admin: { denom: string };
+    }
+  | {
+      /// List all denoms that were created by the given creator.
+      /// This does not imply all tokens currently managed by the creator.
+      /// (Admin may have changed)
+      denoms_by_creator: { creator: string };
+    }
+  | {
+      /// Returns configuration params for TokenFactory modules
+      params: {};
+    };
+
+export type TokenFactoryQuery = {
+  token: TokenFactoryQueryEnum;
+};
