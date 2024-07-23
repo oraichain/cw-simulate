@@ -23,11 +23,6 @@ import { Map, SortedMap } from '@oraichain/immutable';
 export type HandleCustomMsgFunction = (sender: string, msg: CosmosMsg) => Promise<Result<AppResponse, string>>;
 export type QueryCustomMsgFunction = (query: QueryMessage) => Promise<Result<any, string>>;
 
-const DefaultAppResponse = Ok({
-  events: [],
-  data: null,
-});
-
 export type KVIterStorageRegistry = typeof BasicKVIterStorage | typeof BinaryKVIterStorage;
 
 export interface CWSimulateAppOptions {
@@ -115,7 +110,8 @@ export class CWSimulateApp {
     // not yet implemented, so use custom fallback assignment
     if ('stargate' in msg || 'custom' in msg || 'gov' in msg || 'staking' in msg || 'distribution' in msg) {
       // make default response to keep app working
-      return this.handleCustomMsg?.(sender, msg) ?? DefaultAppResponse;
+      if (!this.handleCustomMsg) return Err(`no custom handle found for: ${Object.keys(msg)[0]}`);
+      return this.handleCustomMsg(sender, msg);
     }
 
     return Err(`unknown message: ${JSON.stringify(msg)}`);
@@ -191,15 +187,17 @@ export class Querier extends QuerierBase {
       return this.app.wasm.handleQuery(query.wasm);
     }
     if (
-      'stargate' in query ||
-      'custom' in query ||
-      'staking' in query ||
-      'ibc' in query ||
-      'distribution' in query ||
-      'grpc' in query
+      this.app.queryCustomMsg &&
+      ('stargate' in query ||
+        'custom' in query ||
+        'staking' in query ||
+        'ibc' in query ||
+        'distribution' in query ||
+        'grpc' in query)
     ) {
       // make default response to keep app working
-      return this.app.queryCustomMsg?.(query);
+      if (!this.app.queryCustomMsg) return Err(`no custom query found for: ${Object.keys(query)[0]}`);
+      return this.app.queryCustomMsg(query);
     }
 
     // not yet implemented, so use custom fallback assignment
