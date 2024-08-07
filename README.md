@@ -9,8 +9,12 @@ they are hosted.
 - configure multiple host chain environments with chain-specific settings / state
 - multiple simultaneous contract instances can exist per chain
 - chain modules can be simulated through custom user code
-- extensible for further instrumentation via custom middlewares
-- load fork state from running blockhain
+- Simulating block creation
+- [extensible for further instrumentation via custom middlewares](#ibc-mocks-with-opening-channels-and-receiving-ibc-messages)
+- [Simulating IBC states](#ibc-mocks-with-opening-channels-and-receiving-ibc-messages)
+- [Gas simulation](#cosmwasm-contract-interaction)
+- [Simulating address native balances](#manipulate-native-balances).
+- [Download current contract states on the mainnet for simulation](#load-fork-state-from-mainnet)
 
 ## Getting Started
 
@@ -36,104 +40,284 @@ $ yarn add "@oraichain/cw-simulate" -D
 
 - You can now run `execute` and `query` messages against the instance, and they should work as expected.
 
-### Example
+3. As needed:
+   - Mint, burn, set native balances for addresses
+   - Create IBC channels and invoke IBC receive messages.
 
-The following example creates a chain, instantiates a contract on it, and performs an `execute` and `query`.
+## Examples
 
-```javascript
-import { SimulateCosmWasmClient } from '@oraichain/cw-simulate';
-import { readFileSync } from 'fs';
+Below are `cw-simulate` examples that simulate CosmWasm, bank, and IBC modules. If you want us to support another type of module, please create an issue request!
 
-const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';
-const funds = [];
+### CosmWasm Contract Interaction
 
-const client = new SimulateCosmWasmClient({
-  chainId: 'Oraichain',
-  bech32Prefix: 'orai',
-  metering: true,
-});
+```ts
+import { sha256 } from '@cosmjs/crypto';
+import { fromHex, toHex } from '@cosmjs/encoding';
+import fs from 'fs';
+import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
+import { instantiate2Address } from '@cosmjs/cosmwasm-stargate';
 
 // import the wasm bytecode
-const bytecode = fs.readFileSync('cw-template.wasm');
-// deploy
-const { codeId } = await client.upload(sender, bytecode, 'auto');
-const { contractAddress } = await client.instantiate(sender, codeId, { count: 0 }, 'counter', 'auto');
+const bytecode = fs.readFileSync('./testing/hello_world-aarch64.wasm');
+const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';
 
-// execute the contract
-result = await client.app.wasm.executeContract(sender, funds, contractAddress, {
-  increment: {},
-});
-console.log('executeContract:', result.constructor.name, JSON.stringify(result, null, 2));
+describe('SimulateCosmWasmClient', () => {
+  it('works', async () => {
+    {
+      const client = new SimulateCosmWasmClient({
+        chainId: 'Oraichain',
+        bech32Prefix: 'orai',
+        metering: true,
+      });
 
-// query the contract
-result = await client.app.wasm.query(contractAddress, { get_count: {} });
-console.log('query:', result.constructor.name, JSON.stringify(result, null, 2));
+      // deploy
+      const { codeId } = await client.upload(sender, bytecode, 'auto');
+      const { contractAddress } = await client.instantiate(sender, codeId, { count: 10 }, '', 'auto');
+      console.log(contractAddress);
 
-// use with codegen
-const contractClient = new ContractClient(client, sender, contractAddress);
-const res = await contractClient.executeMethod({});
+      // execute the contract
+      const result = await client.execute(
+        sender,
+        contractAddress,
+        {
+          increment: {},
+        },
+        'auto'
+      );
 
-// use with IBC mocks
-const cosmosChain = new CWSimulateApp({
-  chainId: 'cosmoshub-4',
-  bech32Prefix: 'cosmos'
-});
+      console.log(result);
 
-// create channel between oraichain and cosmos
-client.app.ibc.relay(channel, 'wasm.' + contractAddress, 'channel-0', 'transfer', cosmosChain);
-
-// send IBC packet
-await cosmosChain.ibc.sendChannelOpen({
-  open_init: {
-    channel: {
-      counterparty_endpoint: {
-        port_id: oraiPort,
-        channel_id: channel
-      },
-      endpoint: {
-        port_id: cosmosPort,
-        channel_id: channel
-      },
-      order: IbcOrder.Unordered,
-      version: 'ics20-1',
-      connection_id: 'connection-0'
+      expect(result.events[0].attributes[0].value).toEqual(contractAddress);
+      // query
+      expect(await client.queryContractSmart(contractAddress, { get_count: {} })).toEqual({ count: 11 });
     }
-  }
+  });
 });
-
-await cosmosChain.ibc.sendChannelConnect({
-  open_ack: {
-    channel: {
-      counterparty_endpoint: {
-        port_id: oraiPort,
-        channel_id: channel
-      },
-      endpoint: {
-        port_id: cosmosPort,
-        channel_id: channel
-      },
-      order: IbcOrder.Unordered,
-      version: 'ics20-1',
-      connection_id: 'connection-0'
-    },
-    counterparty_version: 'ics20-1'
-  }
-});
-
-// write hook
-cosmosChain.ibc.addMiddleWare((msg, app) => {
-  const data = msg.data.packet as IbcPacket;
-  if (Number(data.timeout.timestamp) < cosmosChain.time) {
-    throw new GenericError('timeout at ' + data.timeout.timestamp);
-  }
-});
-
-// load fork state from mainnet
-import { DownloadState } from "@oraichain/cw-simulate";
-const downloadState = new DownloadState("https://lcd.orai.io", path.resolve(__dirname, "data"));
-await downloadState.loadState(client, senderAddress, contractAddress, "label");
-
 ```
+
+### IBC mocks with opening channels and receiving IBC messages
+
+```ts
+import { coin, coins } from '@cosmjs/amino';
+import { fromBinary, toBinary } from '@cosmjs/cosmwasm-stargate';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { CosmosMsg, IbcMsgTransfer } from '@oraichain/cosmwasm-vm-js';
+import { readFileSync } from 'fs';
+import path from 'path';
+import { CWSimulateApp } from '../CWSimulateApp';
+import { AppResponse, IbcOrder } from '../types';
+import { ibcDenom } from './ibc';
+
+const terraChain = new CWSimulateApp({
+  chainId: 'test-1',
+  bech32Prefix: 'terra',
+});
+const oraiChain = new CWSimulateApp({
+  chainId: 'Oraichain',
+  bech32Prefix: 'orai',
+});
+const oraiSenderAddress = 'orai1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejvfgs7g';
+const bobAddress = 'orai1ur2vsjrjarygawpdwtqteaazfchvw4fg6uql76';
+const terraSenderAddress = toBech32(terraChain.bech32Prefix, fromBech32(oraiSenderAddress).data);
+
+describe.only('IBCModule', () => {
+  let oraiPort: string;
+  let terraPort: string = 'transfer';
+  let contractAddress: string;
+  beforeEach(async () => {
+    const reflectCodeId = oraiChain.wasm.create(
+      oraiSenderAddress,
+      readFileSync(path.join(__dirname, '..', '..', 'testing', 'reflect.wasm'))
+    );
+    const ibcReflectCodeId = oraiChain.wasm.create(
+      oraiSenderAddress,
+      readFileSync(path.join(__dirname, '..', '..', 'testing', 'ibc_reflect.wasm'))
+    );
+
+    const oraiRet = await oraiChain.wasm.instantiateContract(
+      oraiSenderAddress,
+      [],
+      ibcReflectCodeId,
+      { reflect_code_id: reflectCodeId },
+      'ibc-reflect'
+    );
+    contractAddress = (oraiRet.val as AppResponse).events[0].attributes[0].value;
+    oraiPort = 'wasm.' + contractAddress;
+  });
+
+  it('handle-reflect', async () => {
+    oraiChain.ibc.relay('channel-0', oraiPort, 'channel-0', terraPort, terraChain);
+    expect(oraiPort).toEqual(oraiChain.ibc.getContractIbcPort(contractAddress));
+    const channelOpenRes = await terraChain.ibc.sendChannelOpen({
+      open_init: {
+        channel: {
+          counterparty_endpoint: {
+            port_id: oraiPort,
+            channel_id: 'channel-0',
+          },
+          endpoint: {
+            port_id: terraPort,
+            channel_id: 'channel-0',
+          },
+          order: IbcOrder.Ordered,
+          version: 'ibc-reflect-v1',
+          connection_id: 'connection-0',
+        },
+      },
+    });
+    expect(channelOpenRes).toEqual({ version: 'ibc-reflect-v1' });
+
+    const channelConnectRes = await terraChain.ibc.sendChannelConnect({
+      open_ack: {
+        channel: {
+          counterparty_endpoint: {
+            port_id: oraiPort,
+            channel_id: 'channel-0',
+          },
+          endpoint: {
+            port_id: terraPort,
+            channel_id: 'channel-0',
+          },
+          order: IbcOrder.Ordered,
+          version: 'ibc-reflect-v1',
+          connection_id: 'connection-0',
+        },
+        counterparty_version: 'ibc-reflect-v1',
+      },
+    });
+
+    expect(channelConnectRes.attributes).toEqual([
+      { key: 'action', value: 'ibc_connect' },
+      { key: 'channel_id', value: 'channel-0' },
+    ]);
+
+    // get reflect address
+    let packetReceiveRes = await terraChain.ibc.sendPacketReceive({
+      packet: {
+        data: toBinary({
+          who_am_i: {},
+        }),
+        src: {
+          port_id: terraPort,
+          channel_id: 'channel-0',
+        },
+        dest: {
+          port_id: oraiPort,
+          channel_id: 'channel-0',
+        },
+        sequence: terraChain.ibc.sequence++,
+        timeout: {
+          block: {
+            revision: 1,
+            height: terraChain.height,
+          },
+        },
+      },
+      relayer: terraSenderAddress,
+    });
+    const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
+    const reflectContractAddress = res.ok.account;
+    expect(reflectContractAddress).toEqual(oraiChain.wasm.getContracts()[1].address);
+    // set some balance for reflect contract
+    oraiChain.bank.setBalance(reflectContractAddress, coins('500000000000', 'orai'));
+
+    // send message to bob on oraichain
+    packetReceiveRes = await terraChain.ibc.sendPacketReceive({
+      packet: {
+        data: toBinary({
+          dispatch: {
+            msgs: [
+              <CosmosMsg>{
+                bank: {
+                  send: {
+                    to_address: bobAddress,
+                    amount: coins(123456789, 'orai'),
+                  },
+                },
+              },
+            ],
+          },
+        }),
+        src: {
+          port_id: terraPort,
+          channel_id: 'channel-0',
+        },
+        dest: {
+          port_id: oraiPort,
+          channel_id: 'channel-0',
+        },
+        sequence: terraChain.ibc.sequence++,
+        timeout: {
+          block: {
+            revision: 1,
+            height: terraChain.height,
+          },
+        },
+      },
+      relayer: terraSenderAddress,
+    });
+  });
+});
+```
+
+### Manipulate native balances
+
+```ts
+import { BankMsg } from '@oraichain/cosmwasm-vm-js';
+import { cmd, exec, TestContract } from '../../testing/wasm-util';
+import { CWSimulateApp } from '../CWSimulateApp';
+import { BankQuery } from './bank';
+
+type WrappedBankMsg = {
+  bank: BankMsg;
+};
+
+const coin = (denom: string, amount: string | number) => ({ denom, amount: `${amount}` });
+
+describe.only('BankModule', () => {
+  let chain: CWSimulateApp;
+
+  beforeEach(function () {
+    chain = new CWSimulateApp({
+      chainId: 'test-1',
+      bech32Prefix: 'terra',
+    });
+  });
+
+  it('handle send', () => {
+    // Arrange
+    const bank = chain.bank;
+    // Set balance to arbitrary address
+    bank.setBalance('alice', [coin('foo', 1000)]);
+
+    // Can also send to other addresses
+    bank.send('alice', 'bob', [coin('foo', 100)]).unwrap();
+
+    // Assert
+    expect(bank.getBalance('alice')).toEqual([coin('foo', 900)]);
+    expect(bank.getBalance('bob')).toEqual([coin('foo', 100)]);
+    expect(bank.getBalances()).toEqual({
+      alice: [coin('foo', 900)],
+      bob: [coin('foo', 100)],
+    });
+  });
+});
+```
+
+### Load fork state from mainnet
+
+```ts
+import { DownloadState } from '@oraichain/cw-simulate';
+const downloadState = new DownloadState('https://lcd.orai.io', path.resolve(__dirname, 'data'));
+await downloadState.loadState(client, senderAddress, contractAddress, 'label');
+```
+
+### Real test-suites for production-grade dApps
+
+We have applied `cw-simulate` in almost every corner of Oraichain Labs' dApps, and they have worked wonders. See the following real test-suites:
+
+- [TonBridge SDK e2e testing](https://github.com/oraichain/tonbridge-sdk/tree/main/packages/contracts-demo/tests)
+- [IBC Bridge Wasm e2e testing](https://github.com/oraichain/ibc-bridge-wasm/tree/master/simulate-tests)
 
 ## Using with Vue.js and vite
 
