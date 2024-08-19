@@ -7,7 +7,6 @@ import { AppResponse, Snapshot } from '../types';
 
 type BankData = {
   balances: Record<string, Coin[]>;
-  supply: Record<string, string>;
 };
 
 export type BankQuery =
@@ -40,7 +39,6 @@ export class BankModule {
   constructor(public readonly chain: CWSimulateApp) {
     this.store = this.chain.store.db.lens<BankData>('bank').initialize({
       balances: {},
-      supply: {},
     });
   }
 
@@ -100,7 +98,6 @@ export class BankModule {
         } else {
           return Err(`Sender ${sender} has ${hasCoin?.amount ?? 0} ${coin.denom}, needs ${coin.amount}`);
         }
-        this.decreaseSupply(coin);
       }
       balance = balance.filter(c => c.amount > 0);
 
@@ -124,7 +121,6 @@ export class BankModule {
         } else {
           balance.push(coin);
         }
-        this.increaseSupply(coin);
       }
       balance = balance.filter(c => c.amount > 0);
 
@@ -136,30 +132,8 @@ export class BankModule {
     });
   }
 
-  public increaseSupply(coin: ParsedCoin) {
-    let currentSupply = this.getSupply(coin.denom) || '0';
-    let newSupply = BigInt(currentSupply) + coin.amount;
-    this.setSupply(coin.denom, newSupply.toString());
-  }
-
-  public decreaseSupply(coin: ParsedCoin) {
-    let currentSupply = this.getSupply(coin.denom) || '0';
-    let newSupply = BigInt(currentSupply) - coin.amount;
-    if (newSupply < 0) {
-      return Err(`Burn amount is greater than current supply, burn ${coin.amount}, currentSupply ${currentSupply}`);
-    }
-    this.setSupply(coin.denom, newSupply.toString());
-  }
-
-  public setSupply(denom: string, amount: string) {
-    this.store.tx(setter => {
-      setter('supply', denom)(amount);
-      return Ok(undefined);
-    });
-  }
-
   public setBalance(address: string, amount: Coin[]) {
-    this.store.tx(setter => {
+    this.store.tx((setter, deleter) => {
       setter('balances', address)(amount);
       return Ok(undefined);
     });
@@ -173,15 +147,19 @@ export class BankModule {
     return this.store.getObject('balances');
   }
 
-  public getSupply(denom: string) {
-    return this.store.getObject('supply', denom);
-  }
-
   public deleteBalance(address: string) {
     this.store.tx((_, deleter) => {
       deleter('balances', address);
       return Ok(undefined);
     });
+  }
+
+  public getSupply(denom: string): string {
+    return Object.values(this.getBalances())
+      .flat()
+      .filter(c => c.denom === denom)
+      .reduce((total, c) => total + BigInt(c.amount), 0n)
+      .toString();
   }
 
   public async handleMsg(sender: string, msg: BankMsg): Promise<Result<AppResponse, string>> {
@@ -202,7 +180,9 @@ export class BankModule {
           data: null,
         })
       );
-    } else if ('burn' in msg) {
+    }
+
+    if ('burn' in msg) {
       const result = this.burn(sender, msg.burn.amount);
       return result.andThen(() =>
         Ok<AppResponse>({
@@ -218,9 +198,9 @@ export class BankModule {
           data: null,
         })
       );
-    } else {
-      return Err('Unknown bank message');
     }
+
+    return Err('Unknown bank message');
   }
 
   public handleQuery(query: BankQuery): BalanceResponse | AllBalancesResponse | SupplyResponse {
@@ -231,17 +211,22 @@ export class BankModule {
       return {
         amount: hasCoin ?? { denom, amount: '0' },
       };
-    } else if ('all_balances' in bankQuery) {
+    }
+
+    if ('all_balances' in bankQuery) {
       let { address } = bankQuery.all_balances;
       return {
         amount: this.getBalance(address),
       };
-    } else if ('supply' in bankQuery) {
+    }
+
+    if ('supply' in bankQuery) {
       let { denom } = bankQuery.supply;
       return {
-        amount: { denom, amount: this.getSupply(denom) ?? '0' },
+        amount: { denom, amount: this.getSupply(denom) },
       };
     }
+
     throw new Error('Unknown bank query');
   }
 

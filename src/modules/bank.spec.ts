@@ -32,6 +32,8 @@ describe.only('BankModule', () => {
       alice: [coin('foo', 900)],
       bob: [coin('foo', 100)],
     });
+
+    expect(bank.getSupply('foo')).toEqual('1000');
   });
 
   it('handle send failure', () => {
