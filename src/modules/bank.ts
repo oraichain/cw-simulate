@@ -7,6 +7,7 @@ import { AppResponse, Snapshot } from '../types';
 
 type BankData = {
   balances: Record<string, Coin[]>;
+  supply: Record<string, string>;
 };
 
 export type BankQuery =
@@ -20,10 +21,18 @@ export type BankQuery =
       all_balances: {
         address: string;
       };
+    }
+  | {
+      supply: {
+        denom: string;
+      };
     };
 
 export type BalanceResponse = { amount: Coin };
 export type AllBalancesResponse = { amount: Coin[] };
+export type SupplyResponse = {
+  amount: Coin;
+};
 
 export class BankModule {
   public readonly store: TransactionalLens<BankData>;
@@ -31,6 +40,7 @@ export class BankModule {
   constructor(public readonly chain: CWSimulateApp) {
     this.store = this.chain.store.db.lens<BankData>('bank').initialize({
       balances: {},
+      supply: {},
     });
   }
 
@@ -90,6 +100,7 @@ export class BankModule {
         } else {
           return Err(`Sender ${sender} has ${hasCoin?.amount ?? 0} ${coin.denom}, needs ${coin.amount}`);
         }
+        this.decreaseSupply(coin);
       }
       balance = balance.filter(c => c.amount > 0);
 
@@ -108,12 +119,12 @@ export class BankModule {
 
       for (const coin of parsedCoins) {
         const hasCoin = balance.find(c => c.denom === coin.denom);
-
         if (hasCoin) {
           hasCoin.amount += coin.amount;
         } else {
           balance.push(coin);
         }
+        this.increaseSupply(coin);
       }
       balance = balance.filter(c => c.amount > 0);
 
@@ -121,6 +132,28 @@ export class BankModule {
         sender,
         balance.map(c => c.toCoin())
       );
+      return Ok(undefined);
+    });
+  }
+
+  public increaseSupply(coin: ParsedCoin) {
+    let currentSupply = this.getSupply(coin.denom) || '0';
+    let newSupply = BigInt(currentSupply) + coin.amount;
+    this.setSupply(coin.denom, newSupply.toString());
+  }
+
+  public decreaseSupply(coin: ParsedCoin) {
+    let currentSupply = this.getSupply(coin.denom) || '0';
+    let newSupply = BigInt(currentSupply) - coin.amount;
+    if (newSupply < 0) {
+      return Err(`Burn amount is greater than current supply, burn ${coin.amount}, currentSupply ${currentSupply}`);
+    }
+    this.setSupply(coin.denom, newSupply.toString());
+  }
+
+  public setSupply(denom: string, amount: string) {
+    this.store.tx(setter => {
+      setter('supply', denom)(amount);
       return Ok(undefined);
     });
   }
@@ -138,6 +171,10 @@ export class BankModule {
 
   public getBalances() {
     return this.store.getObject('balances');
+  }
+
+  public getSupply(denom: string) {
+    return this.store.getObject('supply', denom);
   }
 
   public deleteBalance(address: string) {
@@ -186,7 +223,7 @@ export class BankModule {
     }
   }
 
-  public handleQuery(query: BankQuery): BalanceResponse | AllBalancesResponse {
+  public handleQuery(query: BankQuery): BalanceResponse | AllBalancesResponse | SupplyResponse {
     let bankQuery = query;
     if ('balance' in bankQuery) {
       let { address, denom } = bankQuery.balance;
@@ -198,6 +235,11 @@ export class BankModule {
       let { address } = bankQuery.all_balances;
       return {
         amount: this.getBalance(address),
+      };
+    } else if ('supply' in bankQuery) {
+      let { denom } = bankQuery.supply;
+      return {
+        amount: { denom, amount: this.getSupply(denom) ?? '0' },
       };
     }
     throw new Error('Unknown bank query');
