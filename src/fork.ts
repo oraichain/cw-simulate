@@ -42,7 +42,7 @@ export class BufferStream {
   write(entries: Array<[Uint8Array, Uint8Array]>) {
     let n = 0;
     for (const [k, v] of entries) {
-      n += k.length + v.length + 3;
+      n += k.length + v.length + 4;
     }
     const outputBuffer = Buffer.allocUnsafe(n);
     let ind = 0;
@@ -50,6 +50,7 @@ export class BufferStream {
       outputBuffer[ind++] = k.length;
       outputBuffer.set(k, ind);
       ind += k.length;
+      outputBuffer[ind++] = (v.length >> 16) & 0b11111111;
       outputBuffer[ind++] = (v.length >> 8) & 0b11111111;
       outputBuffer[ind++] = v.length & 0b11111111;
       outputBuffer.set(v, ind);
@@ -84,7 +85,7 @@ export class BufferIter {
 
     const keyLength = this.buf[this.bufInd++];
     const k = this.buf.subarray(this.bufInd, (this.bufInd += keyLength));
-    const valueLength = (this.buf[this.bufInd++] << 8) | this.buf[this.bufInd++];
+    const valueLength = (this.buf[this.bufInd++] << 16) | (this.buf[this.bufInd++] << 8) | this.buf[this.bufInd++];
     const v = this.buf.subarray(this.bufInd, (this.bufInd += valueLength));
     this.ind++;
 
