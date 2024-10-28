@@ -36,10 +36,11 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.31.0",
-    "@cosmjs/cosmwasm-stargate": "^0.31.0",
-    "@cosmjs/crypto": "^0.31.0",
-    "@cosmjs/encoding": "^0.31.0",
+    "@cosmjs/amino": "^0.31.3",
+    "@cosmjs/cosmwasm-stargate": "^0.31.3",
+    "@cosmjs/stargate": "^0.31.3",
+    "@cosmjs/crypto": "^0.31.3",
+    "@cosmjs/encoding": "^0.31.3",
     "@kiruse/serde": "^0.8.0-rc.6",
     "@oraichain/cosmwasm-vm-js": "^0.2.87",
     "eventemitter3": "^5.0.0",
