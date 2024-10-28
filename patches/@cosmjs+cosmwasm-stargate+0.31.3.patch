@@ -1,5 +1,5 @@
 diff --git a/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.d.ts b/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.d.ts
-index 3aebdc5..a56a68e 100644
+index 3aebdc5..3848f08 100644
 --- a/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.d.ts
 +++ b/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.d.ts
 @@ -1,5 +1,6 @@
@@ -22,11 +22,11 @@ index 3aebdc5..a56a68e 100644
       * Promise is rejected for invalid response format.
       */
      queryContractSmart(address: string, queryMsg: JsonObject): Promise<JsonObject>;
-+    queryContractSmart(address: string, paginationKey: Uint8Array): Promise<QueryAllContractStateResponse>;
++    getAllContractState(address: string, paginationKey: Uint8Array, limit?: number): Promise<QueryAllContractStateResponse>;
      private txsQuery;
  }
 diff --git a/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.js b/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.js
-index 8f6305b..093a700 100644
+index 8f6305b..f014c58 100644
 --- a/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.js
 +++ b/node_modules/@cosmjs/cosmwasm-stargate/build/cosmwasmclient.js
 @@ -17,18 +17,18 @@ class CosmWasmClient {
@@ -63,9 +63,9 @@ index 8f6305b..093a700 100644
 +     * Promise is rejected for invalid query format.
 +     * Promise is rejected for invalid response format.
 +     */
-+    async getAllContractState(address, paginationKey) {
++    async getAllContractState(address, paginationKey, limit) {
 +        try {
-+            return await this.forceGetQueryClient().wasm.getAllContractState(address, paginationKey);
++            return await this.forceGetQueryClient().wasm.getAllContractState(address, paginationKey, limit);
 +        }
 +        catch (error) {
 +            if (error instanceof Error) {
@@ -85,3 +85,20 @@ index 8f6305b..093a700 100644
      async txsQuery(query) {
          const results = await this.forceGetTmClient().txSearchAll({ query: query });
          return results.txs.map((tx) => {
+diff --git a/node_modules/@cosmjs/cosmwasm-stargate/build/modules/wasm/queries.js b/node_modules/@cosmjs/cosmwasm-stargate/build/modules/wasm/queries.js
+index c060369..042c2c0 100644
+--- a/node_modules/@cosmjs/cosmwasm-stargate/build/modules/wasm/queries.js
++++ b/node_modules/@cosmjs/cosmwasm-stargate/build/modules/wasm/queries.js
+@@ -50,10 +50,10 @@ function setupWasmExtension(base) {
+                 };
+                 return queryService.ContractHistory(request);
+             },
+-            getAllContractState: async (address, paginationKey) => {
++            getAllContractState: async (address, paginationKey, limit) => {
+                 const request = {
+                     address: address,
+-                    pagination: (0, stargate_1.createPagination)(paginationKey),
++                    pagination: (0, stargate_1.createPagination)(paginationKey, limit),
+                 };
+                 return queryService.AllContractState(request);
+             },

@@ -1,8 +1,31 @@
+diff --git a/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts b/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
+index 5317078..b7035dd 100644
+--- a/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
++++ b/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
+@@ -15,7 +15,7 @@ export declare function toAccAddress(address: string): Uint8Array;
+  * Use this with a query response's pagination next key to
+  * request the next page.
+  */
+-export declare function createPagination(paginationKey?: Uint8Array): PageRequest | undefined;
++export declare function createPagination(paginationKey?: Uint8Array, limit?: number): PageRequest | undefined;
+ export interface ProtobufRpcClient {
+     request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
+ }
 diff --git a/node_modules/@cosmjs/stargate/build/queryclient/utils.js b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
-index 6f4ecaa..b4f6d6b 100644
+index 6f4ecaa..22d5f16 100644
 --- a/node_modules/@cosmjs/stargate/build/queryclient/utils.js
 +++ b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
-@@ -32,7 +32,7 @@ function createProtobufRpcClient(base) {
+@@ -24,15 +24,15 @@ exports.toAccAddress = toAccAddress;
+  * Use this with a query response's pagination next key to
+  * request the next page.
+  */
+-function createPagination(paginationKey) {
+-    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey }) : undefined;
++function createPagination(paginationKey, limit) {
++    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey, limit: long_1.default.fromInt(limit) }) : undefined;
+ }
+ exports.createPagination = createPagination;
+ function createProtobufRpcClient(base) {
      return {
          request: async (service, method, data) => {
              const path = `/${service}/${method}`;

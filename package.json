@@ -17,6 +17,7 @@
     "@types/bytes": "^3.1.1",
     "@types/jest": "^29.0.0",
     "@types/lodash": "^4.14.187",
+    "benny": "^3.7.1",
     "buffer": "^6.0.3",
     "bytes": "^3.1.2",
     "esbuild": "^0.19.5",
@@ -38,9 +39,9 @@
   "dependencies": {
     "@cosmjs/amino": "^0.31.3",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
-    "@cosmjs/stargate": "^0.31.3",
     "@cosmjs/crypto": "^0.31.3",
     "@cosmjs/encoding": "^0.31.3",
+    "@cosmjs/stargate": "^0.31.3",
     "@kiruse/serde": "^0.8.0-rc.6",
     "@oraichain/cosmwasm-vm-js": "^0.2.87",
     "eventemitter3": "^5.0.0",
