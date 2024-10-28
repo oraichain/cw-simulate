@@ -149,7 +149,7 @@ const downloadState = async (
 };
 
 export class DownloadState {
-  constructor(public readonly lcd: string, public readonly downloadPath: string) {}
+  constructor(public readonly lcd: string, public readonly downloadPath: string, public readonly height?: number) {}
 
   // if there is nextKey then append, otherwise insert
   async saveState(contractAddress: string, nextKey?: string) {
@@ -163,7 +163,9 @@ export class DownloadState {
           bufStream.write(entries);
         },
         resolve,
-        nextKey
+        nextKey,
+        undefined,
+        this.height
       );
     });
     bufStream.close();
