@@ -20,15 +20,12 @@ export type MsgExecuteContractWithHeight = MsgExecuteContract & { height: number
 export class SyncState {
   private simulateClient: SimulateCosmWasmClient;
   private stargateClient: StargateClient;
-  constructor(private senderAddress: string, private readonly rpc: string, private readonly downloadPath: string) {
+  constructor(private senderAddress: string, private readonly rpc: string, private downloadPath: string) {
     this.simulateClient = new SimulateCosmWasmClient({
       chainId: 'oraichain',
       bech32Prefix: 'orai',
       metering: true,
     });
-    if (!fs.existsSync(downloadPath)) {
-      fs.mkdirSync(downloadPath);
-    }
   }
 
   public async sync(
@@ -37,7 +34,14 @@ export class SyncState {
     customContractsToDownload: string[] = [],
     customWasmCodePaths: CustomWasmCodePaths = {}
   ) {
-    console.info('Start syncing at block ' + startHeight);
+    // update download path to be a directory with name as 'startHeight'
+    // this would help us re-run our tests based on different start heights -> fork states at different heights
+    this.downloadPath = path.join(this.downloadPath, startHeight.toString());
+    if (!fs.existsSync(this.downloadPath)) {
+      fs.mkdirSync(this.downloadPath);
+    }
+
+    console.info('Start forking at block ' + startHeight);
     await this.downloadContractStates(startHeight, customContractsToDownload, customWasmCodePaths);
 
     const txs = await this.searchTxs(startHeight, endHeight);
@@ -58,7 +62,8 @@ export class SyncState {
         await downloadState.saveState(contract);
       }
       const info = this.simulateClient.app.wasm.getContractInfo(contract);
-      if (!info)
+      if (!info) {
+        const customWasmCodeFound = fs.existsSync(customWasmCodePaths[contract]);
         // then try saving and loading state
         await downloadState.loadState(
           this.simulateClient,
@@ -66,8 +71,9 @@ export class SyncState {
           contract,
           contract,
           undefined,
-          customWasmCodePaths[contract]
+          customWasmCodeFound ? customWasmCodePaths[contract] : undefined
         );
+      }
     }
   }
 
