@@ -192,11 +192,12 @@ export class DownloadState {
     senderAddress: string,
     contractAddress: string,
     label: string,
-    data?: any
+    data?: any,
+    wasmCodePath?: string
   ) {
     const { codeId } = await client.upload(
       senderAddress,
-      Uint8Array.from(fs.readFileSync(path.join(this.downloadPath, contractAddress))),
+      Uint8Array.from(fs.readFileSync(wasmCodePath ?? path.join(this.downloadPath, contractAddress))),
       'auto'
     );
 

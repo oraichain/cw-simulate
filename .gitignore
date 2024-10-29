@@ -41,3 +41,5 @@ dist/**/*
 .yarnrc.yml
 
 .npmrc
+
+data/
