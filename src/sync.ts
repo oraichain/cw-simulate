@@ -9,6 +9,7 @@ import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 
 export type CustomWasmCodePaths = { [contractAddress: string]: string };
 export type MsgExecuteContractWithHeight = MsgExecuteContract & { height: number; hash: string };
+export type ChainConfig = { rpc: string; chainId: string; bech32Prefix: string };
 
 /**
  * SyncState starts at a custom height
@@ -20,14 +21,28 @@ export type MsgExecuteContractWithHeight = MsgExecuteContract & { height: number
 export class SyncState {
   private simulateClient: SimulateCosmWasmClient;
   private stargateClient: StargateClient;
-  constructor(private senderAddress: string, private readonly rpc: string, private downloadPath: string) {
+  /**
+   * 
+   * @param senderAddress admin of the contracts when loading contract states
+   * @param chainConfig basic chain info - rpc, chainId, bech32Prefix
+   * @param downloadPath path to store contract states. A new dir will be created matching the startHeight
+   */
+  constructor(private senderAddress: string, private readonly chainConfig: ChainConfig, private downloadPath: string) {
     this.simulateClient = new SimulateCosmWasmClient({
-      chainId: 'oraichain',
-      bech32Prefix: 'orai',
+      chainId: chainConfig.chainId,
+      bech32Prefix: chainConfig.bech32Prefix,
       metering: true,
     });
   }
 
+  /**
+   * Download contract states from start height, and apply cosmwasm txs from start height to end height
+   * @param startHeight start height to load contract states
+   * @param endHeight end height to load txs from start to end
+   * @param customContractsToDownload relevant contracts to download states
+   * @param customWasmCodePaths wasm code paths that will be applied when executing txs for testing
+   * @returns 
+   */
   public async sync(
     startHeight: number,
     endHeight: number,
@@ -56,7 +71,7 @@ export class SyncState {
     contractsToDownload: string[],
     customWasmCodePaths: CustomWasmCodePaths
   ) {
-    const downloadState = new DownloadState(this.rpc, this.downloadPath, height);
+    const downloadState = new DownloadState(this.chainConfig.rpc, this.downloadPath, height);
     for (const contract of contractsToDownload) {
       // if there's no already stored state path -> download state from height
       const statePath = path.join(this.downloadPath, `${contract}.state`);
@@ -81,7 +96,7 @@ export class SyncState {
 
   private async searchTxs(startHeight: number, endHeight: number, totalThreads: number = 4) {
     if (!this.stargateClient) {
-      this.stargateClient = await StargateClient.connect(this.rpc, { desiredHeight: startHeight });
+      this.stargateClient = await StargateClient.connect(this.chainConfig.rpc, { desiredHeight: startHeight });
     }
     const txSearchInstance = new TxSearch(this.stargateClient, {
       startHeight,

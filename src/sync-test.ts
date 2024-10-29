@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { SyncState } from './sync';
 import dotenv from 'dotenv';
+import { COSMOS_CHAIN_IDS, ORAI } from '@oraichain/common';
 dotenv.config();
 
 const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
@@ -8,7 +9,11 @@ const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
 (async () => {
   const startHeight = 36975366;
   const endHeight = 36975369;
-  const syncState = new SyncState(SENDER, process.env.RPC ?? 'https://rpc.orai.io', resolve(__dirname, '../', 'data'));
+  const syncState = new SyncState(
+    SENDER,
+    { rpc: process.env.RPC ?? 'https://rpc.orai.io', chainId: COSMOS_CHAIN_IDS.ORAICHAIN, bech32Prefix: ORAI },
+    resolve(__dirname, '../', 'data')
+  );
   const relatedContracts = [
     'orai12sxqkgsystjgd9faa48ghv3zmkfqc6qu05uy20mvv730vlzkpvls5zqxuz',
     'orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9',

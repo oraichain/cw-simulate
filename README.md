@@ -41,8 +41,9 @@ $ yarn add "@oraichain/cw-simulate" -D
 - You can now run `execute` and `query` messages against the instance, and they should work as expected.
 
 3. As needed:
-   - Mint, burn, set native balances for addresses
+   - Mint, burn, set native balances for addresses.
    - Create IBC channels and invoke IBC receive messages.
+   - Fork contract states at a given height, called A, and apply cosmwasm txs from height A to height B for testing and debugging.
 
 ## Examples
 
@@ -308,7 +309,7 @@ describe.only('BankModule', () => {
 
 ```ts
 import { DownloadState } from '@oraichain/cw-simulate';
-const downloadState = new DownloadState('https://lcd.orai.io', path.resolve(__dirname, 'data'));
+const downloadState = new DownloadState('https://rpc.orai.io', path.resolve(__dirname, 'data'));
 await downloadState.loadState(client, senderAddress, contractAddress, 'label');
 ```
 
