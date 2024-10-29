@@ -107,6 +107,8 @@ export class SyncState {
     let simulateResults: ExecuteResult[] = [];
 
     for (const msgExecute of msgExecuteContracts) {
+      // ignore txs that have the same startHeight since we already have their states stored
+      if (msgExecute.height === startheight) continue;
       console.log(`Executing tx ${msgExecute.hash} at height ${msgExecute.height}...`);
       // only execute if the contract has some info already
       const res = await this.simulateClient.execute(
