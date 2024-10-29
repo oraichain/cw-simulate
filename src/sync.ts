@@ -42,9 +42,11 @@ export class SyncState {
     }
 
     console.info('Start forking at block ' + startHeight);
-    await this.downloadContractStates(startHeight, customContractsToDownload, customWasmCodePaths);
 
-    const txs = await this.searchTxs(startHeight, endHeight);
+    const [_, txs] = await Promise.all([
+      this.downloadContractStates(startHeight, customContractsToDownload, customWasmCodePaths),
+      this.searchTxs(startHeight, endHeight),
+    ]);
     const results = await this.applyTxs(txs, startHeight, customWasmCodePaths);
     return { results, simulateClient: this.simulateClient, txs };
   }

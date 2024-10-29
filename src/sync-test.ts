@@ -6,7 +6,7 @@ dotenv.config();
 const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
 
 (async () => {
-  const startHeight = 36975365;
+  const startHeight = 36975366;
   const endHeight = 36975369;
   const syncState = new SyncState(SENDER, process.env.RPC ?? 'https://rpc.orai.io', resolve(__dirname, '../', 'data'));
   const relatedContracts = [
