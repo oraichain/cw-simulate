@@ -3,7 +3,6 @@ import fs from 'fs';
 import { compare, toNumber } from '@oraichain/cosmwasm-vm-js';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
 import { SortedMap } from '@oraichain/immutable';
-import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 
 export class BufferStream {
   private readonly fd: number;
@@ -12,12 +11,12 @@ export class BufferStream {
   constructor(private readonly filePath: string, append: boolean) {
     if (!append || !fs.existsSync(filePath)) {
       this.sizeBuf = Buffer.alloc(4);
-      fs.writeFileSync(filePath, Uint8Array.from(this.sizeBuf));
+      fs.writeFileSync(filePath, this.sizeBuf);
       this.fd = fs.openSync(filePath, 'r+');
     } else {
       this.fd = fs.openSync(filePath, 'r+');
       this.sizeBuf = Buffer.allocUnsafe(4);
-      fs.readSync(this.fd, Uint8Array.from(this.sizeBuf), 0, 4, 0);
+      fs.readSync(this.fd, this.sizeBuf, 0, 4, 0);
     }
   }
 
@@ -60,9 +59,9 @@ export class BufferStream {
     }
 
     // update size
-    fs.writeSync(this.fd, Uint8Array.from(this.sizeBuf), 0, 4, 0);
+    fs.writeSync(this.fd, this.sizeBuf, 0, 4, 0);
     // append item
-    fs.appendFileSync(this.filePath, Uint8Array.from(outputBuffer));
+    fs.appendFileSync(this.filePath, outputBuffer);
   }
 }
 
@@ -114,7 +113,7 @@ BufferCollection.prototype['@@__IMMUTABLE_KEYED__@@'] = true;
 
 // helper function
 const downloadState = async (
-  rpc: string,
+  lcd: string,
   contractAddress: string,
   writeCallback: Function,
   endCallback: Function,
@@ -123,41 +122,44 @@ const downloadState = async (
   height?: number
 ) => {
   let nextKey = startAfter;
-  const cosmwasmClient = await CosmWasmClient.connect(rpc, height);
+
+  let headers = new Headers();
+  if (height) headers.append('x-cosmos-block-height', height.toFixed());
 
   while (true) {
+    const url = new URL(`${lcd}/cosmwasm/wasm/v1/contract/${contractAddress}/state`);
+    url.searchParams.append('pagination.limit', limit.toString());
+    if (nextKey) {
+      url.searchParams.append('pagination.key', nextKey);
+      console.log('nextKey', nextKey);
+    }
     try {
-      const { models, pagination } = await cosmwasmClient.getAllContractState(
-        contractAddress,
-        nextKey ? Uint8Array.from(Buffer.from(nextKey, 'base64')) : undefined,
-        limit
-      );
+      const { models, pagination } = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(30000),
+        headers,
+      }).then(res => res.json());
       writeCallback(models);
-      console.log('next key: ', Buffer.from(pagination.nextKey).toString('base64'));
-      if (!pagination.nextKey || pagination.nextKey.length === 0) {
+      if (!(nextKey = pagination.next_key)) {
         return endCallback();
       }
-      const nextKeyResponse = Buffer.from(pagination.nextKey).toString('base64');
-      nextKey = nextKeyResponse;
     } catch (ex) {
-      console.log('ex downloading state: ', ex);
       await new Promise(r => setTimeout(r, 1000));
     }
   }
 };
 
 export class DownloadState {
-  constructor(public readonly rpc: string, public readonly downloadPath: string, public readonly height?: number) {}
+  constructor(public readonly lcd: string, public readonly downloadPath: string, public readonly height?: number) {}
 
   // if there is nextKey then append, otherwise insert
   async saveState(contractAddress: string, nextKey?: string) {
     const bufStream = new BufferStream(path.join(this.downloadPath, `${contractAddress}.state`), !!nextKey);
     await new Promise(resolve => {
       downloadState(
-        this.rpc,
+        this.lcd,
         contractAddress,
         (chunks: any) => {
-          const entries = chunks.map(({ key, value }) => [key, value]);
+          const entries = chunks.map(({ key, value }) => [Buffer.from(key, 'hex'), Buffer.from(value, 'base64')]);
           bufStream.write(entries);
         },
         resolve,
@@ -171,10 +173,11 @@ export class DownloadState {
     // check contract code
     const contractFile = path.join(this.downloadPath, contractAddress);
     if (!fs.existsSync(contractFile)) {
-      const client = await CosmWasmClient.connect(this.rpc, this.height);
-      const { codeId } = await client.getContract(contractAddress);
-      const { data } = await client.getCodeDetails(codeId);
-      fs.writeFileSync(contractFile, Uint8Array.from(data));
+      const {
+        contract_info: { code_id },
+      } = await fetch(`${this.lcd}/cosmwasm/wasm/v1/contract/${contractAddress}`).then(res => res.json());
+      const { data } = await fetch(`${this.lcd}/cosmwasm/wasm/v1/code/${code_id}`).then(res => res.json());
+      fs.writeFileSync(contractFile, Buffer.from(data, 'base64'));
     }
 
     console.log('done');
@@ -192,12 +195,11 @@ export class DownloadState {
     senderAddress: string,
     contractAddress: string,
     label: string,
-    data?: any,
-    wasmCodePath?: string
+    data?: any
   ) {
     const { codeId } = await client.upload(
       senderAddress,
-      Uint8Array.from(fs.readFileSync(wasmCodePath ?? path.join(this.downloadPath, contractAddress))),
+      fs.readFileSync(path.join(this.downloadPath, contractAddress)),
       'auto'
     );
 

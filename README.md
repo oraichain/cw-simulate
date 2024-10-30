@@ -41,8 +41,9 @@ $ yarn add "@oraichain/cw-simulate" -D
 - You can now run `execute` and `query` messages against the instance, and they should work as expected.
 
 3. As needed:
-   - Mint, burn, set native balances for addresses
+   - Mint, burn, set native balances for addresses.
    - Create IBC channels and invoke IBC receive messages.
+   - Fork contract states at a given height, called A, and apply cosmwasm txs from height A to height B for testing and debugging.
 
 ## Examples
 
@@ -308,9 +309,67 @@ describe.only('BankModule', () => {
 
 ```ts
 import { DownloadState } from '@oraichain/cw-simulate';
-const downloadState = new DownloadState('https://lcd.orai.io', path.resolve(__dirname, 'data'));
+const downloadState = new DownloadState('https://rpc.orai.io', path.resolve(__dirname, 'data'));
 await downloadState.loadState(client, senderAddress, contractAddress, 'label');
 ```
+
+### Fork contract states and apply production cosmwasm txs for testing and debugging
+
+Besides downloading production contract states, you can also download states from a custom chain height, called A and apply cosmwasm txs from height A to B. Instead of spending hours forking the entire chain, it only take a few seconds to replay your production transactions.
+
+Below is an example from a [demo file](./src/sync-test.ts) that demonstrates the power of cw-simulate:
+
+```ts
+import { resolve } from 'path';
+import { SyncState } from './sync';
+import dotenv from 'dotenv';
+import { COSMOS_CHAIN_IDS, ORAI } from '@oraichain/common';
+dotenv.config();
+
+const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
+
+(async () => {
+  const startHeight = 36975366;
+  const endHeight = 36975369;
+  const syncState = new SyncState(
+    SENDER,
+    { rpc: process.env.RPC ?? 'https://rpc.orai.io', chainId: COSMOS_CHAIN_IDS.ORAICHAIN, bech32Prefix: ORAI },
+    resolve(__dirname, '../', 'data')
+  );
+  const relatedContracts = [
+    'orai12sxqkgsystjgd9faa48ghv3zmkfqc6qu05uy20mvv730vlzkpvls5zqxuz',
+    'orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9',
+    'orai1rdykz2uuepxhkarar8ql5ajj5j37pq8h8d4zarvgx2s8pg0af37qucldna',
+    'orai1yglsm0u2x3xmct9kq3lxa654cshaxj9j5d9rw5enemkkkdjgzj7sr3gwt0',
+  ];
+
+  const customWasmCodePaths = {
+    orai12sxqkgsystjgd9faa48ghv3zmkfqc6qu05uy20mvv730vlzkpvls5zqxuz: resolve(
+      __dirname,
+      '../',
+      'data',
+      startHeight.toString(),
+      'cw-app-bitcoin.wasm'
+    ),
+  };
+
+  const { results, simulateClient } = await syncState.sync(
+    startHeight,
+    endHeight,
+    relatedContracts,
+    customWasmCodePaths
+  );
+  console.dir(results, { depth: null });
+})();
+```
+
+1. Firstly, we initialize a `SyncState` instance, passing several basic arguments, from contract admins, chain infos, and the location to store contract states.
+2. The next and final step is to call the `sync()` method, which allows us to fork and apply txs from `startheight` to `endHeight`. `relatedContracts` are a set of related contracts that are used during the syncing process. `customWasmCodePaths` is a Map, where `key` is the contract address, and `value` is the path to that contract's wasm code. If left empty, the contracts will use their wasm codes at `startHeight`
+3. `sync()` returns a list of tx results, and the `simulateClient`, which holds all contract states at `endHeight` after applying the txs.
+
+This is essentially a small-scaled fork, allowing developers to use their custom wasm codes to debug and gain more insights of what happened in the past.
+
+There's only one catch: you need an **archived node** to retrieve history states and txs. This requirement is understandable because without a node keeping old blocks and states, there's no way to retrieve them.
 
 ### Real test-suites for production-grade dApps
 
