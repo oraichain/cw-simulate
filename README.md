@@ -315,7 +315,7 @@ await downloadState.loadState(client, senderAddress, contractAddress, 'label');
 
 ### Fork contract states and apply production cosmwasm txs for testing and debugging
 
-Besides downloading production contract states, you can also download states from a custom chain height, called A and apply cosmwasm txs from height A to B. Instead of spending hours forking the entire chain, it only take a few seconds to replay your production transactions.
+Besides downloading production contract states, you can also download states from a custom chain height, called A, and apply cosmwasm txs from height A to B. Instead of spending hours forking the entire chain, it only takes a few seconds to replay your production transactions.
 
 Below is an example from a [demo file](./src/sync-test.ts) that demonstrates the power of cw-simulate:
 
