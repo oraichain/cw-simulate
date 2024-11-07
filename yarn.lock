@@ -1329,10 +1329,10 @@
     ethers "^5.5.1"
     lodash "^4.17.21"
 
-"@oraichain/cosmwasm-vm-js@^0.2.87":
-  version "0.2.87"
-  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.87.tgz#529ae52cb375dde20bd88fb47911c2e0c410c3a5"
-  integrity sha512-i/6ixC3U8Mfj7XyA7EZxvMX3iUlUWOsL3E9fuuiNpI9aD/D5v2feL/2MFKLT9849X2Kcwrxr7jl2PQlJShHKog==
+"@oraichain/cosmwasm-vm-js@^0.2.88":
+  version "0.2.88"
+  resolved "https://registry.yarnpkg.com/@oraichain/cosmwasm-vm-js/-/cosmwasm-vm-js-0.2.88.tgz#f80b3e318f9b5e17b4206048b9edb198254f9f2b"
+  integrity sha512-SvBTjDCFGnCViCJOMZGj0kqyLIs9Ql7qgegOGWvfIhmv73QPHSCfS0TifstJrRhaeox2ukCW9yBrsZ0P9BTJdg==
   dependencies:
     "@cosmjs/amino" "^0.31.0"
     "@cosmjs/crypto" "^0.31.0"
