@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { SigningCosmWasmClient, ExecuteResult, InstantiateOptions, InstantiateResult, JsonObject, UploadResult, DeliverTxResponse, Contract, CodeDetails, Code, ExecuteInstruction, MigrateResult } from '@cosmjs/cosmwasm-stargate';
 import { Account, SequenceResponse, Block } from '@cosmjs/stargate';
 import { CWSimulateApp, CWSimulateAppOptions } from './CWSimulateApp';

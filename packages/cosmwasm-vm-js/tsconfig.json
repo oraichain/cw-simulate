@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src",
+    "types",
+    "test/common/zkbackendApi.ts"
+  ],
+  "exclude": [
+    "/node_modules/",
+    "./src/**/*.spec.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "./"
+  }
+}
