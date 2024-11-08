@@ -1,6 +1,6 @@
 {
   "name": "@oraichain/cosmwasm-vm-js",
-  "version": "0.2.88",
+  "version": "0.2.89",
   "license": "MIT",
   "author": "TerranOne, Oraichain Labs",
   "main": "dist/index.js",
@@ -12,10 +12,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "deploy": "yarn publish --access public --patch",
     "build": "tsc --module commonjs && webpack --mode production",
-    "test": "jest",
-    "lint": "dts lint",
     "//degit:contracts": "cd contracts && npx degit CosmWasm/cosmwasm/contracts/hackatom#0.16 hackatom"
   },
   "prettier": {
