@@ -26,7 +26,6 @@ export const EDDSA_PUBKEY_LEN: number = 32;
 
 export class VMInstance {
   // default version
-  private _version: number = 8;
   public instance?: WebAssembly.Instance;
   public debugMsgs: string[] = [];
 
@@ -104,18 +103,6 @@ export class VMInstance {
 
     // init wasm instance
     this.instance = await WebAssembly.instantiate(mod, imports);
-
-    // support cosmwasm_vm_version_4 (v0.11.0 - v0.13.2)
-    if ('cosmwasm_vm_version_4' in this.instance.exports) {
-      this._version = 4;
-    } else {
-      for (const methodName in this.instance.exports) {
-        if (methodName.startsWith('interface_version_')) {
-          this._version = Number(methodName.substring(18));
-          break;
-        }
-      }
-    }
   }
 
   public set storageReadonly(value: boolean) {
@@ -178,10 +165,6 @@ export class VMInstance {
   public allocate_json(obj: object): Region {
     const str = JSON.stringify(obj);
     return this.allocate_str(str);
-  }
-
-  public get version(): number {
-    return this._version;
   }
 
   /// storage export will panic if error occurs
@@ -484,11 +467,6 @@ export class VMInstance {
 
     // old version following standard: [value,key,key.length]
     const keyBytes = toByteArray(record.key.length, 4);
-    if (this.version === 4) {
-      return this.allocate_bytes(
-        mergeUint8Array(record.value, record.key, keyBytes)
-      );
-    }
 
     // separate by 4 bytes [key,key.length,value,value.length]
     const valueBytes = toByteArray(record.value.length, 4);
@@ -817,8 +795,7 @@ export class VMInstance {
 
   // entrypoints
   public instantiate(env: Env, info: MessageInfo, msg: object): object {
-    const instantiate =
-      this.exports[this.version === 4 ? 'init' : 'instantiate'];
+    const { instantiate } = this.exports;
     const args = [env, info, msg].map((x) => this.allocate_json(x).ptr);
     this.storageReadonly = false;
     const result = instantiate(...args);
@@ -826,7 +803,7 @@ export class VMInstance {
   }
 
   public execute(env: Env, info: MessageInfo, msg: object): object {
-    const execute = this.exports[this.version === 4 ? 'handle' : 'execute'];
+    const { execute } = this.exports;
     const args = [env, info, msg].map((x) => this.allocate_json(x).ptr);
     this.storageReadonly = false;
     const result = execute(...args);
