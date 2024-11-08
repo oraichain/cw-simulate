@@ -29,13 +29,13 @@ yarn add @oraichain/cosmwasm-vm-js
 
 ```ts
 import { readFileSync } from 'fs';
-import { VMInstance } from '@oraichain/cosmwasm-vm-js';
 import {
+  VMInstance,
   BasicBackendApi,
   BasicKVIterStorage,
   BasicQuerier,
   IBackend,
-} from 'cosmwasm-vm-js/backend';
+} from '@oraichain/cosmwasm-vm-js';
 
 const wasmBytecode = readFileSync('testdata/cosmwasm_vm_test.wasm');
 const backend: IBackend = {
