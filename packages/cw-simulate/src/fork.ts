@@ -122,23 +122,18 @@ const downloadState = async (
   limit = 5000,
   height?: number
 ) => {
-  let nextKey = startAfter;
+  let nextKey = startAfter ? Uint8Array.from(Buffer.from(startAfter, 'base64')) : undefined;
   const cosmwasmClient = await CosmWasmClient.connect(rpc, height);
 
   while (true) {
     try {
-      const { models, pagination } = await cosmwasmClient.getAllContractState(
-        contractAddress,
-        nextKey ? Uint8Array.from(Buffer.from(nextKey, 'base64')) : undefined,
-        limit
-      );
+      const { models, pagination } = await cosmwasmClient.getAllContractState(contractAddress, nextKey, limit);
       writeCallback(models);
       console.log('next key: ', Buffer.from(pagination.nextKey).toString('base64'));
       if (!pagination.nextKey || pagination.nextKey.length === 0) {
         return endCallback();
       }
-      const nextKeyResponse = Buffer.from(pagination.nextKey).toString('base64');
-      nextKey = nextKeyResponse;
+      nextKey = pagination.nextKey;
     } catch (ex) {
       console.log('ex downloading state: ', ex);
       await new Promise(r => setTimeout(r, 1000));

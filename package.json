@@ -3,6 +3,7 @@
   "private": "true",
   "license": "MIT",
   "scripts": {
+    "deploy": "yarn publish --access public --patch",
     "docs": "typedoc --entryPointStrategy expand --readme README.md --name 'Cosmwasm Simulate SDK' packages/cw-simulate/src",
     "postinstall": "patch-package",
     "test": "jest",

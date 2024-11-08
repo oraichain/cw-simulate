@@ -49,9 +49,7 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "deploy": "yarn publish --access public --patch",
     "build": "tsc --module commonjs && webpack --mode production",
-    "test": "jest",
     "bench": "tsx bench/snapshot.ts",
     "format": "prettier --check ./src/**/*.ts",
     "format:fix": "prettier --write ./src/**/*.ts"
