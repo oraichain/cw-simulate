@@ -1,9 +1,10 @@
 import { toBase64 } from '@cosmjs/encoding';
 import fs from 'fs';
+import path from 'path';
 import { CWSimulateApp } from './CWSimulateApp';
 import * as persist from './persist';
 
-const bytecode = fs.readFileSync('./testing/cw_simulate_tests-aarch64.wasm');
+const bytecode = fs.readFileSync(path.resolve(__dirname, '..', 'testing', 'cw_simulate_tests-aarch64.wasm'));
 
 describe('de/serialize', () => {
   it('works', async () => {

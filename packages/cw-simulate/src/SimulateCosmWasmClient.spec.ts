@@ -1,10 +1,11 @@
 import { sha256 } from '@cosmjs/crypto';
 import { fromHex, toHex } from '@cosmjs/encoding';
 import fs from 'fs';
+import path from 'path';
 import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
 import { instantiate2Address } from '@cosmjs/cosmwasm-stargate';
 
-const bytecode = fs.readFileSync('./testing/hello_world-aarch64.wasm');
+const bytecode = fs.readFileSync(path.resolve(__dirname, '..', 'testing', 'hello_world-aarch64.wasm'));
 const sender = 'orai12zyu8w93h0q2lcnt50g3fn0w3yqnhy4fvawaqz';
 
 describe('SimulateCosmWasmClient', () => {
