@@ -1,0 +1,1 @@
+{"version":3,"file":"error.js","sourceRoot":"","sources":["../../../src/modules/wasm/error.ts"],"names":[],"mappings":";;;AAAA,2CAAqC;AAErC,MAAa,OAAQ,SAAQ,oBAAe;IAC1C,YAAY,GAAW;QACrB,KAAK,CAAC,YAAY,GAAG,EAAE,CAAC,CAAC;IAC3B,CAAC;CACF;AAJD,0BAIC;AAED,MAAa,qBAAsB,SAAQ,OAAO;IAChD,YAAY,eAAuB;QACjC,KAAK,CAAC,YAAY,eAAe,YAAY,CAAC,CAAC;IACjD,CAAC;CACF;AAJD,sDAIC"}

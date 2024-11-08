@@ -1,16 +1,9 @@
 {
-  "include": [
-    "src",
-    "types"
-  ],
-  "exclude": [
-    "/node_modules/",
-    "./src/**/*.spec.ts"
-  ],
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": false,
     "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "lib": [
       "ESNext",
@@ -25,14 +18,17 @@
     "noImplicitThis": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "outDir": "dist",
-    "rootDir": "src",
     "sourceMap": true,
-    "strict": true,
-    "strictFunctionTypes": true,
+    "strict": false,
+    "strictFunctionTypes": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "downlevelIteration": true,
     "target": "ESNext",
+  },
+  "typeAcquisition": {
+    "include": [
+      "jest"
+    ]
   }
 }

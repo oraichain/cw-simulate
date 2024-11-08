@@ -1,0 +1,1 @@
+{"version":3,"file":"error.d.ts","sourceRoot":"","sources":["../../../src/modules/wasm/error.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,qBAAa,OAAQ,SAAQ,OAAO,CAAC,MAAM,CAAC;gBAC9B,GAAG,EAAE,MAAM;CAGxB;AAED,qBAAa,qBAAsB,SAAQ,OAAO;gBACpC,eAAe,EAAE,MAAM;CAGpC"}
