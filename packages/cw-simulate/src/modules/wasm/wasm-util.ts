@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Sha256 } from '@cosmjs/crypto';
 import protobuf from 'protobufjs';
 import { ContractResponse, Event, writeUInt32BE } from '@oraichain/cosmwasm-vm-js';

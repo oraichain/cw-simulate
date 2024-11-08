@@ -18,6 +18,7 @@
     "@types/lodash": "^4.14.187",
     "benny": "^3.7.1",
     "buffer": "^6.0.3",
+    "bufferutil": "^4.0.8",
     "bytes": "^3.1.2",
     "dotenv": "^16.4.5",
     "jest": "^29.2.0",
@@ -27,7 +28,7 @@
     "prettier": "^2.7.1",
     "ts-loader": "^9.4.4",
     "tsconfig-paths-webpack-plugin": "^4.0.0",
-    "typedoc": "^0.25.4",
+    "utf-8-validate": "^6.0.5",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-node-externals": "^3.0.0"
@@ -53,8 +54,7 @@
     "test": "jest",
     "bench": "tsx bench/snapshot.ts",
     "format": "prettier --check ./src/**/*.ts",
-    "format:fix": "prettier --write ./src/**/*.ts",
-    "docs": "typedoc --entryPointStrategy expand --readme README.md --name 'Cosmwasm Simulate SDK' src"
+    "format:fix": "prettier --write ./src/**/*.ts"
   },
   "lint-staged": {
     "./src/**/*.ts": [

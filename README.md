@@ -55,7 +55,7 @@ Below are `cw-simulate` examples that simulate CosmWasm, bank, and IBC modules. 
 import { sha256 } from '@cosmjs/crypto';
 import { fromHex, toHex } from '@cosmjs/encoding';
 import fs from 'fs';
-import { SimulateCosmWasmClient } from './SimulateCosmWasmClient';
+import { SimulateCosmWasmClient } from '@oraichain/cw-simulate';
 import { instantiate2Address } from '@cosmjs/cosmwasm-stargate';
 
 // import the wasm bytecode
@@ -68,7 +68,7 @@ describe('SimulateCosmWasmClient', () => {
       const client = new SimulateCosmWasmClient({
         chainId: 'Oraichain',
         bech32Prefix: 'orai',
-        metering: true,
+        metering: true
       });
 
       // deploy
@@ -81,7 +81,7 @@ describe('SimulateCosmWasmClient', () => {
         sender,
         contractAddress,
         {
-          increment: {},
+          increment: {}
         },
         'auto'
       );
@@ -111,11 +111,11 @@ import { ibcDenom } from './ibc';
 
 const terraChain = new CWSimulateApp({
   chainId: 'test-1',
-  bech32Prefix: 'terra',
+  bech32Prefix: 'terra'
 });
 const oraiChain = new CWSimulateApp({
   chainId: 'Oraichain',
-  bech32Prefix: 'orai',
+  bech32Prefix: 'orai'
 });
 const oraiSenderAddress = 'orai1g4h64yjt0fvzv5v2j8tyfnpe5kmnetejvfgs7g';
 const bobAddress = 'orai1ur2vsjrjarygawpdwtqteaazfchvw4fg6uql76';
@@ -154,17 +154,17 @@ describe.only('IBCModule', () => {
         channel: {
           counterparty_endpoint: {
             port_id: oraiPort,
-            channel_id: 'channel-0',
+            channel_id: 'channel-0'
           },
           endpoint: {
             port_id: terraPort,
-            channel_id: 'channel-0',
+            channel_id: 'channel-0'
           },
           order: IbcOrder.Ordered,
           version: 'ibc-reflect-v1',
-          connection_id: 'connection-0',
-        },
-      },
+          connection_id: 'connection-0'
+        }
+      }
     });
     expect(channelOpenRes).toEqual({ version: 'ibc-reflect-v1' });
 
@@ -173,48 +173,48 @@ describe.only('IBCModule', () => {
         channel: {
           counterparty_endpoint: {
             port_id: oraiPort,
-            channel_id: 'channel-0',
+            channel_id: 'channel-0'
           },
           endpoint: {
             port_id: terraPort,
-            channel_id: 'channel-0',
+            channel_id: 'channel-0'
           },
           order: IbcOrder.Ordered,
           version: 'ibc-reflect-v1',
-          connection_id: 'connection-0',
+          connection_id: 'connection-0'
         },
-        counterparty_version: 'ibc-reflect-v1',
-      },
+        counterparty_version: 'ibc-reflect-v1'
+      }
     });
 
     expect(channelConnectRes.attributes).toEqual([
       { key: 'action', value: 'ibc_connect' },
-      { key: 'channel_id', value: 'channel-0' },
+      { key: 'channel_id', value: 'channel-0' }
     ]);
 
     // get reflect address
     let packetReceiveRes = await terraChain.ibc.sendPacketReceive({
       packet: {
         data: toBinary({
-          who_am_i: {},
+          who_am_i: {}
         }),
         src: {
           port_id: terraPort,
-          channel_id: 'channel-0',
+          channel_id: 'channel-0'
         },
         dest: {
           port_id: oraiPort,
-          channel_id: 'channel-0',
+          channel_id: 'channel-0'
         },
         sequence: terraChain.ibc.sequence++,
         timeout: {
           block: {
             revision: 1,
-            height: terraChain.height,
-          },
-        },
+            height: terraChain.height
+          }
+        }
       },
-      relayer: terraSenderAddress,
+      relayer: terraSenderAddress
     });
     const res = fromBinary(packetReceiveRes.acknowledgement) as { ok: { account: string } };
     const reflectContractAddress = res.ok.account;
@@ -232,30 +232,30 @@ describe.only('IBCModule', () => {
                 bank: {
                   send: {
                     to_address: bobAddress,
-                    amount: coins(123456789, 'orai'),
-                  },
-                },
-              },
-            ],
-          },
+                    amount: coins(123456789, 'orai')
+                  }
+                }
+              }
+            ]
+          }
         }),
         src: {
           port_id: terraPort,
-          channel_id: 'channel-0',
+          channel_id: 'channel-0'
         },
         dest: {
           port_id: oraiPort,
-          channel_id: 'channel-0',
+          channel_id: 'channel-0'
         },
         sequence: terraChain.ibc.sequence++,
         timeout: {
           block: {
             revision: 1,
-            height: terraChain.height,
-          },
-        },
+            height: terraChain.height
+          }
+        }
       },
-      relayer: terraSenderAddress,
+      relayer: terraSenderAddress
     });
   });
 });
@@ -281,7 +281,7 @@ describe.only('BankModule', () => {
   beforeEach(function () {
     chain = new CWSimulateApp({
       chainId: 'test-1',
-      bech32Prefix: 'terra',
+      bech32Prefix: 'terra'
     });
   });
 
@@ -299,7 +299,7 @@ describe.only('BankModule', () => {
     expect(bank.getBalance('bob')).toEqual([coin('foo', 100)]);
     expect(bank.getBalances()).toEqual({
       alice: [coin('foo', 900)],
-      bob: [coin('foo', 100)],
+      bob: [coin('foo', 100)]
     });
   });
 });
@@ -340,7 +340,7 @@ const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
     'orai12sxqkgsystjgd9faa48ghv3zmkfqc6qu05uy20mvv730vlzkpvls5zqxuz',
     'orai1wuvhex9xqs3r539mvc6mtm7n20fcj3qr2m0y9khx6n5vtlngfzes3k0rq9',
     'orai1rdykz2uuepxhkarar8ql5ajj5j37pq8h8d4zarvgx2s8pg0af37qucldna',
-    'orai1yglsm0u2x3xmct9kq3lxa654cshaxj9j5d9rw5enemkkkdjgzj7sr3gwt0',
+    'orai1yglsm0u2x3xmct9kq3lxa654cshaxj9j5d9rw5enemkkkdjgzj7sr3gwt0'
   ];
 
   const customWasmCodePaths = {
@@ -350,7 +350,7 @@ const SENDER = 'orai1hvr9d72r5um9lvt0rpkd4r75vrsqtw6yujhqs2';
       'data',
       startHeight.toString(),
       'cw-app-bitcoin.wasm'
-    ),
+    )
   };
 
   const { results, simulateClient } = await syncState.sync(

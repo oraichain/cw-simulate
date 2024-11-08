@@ -29,7 +29,6 @@ export const isTSResult = <T = unknown, E = string>(value: any): value is Result
 
 export const getTransactionHash = (height: number, data: any, encoding?: BufferEncoding) => {
   const buf = Buffer.from(JSON.stringify({ data, height }), encoding);
-  // @ts-ignore
   return toHex(sha256(buf));
 };
 
