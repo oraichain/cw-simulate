@@ -5,9 +5,7 @@
   "scripts": {
     "postinstall": "patch-package",
     "test": "jest",
-    "clean": "lerna clean --yes && lerna exec -- rimraf build/ dist/ cache/",
-    "build": "lerna run build --scope @oraichain/cw-simulate --scope @oraichain/cosmwasm-vm-js --concurrency 1",
-    "build-tsc": "tsc -p"
+    "build": "lerna run build"
   },
   "workspaces": [
     "packages/*"
