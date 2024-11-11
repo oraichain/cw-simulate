@@ -117,7 +117,6 @@ const downloadState = async (
   rpc: string,
   contractAddress: string,
   writeCallback: Function,
-  endCallback: Function,
   startAfter?: string,
   limit = 5000,
   height?: number
@@ -131,7 +130,7 @@ const downloadState = async (
       writeCallback(models);
       console.log('next key: ', Buffer.from(pagination.nextKey).toString('base64'));
       if (!pagination.nextKey || pagination.nextKey.length === 0) {
-        return endCallback();
+        return;
       }
       nextKey = pagination.nextKey;
     } catch (ex) {
@@ -147,20 +146,18 @@ export class DownloadState {
   // if there is nextKey then append, otherwise insert
   async saveState(contractAddress: string, nextKey?: string) {
     const bufStream = new BufferStream(path.join(this.downloadPath, `${contractAddress}.state`), !!nextKey);
-    await new Promise(resolve => {
-      downloadState(
-        this.rpc,
-        contractAddress,
-        (chunks: any) => {
-          const entries = chunks.map(({ key, value }) => [key, value]);
-          bufStream.write(entries);
-        },
-        resolve,
-        nextKey,
-        undefined,
-        this.height
-      );
-    });
+    await downloadState(
+      this.rpc,
+      contractAddress,
+      (chunks: any) => {
+        const entries = chunks.map(({ key, value }) => [key, value]);
+        bufStream.write(entries);
+      },
+      nextKey,
+      undefined,
+      this.height
+    );
+
     bufStream.close();
 
     // check contract code
