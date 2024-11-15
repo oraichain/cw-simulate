@@ -39,7 +39,7 @@ index ea25080..d072599 100644
          request: async (service, method, data) => {
              const path = `/${service}/${method}`;            
 -            const response = await base.queryAbci(path, data, undefined);
-+            const response = await base.queryAbci(path, data, base.tmClient.desiredHeight);
++            const response = await base.queryAbci(path, data, base.cometClient.desiredHeight);
              return response.value;
          },
      };
