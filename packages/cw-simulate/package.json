@@ -1,6 +1,6 @@
 {
   "name": "@oraichain/cw-simulate",
-  "version": "2.8.103",
+  "version": "2.8.104",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
   "main": "dist/index.js",
   "files": [
@@ -34,14 +34,14 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.31.3",
-    "@cosmjs/cosmwasm-stargate": "^0.31.3",
-    "@cosmjs/crypto": "^0.31.3",
-    "@cosmjs/encoding": "^0.31.3",
-    "@cosmjs/stargate": "^0.31.3",
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/cosmwasm-stargate": "^0.32.4",
+    "@cosmjs/crypto": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
     "@kiruse/serde": "^0.8.0-rc.6",
-    "@oraichain/common": "^1.1.1",
-    "@oraichain/cosmwasm-vm-js": "^0.2.88",
+    "@oraichain/common": "^1.2.0",
+    "@oraichain/cosmwasm-vm-js": "^0.2.91",
     "eventemitter3": "^5.0.0",
     "protobufjs": "^7.2.3",
     "ts-results": "^3.3.0",
