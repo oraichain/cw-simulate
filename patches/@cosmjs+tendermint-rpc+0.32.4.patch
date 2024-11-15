@@ -1,5 +1,67 @@
+diff --git a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.d.ts b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.d.ts
+index 8bb60f9..2171297 100644
+--- a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.d.ts
++++ b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.d.ts
+@@ -8,11 +8,11 @@ export declare class Comet38Client {
+      *
+      * Uses HTTP when the URL schema is http or https. Uses WebSockets otherwise.
+      */
+-    static connect(endpoint: string | HttpEndpoint): Promise<Comet38Client>;
++    static connect(endpoint: string | HttpEndpoint, desiredHeight?: number): Promise<Comet38Client>;
+     /**
+      * Creates a new Tendermint client given an RPC client.
+      */
+-    static create(rpcClient: RpcClient): Promise<Comet38Client>;
++    static create(rpcClient: RpcClient, desiredHeight?: number): Promise<Comet38Client>;
+     private static detectVersion;
+     private readonly client;
+     /**
+@@ -84,4 +84,5 @@ export declare class Comet38Client {
+     validatorsAll(height?: number): Promise<responses.ValidatorsResponse>;
+     private doCall;
+     private subscribe;
++    public desiredHeight: number;
+ }
+diff --git a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
+index 287e8da..e0d7b1c 100644
+--- a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
++++ b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
+@@ -34,7 +34,7 @@ class Comet38Client {
+      *
+      * Uses HTTP when the URL schema is http or https. Uses WebSockets otherwise.
+      */
+-    static async connect(endpoint) {
++    static async connect(endpoint, desiredHeight) {
+         let rpcClient;
+         if (typeof endpoint === "object") {
+             rpcClient = new rpcclients_1.HttpClient(endpoint);
+@@ -48,13 +48,13 @@ class Comet38Client {
+         // while did not help. Thus we query the version as a way to say "hi" to the backend,
+         // even in cases where we don't use the result.
+         const _version = await this.detectVersion(rpcClient);
+-        return Comet38Client.create(rpcClient);
++        return Comet38Client.create(rpcClient, desiredHeight);
+     }
+     /**
+      * Creates a new Tendermint client given an RPC client.
+      */
+-    static async create(rpcClient) {
+-        return new Comet38Client(rpcClient);
++    static async create(rpcClient, desiredHeight) {
++        return new Comet38Client(rpcClient, desiredHeight);
+     }
+     static async detectVersion(client) {
+         const req = (0, jsonrpc_1.createJsonRpcRequest)(requests.Method.Status);
+@@ -74,6 +74,7 @@ class Comet38Client {
+      */
+     constructor(client) {
+         this.client = client;
++        this.desiredHeight = desiredHeight;
+     }
+     disconnect() {
+         this.client.disconnect();
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.d.ts b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.d.ts
-index 533ef38..925fcf6 100644
+index a3e5b4f..a601485 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.d.ts
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.d.ts
 @@ -8,11 +8,11 @@ export declare class Tendermint34Client {
@@ -15,15 +77,15 @@ index 533ef38..925fcf6 100644
 +    static create(rpcClient: RpcClient, desiredHeight?: number): Promise<Tendermint34Client>;
      private static detectVersion;
      private readonly client;
-     private readonly p;
-@@ -86,4 +86,5 @@ export declare class Tendermint34Client {
+     /**
+@@ -84,4 +84,5 @@ export declare class Tendermint34Client {
      validatorsAll(height?: number): Promise<responses.ValidatorsResponse>;
      private doCall;
      private subscribe;
 +    public desiredHeight: number;
  }
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
-index f822f39..3ab5384 100644
+index f3f10bb..ee4ec0f 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
 @@ -34,7 +34,7 @@ class Tendermint34Client {
@@ -52,21 +114,16 @@ index f822f39..3ab5384 100644
      }
      static async detectVersion(client) {
          const req = (0, jsonrpc_1.createJsonRpcRequest)(requests.Method.Status);
-@@ -72,10 +72,11 @@ class Tendermint34Client {
-     /**
-      * Use `Tendermint34Client.connect` or `Tendermint34Client.create` to create an instance.
+@@ -74,6 +74,7 @@ class Tendermint34Client {
       */
--    constructor(client) {
-+    constructor(client, desiredHeight) {
+     constructor(client) {
          this.client = client;
-         this.p = adaptor_1.adaptor34.params;
-         this.r = adaptor_1.adaptor34.responses;
 +        this.desiredHeight = desiredHeight;
      }
      disconnect() {
          this.client.disconnect();
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.d.ts b/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.d.ts
-index 3752168..c9b8043 100644
+index fced68d..30c1a01 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.d.ts
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.d.ts
 @@ -8,11 +8,11 @@ export declare class Tendermint37Client {
@@ -82,15 +139,15 @@ index 3752168..c9b8043 100644
 +    static create(rpcClient: RpcClient, desiredHeight?: number): Promise<Tendermint37Client>;
      private static detectVersion;
      private readonly client;
-     private readonly p;
-@@ -86,4 +86,5 @@ export declare class Tendermint37Client {
+     /**
+@@ -84,4 +84,5 @@ export declare class Tendermint37Client {
      validatorsAll(height?: number): Promise<responses.ValidatorsResponse>;
      private doCall;
      private subscribe;
 +    public desiredHeight: number;
  }
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.js b/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.js
-index 8f78cc6..892c417 100644
+index 9e7153a..73c0f4d 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.js
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermint37/tendermint37client.js
 @@ -34,7 +34,7 @@ class Tendermint37Client {
@@ -119,16 +176,55 @@ index 8f78cc6..892c417 100644
      }
      static async detectVersion(client) {
          const req = (0, jsonrpc_1.createJsonRpcRequest)(requests.Method.Status);
-@@ -72,10 +72,11 @@ class Tendermint37Client {
+@@ -72,8 +72,9 @@ class Tendermint37Client {
      /**
       * Use `Tendermint37Client.connect` or `Tendermint37Client.create` to create an instance.
       */
 -    constructor(client) {
 +    constructor(client, desiredHeight) {
          this.client = client;
-         this.p = adaptor_1.adaptor37.params;
-         this.r = adaptor_1.adaptor37.responses;
-+        this.desiredHeight = desiredHeight
++        this.desiredHeight = desiredHeight;
      }
      disconnect() {
          this.client.disconnect();
+diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.d.ts b/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.d.ts
+index 85feca5..f55e1e2 100644
+--- a/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.d.ts
++++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.d.ts
+@@ -16,4 +16,4 @@ export declare function isComet38Client(client: CometClient): client is Comet38C
+ /**
+  * Auto-detects the version of the backend and uses a suitable client.
+  */
+-export declare function connectComet(endpoint: string | HttpEndpoint): Promise<CometClient>;
++export declare function connectComet(endpoint: string | HttpEndpoint, desiredHeight?: number): Promise<CometClient>;
+diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.js b/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.js
+index 257b104..eec0515 100644
+--- a/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.js
++++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermintclient.js
+@@ -19,22 +19,22 @@ exports.isComet38Client = isComet38Client;
+ /**
+  * Auto-detects the version of the backend and uses a suitable client.
+  */
+-async function connectComet(endpoint) {
++async function connectComet(endpoint, desiredHeight) {
+     // Tendermint/CometBFT 0.34/0.37/0.38 auto-detection. Starting with 0.37 we seem to get reliable versions again 🎉
+     // Using 0.34 as the fallback.
+     let out;
+-    const tm37Client = await tendermint37_1.Tendermint37Client.connect(endpoint);
++    const tm37Client = await tendermint37_1.Tendermint37Client.connect(endpoint, desiredHeight);
+     const version = (await tm37Client.status()).nodeInfo.version;
+     if (version.startsWith("0.37.")) {
+         out = tm37Client;
+     }
+     else if (version.startsWith("0.38.")) {
+         tm37Client.disconnect();
+-        out = await comet38_1.Comet38Client.connect(endpoint);
++        out = await comet38_1.Comet38Client.connect(endpoint, desiredHeight);
+     }
+     else {
+         tm37Client.disconnect();
+-        out = await tendermint34_1.Tendermint34Client.connect(endpoint);
++        out = await tendermint34_1.Tendermint34Client.connect(endpoint, desiredHeight);
+     }
+     return out;
+ }

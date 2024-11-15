@@ -153,8 +153,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       transactionHash: getTransactionHash(this.app.height, res),
       events: [],
       rawLog: typeof res.val === 'string' ? res.val : undefined,
-      gasUsed: 66_000,
-      gasWanted: this.app.gasLimit,
+      gasUsed: 66_000n,
+      gasWanted: BigInt(this.app.gasLimit),
       msgResponses: [], // for cosmos sdk < 0.46
     });
   }
@@ -178,8 +178,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, checksum),
       events: [],
-      gasWanted: this.app.gasLimit,
-      gasUsed: wasmCode.length * 10,
+      gasWanted: BigInt(this.app.gasLimit),
+      gasUsed: BigInt(wasmCode.length * 10),
     });
   }
 
@@ -216,8 +216,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
-      gasWanted: this.app.gasLimit,
-      gasUsed: this.app.gasUsed - contractGasUsed,
+      gasWanted: BigInt(this.app.gasLimit),
+      gasUsed: BigInt(this.app.gasUsed - contractGasUsed),
     };
   }
 
@@ -280,8 +280,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, results),
       events,
-      gasWanted: this.app.gasLimit,
-      gasUsed: this.app.gasUsed - contractGasUsed,
+      gasWanted: BigInt(this.app.gasLimit),
+      gasUsed: BigInt(this.app.gasUsed - contractGasUsed),
     };
   }
 
@@ -337,8 +337,8 @@ export class SimulateCosmWasmClient extends SigningCosmWasmClient {
       height: this.app.height,
       transactionHash: getTransactionHash(this.app.height, result),
       events: result.val.events,
-      gasWanted: this.app.gasLimit,
-      gasUsed: this.app.gasUsed - contractGasUsed,
+      gasWanted: BigInt(this.app.gasLimit),
+      gasUsed: BigInt(this.app.gasUsed - contractGasUsed),
     };
   }
 

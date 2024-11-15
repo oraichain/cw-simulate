@@ -1,0 +1,85 @@
+diff --git a/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts b/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
+index ec5b471..74f959b 100644
+--- a/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
++++ b/node_modules/@cosmjs/stargate/build/queryclient/utils.d.ts
+@@ -14,7 +14,7 @@ export declare function toAccAddress(address: string): Uint8Array;
+  * Use this with a query response's pagination next key to
+  * request the next page.
+  */
+-export declare function createPagination(paginationKey?: Uint8Array): PageRequest;
++export declare function createPagination(paginationKey?: Uint8Array, limit?: number): PageRequest;
+ export interface ProtobufRpcClient {
+     request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
+ }
+diff --git a/node_modules/@cosmjs/stargate/build/queryclient/utils.js b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
+index ea25080..d072599 100644
+--- a/node_modules/@cosmjs/stargate/build/queryclient/utils.js
++++ b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
+@@ -4,6 +4,8 @@ exports.decodeCosmosSdkDecFromProto = exports.longify = exports.createProtobufRp
+ const encoding_1 = require("@cosmjs/encoding");
+ const math_1 = require("@cosmjs/math");
+ const pagination_1 = require("cosmjs-types/cosmos/base/query/v1beta1/pagination");
++const long_1 = __importDefault(require("long"));
++
+ /**
+  * Takes a bech32 encoded address and returns the data part. The prefix is ignored and discarded.
+  * This is called AccAddress in Cosmos SDK, which is basically an alias for raw binary data.
+@@ -20,15 +22,15 @@ exports.toAccAddress = toAccAddress;
+  * Use this with a query response's pagination next key to
+  * request the next page.
+  */
+-function createPagination(paginationKey) {
+-    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey }) : pagination_1.PageRequest.fromPartial({});
++function createPagination(paginationKey, limit) {
++    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey, limit: long_1.default.fromInt(limit) }) : pagination_1.PageRequest.fromPartial({});
+ }
+ exports.createPagination = createPagination;
+ function createProtobufRpcClient(base) {
+     return {
+         request: async (service, method, data) => {
+             const path = `/${service}/${method}`;            
+-            const response = await base.queryAbci(path, data, undefined);
++            const response = await base.queryAbci(path, data, base.tmClient.desiredHeight);
+             return response.value;
+         },
+     };
+diff --git a/node_modules/@cosmjs/stargate/build/stargateclient.d.ts b/node_modules/@cosmjs/stargate/build/stargateclient.d.ts
+index f4fd645..0119efc 100644
+--- a/node_modules/@cosmjs/stargate/build/stargateclient.d.ts
++++ b/node_modules/@cosmjs/stargate/build/stargateclient.d.ts
+@@ -143,6 +143,7 @@ export interface PrivateStargateClient {
+ }
+ export interface StargateClientOptions {
+     readonly accountParser?: AccountParser;
++    readonly desiredHeight?: number;
+ }
+ export declare class StargateClient {
+     private readonly cometClient;
+diff --git a/node_modules/@cosmjs/stargate/build/stargateclient.js b/node_modules/@cosmjs/stargate/build/stargateclient.js
+index a6da130..f162df0 100644
+--- a/node_modules/@cosmjs/stargate/build/stargateclient.js
++++ b/node_modules/@cosmjs/stargate/build/stargateclient.js
+@@ -68,7 +68,7 @@ class StargateClient {
+      * To set the Comet client explicitly, use `create`.
+      */
+     static async connect(endpoint, options = {}) {
+-        const cometClient = await (0, tendermint_rpc_1.connectComet)(endpoint);
++        const cometClient = await (0, tendermint_rpc_1.connectComet)(endpoint, options.desiredHeight);
+         return StargateClient.create(cometClient, options);
+     }
+     /**
+@@ -297,13 +297,12 @@ class StargateClient {
+         return results.txs.map((tx) => {
+             const txMsgData = abci_1.TxMsgData.decode(tx.result.data ?? new Uint8Array());
+             return {
+-                height: tx.height,
++                ...tx,                
+                 txIndex: tx.index,
+                 hash: (0, encoding_1.toHex)(tx.hash).toUpperCase(),
+                 code: tx.result.code,
+                 events: tx.result.events.map(events_1.fromTendermintEvent),
+                 rawLog: tx.result.log || "",                
+-                tx: tx.tx,
+                 msgResponses: txMsgData.msgResponses,
+                 gasUsed: tx.result.gasUsed,
+                 gasWanted: tx.result.gasWanted,
