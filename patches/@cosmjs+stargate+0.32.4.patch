@@ -12,32 +12,31 @@ index ec5b471..74f959b 100644
      request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
  }
 diff --git a/node_modules/@cosmjs/stargate/build/queryclient/utils.js b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
-index ea25080..d072599 100644
+index ea25080..c65c89c 100644
 --- a/node_modules/@cosmjs/stargate/build/queryclient/utils.js
 +++ b/node_modules/@cosmjs/stargate/build/queryclient/utils.js
-@@ -4,6 +4,8 @@ exports.decodeCosmosSdkDecFromProto = exports.longify = exports.createProtobufRp
+@@ -4,6 +4,7 @@ exports.decodeCosmosSdkDecFromProto = exports.longify = exports.createProtobufRp
  const encoding_1 = require("@cosmjs/encoding");
  const math_1 = require("@cosmjs/math");
  const pagination_1 = require("cosmjs-types/cosmos/base/query/v1beta1/pagination");
-+const long_1 = __importDefault(require("long"));
 +
  /**
   * Takes a bech32 encoded address and returns the data part. The prefix is ignored and discarded.
   * This is called AccAddress in Cosmos SDK, which is basically an alias for raw binary data.
-@@ -20,15 +22,15 @@ exports.toAccAddress = toAccAddress;
+@@ -20,15 +21,15 @@ exports.toAccAddress = toAccAddress;
   * Use this with a query response's pagination next key to
   * request the next page.
   */
 -function createPagination(paginationKey) {
 -    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey }) : pagination_1.PageRequest.fromPartial({});
 +function createPagination(paginationKey, limit) {
-+    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey, limit: long_1.default.fromInt(limit) }) : pagination_1.PageRequest.fromPartial({});
++    return paginationKey ? pagination_1.PageRequest.fromPartial({ key: paginationKey, limit }) : pagination_1.PageRequest.fromPartial({});
  }
  exports.createPagination = createPagination;
  function createProtobufRpcClient(base) {
      return {
          request: async (service, method, data) => {
-             const path = `/${service}/${method}`;            
+             const path = `/${service}/${method}`;
 -            const response = await base.queryAbci(path, data, undefined);
 +            const response = await base.queryAbci(path, data, base.cometClient.desiredHeight);
              return response.value;
@@ -56,7 +55,7 @@ index f4fd645..0119efc 100644
  export declare class StargateClient {
      private readonly cometClient;
 diff --git a/node_modules/@cosmjs/stargate/build/stargateclient.js b/node_modules/@cosmjs/stargate/build/stargateclient.js
-index a6da130..f162df0 100644
+index a6da130..bac8278 100644
 --- a/node_modules/@cosmjs/stargate/build/stargateclient.js
 +++ b/node_modules/@cosmjs/stargate/build/stargateclient.js
 @@ -68,7 +68,7 @@ class StargateClient {
@@ -78,7 +77,7 @@ index a6da130..f162df0 100644
                  hash: (0, encoding_1.toHex)(tx.hash).toUpperCase(),
                  code: tx.result.code,
                  events: tx.result.events.map(events_1.fromTendermintEvent),
-                 rawLog: tx.result.log || "",                
+                 rawLog: tx.result.log || "",
 -                tx: tx.tx,
                  msgResponses: txMsgData.msgResponses,
                  gasUsed: tx.result.gasUsed,
