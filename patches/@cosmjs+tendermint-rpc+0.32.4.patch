@@ -23,7 +23,7 @@ index 8bb60f9..2171297 100644
 +    public desiredHeight: number;
  }
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
-index 287e8da..e0d7b1c 100644
+index 287e8da..94ec741 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/comet38/comet38client.js
 @@ -34,7 +34,7 @@ class Comet38Client {
@@ -52,9 +52,12 @@ index 287e8da..e0d7b1c 100644
      }
      static async detectVersion(client) {
          const req = (0, jsonrpc_1.createJsonRpcRequest)(requests.Method.Status);
-@@ -74,6 +74,7 @@ class Comet38Client {
+@@ -72,8 +72,9 @@ class Comet38Client {
+     /**
+      * Use `Tendermint37Client.connect` or `Tendermint37Client.create` to create an instance.
       */
-     constructor(client) {
+-    constructor(client) {
++    constructor(client, desiredHeight) {
          this.client = client;
 +        this.desiredHeight = desiredHeight;
      }
@@ -85,7 +88,7 @@ index a3e5b4f..a601485 100644
 +    public desiredHeight: number;
  }
 diff --git a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
-index f3f10bb..ee4ec0f 100644
+index f3f10bb..c0be123 100644
 --- a/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
 +++ b/node_modules/@cosmjs/tendermint-rpc/build/tendermint34/tendermint34client.js
 @@ -34,7 +34,7 @@ class Tendermint34Client {
@@ -114,9 +117,12 @@ index f3f10bb..ee4ec0f 100644
      }
      static async detectVersion(client) {
          const req = (0, jsonrpc_1.createJsonRpcRequest)(requests.Method.Status);
-@@ -74,6 +74,7 @@ class Tendermint34Client {
+@@ -72,8 +72,9 @@ class Tendermint34Client {
+     /**
+      * Use `Tendermint34Client.connect` or `Tendermint34Client.create` to create an instance.
       */
-     constructor(client) {
+-    constructor(client) {
++    constructor(client, desiredHeight) {
          this.client = client;
 +        this.desiredHeight = desiredHeight;
      }
