@@ -1,11 +1,10 @@
 {
   "name": "@oraichain/cw-simulate",
-  "version": "2.8.109",
+  "version": "2.8.110",
   "description": "Mock blockchain environment for simulating CosmWasm interactions",
   "main": "dist/index.js",
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
   "engines": {
     "node": ">=18"
