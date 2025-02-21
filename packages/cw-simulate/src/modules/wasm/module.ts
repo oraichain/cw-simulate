@@ -185,6 +185,12 @@ export class WasmModule {
     return this.contracts[address]!;
   }
 
+  // Recreate new WasmAssembly Instance to force clear region allocation
+  public async resetContract(address: string) {
+    this.contracts[address] = new Contract(this, address);
+    await this.contracts[address].init();
+  }
+
   getContracts(): Contract[] {
     return Object.values(this.contracts);
   }
